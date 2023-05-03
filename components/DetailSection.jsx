@@ -5,19 +5,24 @@ import {useEffect, useState} from "react";
 import {IoIosArrowUp} from "react-icons/io";
 import DetailHeader from "@/components/DetailHeader";
 
-export default function DetailSection({map}){
+export default function DetailSection({map,searchFlag,searchFlagFun}){
     const [expanded, setExpanded] = useState(false)
     const [touchStart, setTouchStart] = useState(null)
     const [touchEnd, setTouchEnd] = useState(null)
-    const [expandedFlag, setExpandedFlag] = useState(false)
 
     const onClickArrow = ()=>{
         setExpanded(!expanded)
     }
 
     useEffect(()=>{
-        setExpanded(expandedFlag)
-    },[expandedFlag])
+        setExpanded(expanded)
+        searchFlagFun(expanded)
+    },[expanded])
+
+    useEffect(()=>{
+        setExpanded(searchFlag);
+    },[searchFlag])
+
 
 
 // the required distance between touchStart and touchEnd to be detected as a swipe
@@ -36,9 +41,9 @@ export default function DetailSection({map}){
         const isTopSwipe = distance > minSwipeDistance
         const isBottomSwipe = distance < -minSwipeDistance
         if (isTopSwipe){
-            setExpandedFlag(true)
+            setExpanded(true)
         }else if(isBottomSwipe){
-            setExpandedFlag(false)
+            setExpanded(false)
         }
     }
 

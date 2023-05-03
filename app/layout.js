@@ -1,8 +1,6 @@
-'use client'
 import './globals.scss'
 import { Inter } from 'next/font/google'
-import Header from "@/components/Header";
-import {useState} from "react";
+import MainComponents from "@/components/MainComponents";
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -12,18 +10,11 @@ export const metadata = {
 }
 
 export default function RootLayout({ children }) {
-  const [str, setStr] = useState();
-  const searchWord = (x)=>{
-    x?setStr(x):null;
-  }
   return (
     <html lang="en">
     <body className={inter.className}>
-        <Header
-            searchWord={searchWord}
-        />
-        {children}
-      </body>
+      {children}
+    </body>
     </html>
   )
 }
