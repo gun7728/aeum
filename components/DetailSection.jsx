@@ -1,16 +1,20 @@
 'use client'
 
 import styles from '../styles/detail.module.scss'
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {IoIosArrowUp} from "react-icons/io";
 import DetailHeader from "@/components/DetailHeader";
 
-export default function DetailSection({map}){
+export default function DetailSection({map, expandedFlag}){
     const [expanded, setExpanded] = useState(false)
 
     const onClickArrow = ()=>{
         setExpanded(!expanded)
     }
+
+    useEffect(()=>{
+        setExpanded(expandedFlag)
+    },[expandedFlag])
 
     return(
         <div
