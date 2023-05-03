@@ -1,4 +1,4 @@
-$header-height: 60px;
+$header-height: 100px;
 $section-padding-top: 8px;
 
 .detailSection {
@@ -28,7 +28,7 @@ $section-padding-top: 8px;
     transform: translateY(calc(100% - 160px));
   }
   &.expanded {
-    transform: translateY(0);
+    transform: translateY(58px);
   }
 }
 

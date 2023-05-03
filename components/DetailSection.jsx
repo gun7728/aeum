@@ -2,9 +2,10 @@
 
 import styles from '../styles/detail.module.scss'
 import {useState} from "react";
-import {IoIosArrowUp} from "react-icons/all";
+import {IoIosArrowUp} from "react-icons/io";
+import DetailHeader from "@/components/DetailHeader";
 
-export default function DetailSection(){
+export default function DetailSection({map}){
     const [expanded, setExpanded] = useState(false)
 
     const onClickArrow = ()=>{
@@ -24,11 +25,13 @@ export default function DetailSection(){
                 >
                     <IoIosArrowUp size={20} color="#666666" />
                 </button>
-                {/*<DetailHeader*/}
-                {/*    currentStore={currentStore}*/}
-                {/*    expanded={expanded}*/}
-                {/*    onClickArrow={() => setExpanded(!expanded)}*/}
-                {/*/>*/}
+                <DetailHeader
+                    map={map}
+                    // currentStore={currentStore}
+                    expanded={expanded}
+                    onClickArrow={() => setExpanded(!expanded)}
+                />
+                <br/>
                 {/*<DetailContent currentStore={currentStore} expanded={expanded} />*/}
             </div>
         </div>
