@@ -5,8 +5,11 @@ import {useEffect, useState} from "react";
 import {IoIosArrowUp} from "react-icons/io";
 import DetailHeader from "@/components/DetailHeader";
 
-export default function DetailSection({map, expandedFlag}){
+export default function DetailSection({map}){
     const [expanded, setExpanded] = useState(false)
+    const [touchStart, setTouchStart] = useState(null)
+    const [touchEnd, setTouchEnd] = useState(null)
+    const [expandedFlag, setExpandedFlag] = useState(false)
 
     const onClickArrow = ()=>{
         setExpanded(!expanded)
@@ -16,8 +19,34 @@ export default function DetailSection({map, expandedFlag}){
         setExpanded(expandedFlag)
     },[expandedFlag])
 
+
+// the required distance between touchStart and touchEnd to be detected as a swipe
+    const minSwipeDistance = 50
+
+    const onTouchStart = (e) => {
+        setTouchEnd(null) // otherwise the swipe is fired even with usual touch events
+        setTouchStart(e.targetTouches[0].clientY)
+    }
+
+    const onTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientY)
+
+    const onTouchEnd = () => {
+        if (!touchStart || !touchEnd) return
+        const distance = touchStart - touchEnd
+        const isTopSwipe = distance > minSwipeDistance
+        const isBottomSwipe = distance < -minSwipeDistance
+        if (isTopSwipe){
+            setExpandedFlag(true)
+        }else if(isBottomSwipe){
+            setExpandedFlag(false)
+        }
+    }
+
     return(
         <div
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
             className={`${styles.detailSection} ${expanded ? styles.expanded : ''} `}
         >
             <div className={styles.header}>
