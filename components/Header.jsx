@@ -1,19 +1,22 @@
 'use client'
 import styles from '../styles/header.module.scss'
-import Link from "next/link";
 import {AiOutlineSearch} from "react-icons/ai";
-import {useEffect, useState} from "react";
+import {useState} from "react";
+import {useDispatch} from "react-redux";
+import * as searchWordAction from '../store/modules/searchWord'
 
-export default function Header({searchAction,searchWord}){
+export default function Header({searchAction}){
+    const dispatch = useDispatch();
+
     const [str,setStr] = useState();
 
     const search=()=>{
         searchAction(str)
     }
 
-    useEffect(()=>{
-        searchWord(str)
-    },[str])
+    const setSearchWord = ((val)=>{
+        dispatch(searchWordAction.set({value:val}))
+    })
 
     return(
         <header className={styles.header}>
@@ -25,7 +28,7 @@ export default function Header({searchAction,searchWord}){
                         search()
                     }}
                 }
-                       onChange={(e)=>{setStr(e.target.value)}}
+                       onChange={(e)=>{setSearchWord(e.target.value)}}
                        type={"text"}
                        placeholder={'장소, 주소 검색'}
                 ></input>

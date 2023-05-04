@@ -1,7 +1,7 @@
 'use client'
 
 import Script from 'next/script'
-import {Fragment, useEffect} from "react";
+import {useEffect} from "react";
 
 export default function Map({nMap}){
     const initMap = ()=>{
