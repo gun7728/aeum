@@ -4,31 +4,17 @@ import DetailSection from "@/components/DetailSection";
 import {useEffect, useState} from "react";
 import MainComponents from "@/components/MainComponents";
 import {useSelector} from "react-redux";
-import searchWord from "@/store/modules/searchWord";
+import SearchSection from "@/components/SearchSection";
+import Header from "@/components/Header";
 
 export default function Home(){
     const [map,setMap]=useState(null);
-    const [str, setStr] = useState();
-    const [searchFlag, setSearchFlag] = useState(false);
-    const searchWord = useSelector((state)=>state.searchWord)
+    const searchStore = useSelector((state)=>state.searchState)
 
     const nMap = (x)=>{
         setMap(x);
     }
 
-    useEffect(()=>{
-        setSearchFlag(false)
-        setStr(searchWord.value)
-    },[searchWord.value])
-
-
-    const searchFlagFun = (x)=>{
-        setSearchFlag(x)
-    }
-
-    const searchAction = (x)=>{
-        alert('Go Search')
-    }
     return(
         <main
               style={{
@@ -38,16 +24,17 @@ export default function Home(){
                   overflow: 'hidden',
               }}
           >
-            <MainComponents searchAction={searchAction}/>
+            {
+                searchStore.page?<SearchSection/>:<></>
+            }
+            <Header/>
             <Map nMap={nMap}/>
-                {
-                    map?
+            {
+                map?
                     <DetailSection
-                        map={map}
-                        searchFlag={searchFlag}
-                        searchFlagFun={searchFlagFun}/>
+                        map={map}/>
                     :<></>
-                }
+            }
         </main>
     )
 }

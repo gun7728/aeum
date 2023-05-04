@@ -11,7 +11,7 @@
   justify-content: space-between;
   align-items: center;
 
-  z-index: 100;
+  z-index: 110;
   //pointer-events: none;
 }
 
@@ -21,6 +21,26 @@
   display: flex;
   pointer-events: auto;
 }
+.flexBtn{
+  width: fit-content;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: none;
+  border: none;
+  zoom: 2.5;
+  padding-top: 7px;
+}
+
+.flexItemActive {
+  width: 90%;
+  float: right;
+  height: 30px;
+  display: flex;
+  pointer-events: auto;
+}
+
 
 .searchBox {
   position: relative;

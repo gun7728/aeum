@@ -1,6 +1,6 @@
 import {combineReducers} from "@reduxjs/toolkit";
 import { HYDRATE } from 'next-redux-wrapper'
-import search from "@/store/modules/searchWord";
+import search from "@/store/modules/search";
 
 const reducer = (state, action)=>{
     switch(action.type) {

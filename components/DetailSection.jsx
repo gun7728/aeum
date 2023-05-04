@@ -4,25 +4,29 @@ import styles from '../styles/detail.module.scss'
 import {useEffect, useState} from "react";
 import {IoIosArrowUp} from "react-icons/io";
 import DetailHeader from "@/components/DetailHeader";
+import {useDispatch, useSelector} from "react-redux";
+import * as searchStateAction from "@/store/modules/search";
 
-export default function DetailSection({map,searchFlag,searchFlagFun}){
-    const [expanded, setExpanded] = useState(false)
+export default function DetailSection({map}){
+    const dispatch = useDispatch();
     const [touchStart, setTouchStart] = useState(null)
     const [touchEnd, setTouchEnd] = useState(null)
+    const searchStore = useSelector((state)=>state.searchState)
 
-    const onClickArrow = ()=>{
-        setExpanded(!expanded)
+    const expanded=()=>{
+        dispatch(searchStateAction.searchAction({action:false}))
     }
 
-    useEffect(()=>{
-        setExpanded(expanded)
-        searchFlagFun(expanded)
-    },[expanded])
+    const unExpanded=()=>{
+        dispatch(searchStateAction.searchAction({action:true}))
+    }
 
-    useEffect(()=>{
-        setExpanded(searchFlag);
-    },[searchFlag])
+    const setExpanded =()=>{
+        searchStore.action
+            ? dispatch(searchStateAction.searchAction({action:false}))
+            : dispatch(searchStateAction.searchAction({action:true}))
 
+    }
 
 
 // the required distance between touchStart and touchEnd to be detected as a swipe
@@ -41,9 +45,9 @@ export default function DetailSection({map,searchFlag,searchFlagFun}){
         const isTopSwipe = distance > minSwipeDistance
         const isBottomSwipe = distance < -minSwipeDistance
         if (isTopSwipe){
-            setExpanded(true)
+            expanded()
         }else if(isBottomSwipe){
-            setExpanded(false)
+            unExpanded()
         }
     }
 
@@ -52,22 +56,19 @@ export default function DetailSection({map,searchFlag,searchFlagFun}){
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
-            className={`${styles.detailSection} ${expanded ? styles.expanded : ''} `}
+            className={`${styles.detailSection} ${!searchStore.action ? styles.expanded : ''} `}
         >
             <div className={styles.header}>
                 <button
-                    className={`${styles.arrowButton} ${expanded ? styles.expanded : ''}`}
-                    onClick={onClickArrow}
+                    className={`${styles.arrowButton} ${!searchStore.action ? styles.expanded : ''}`}
+                    onClick={setExpanded}
                     // disabled={!currentStore}
-                    aria-label={expanded ? '매장 정보 접기' : '매장 정보 펼치기'}
+                    aria-label={!searchStore.action ? '매장 정보 접기' : '매장 정보 펼치기'}
                 >
                     <IoIosArrowUp size={20} color="#666666" />
                 </button>
                 <DetailHeader
                     map={map}
-                    // currentStore={currentStore}
-                    expanded={expanded}
-                    onClickArrow={() => setExpanded(!expanded)}
                 />
                 <br/>
                 {/*<DetailContent currentStore={currentStore} expanded={expanded} />*/}

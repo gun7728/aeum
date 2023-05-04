@@ -1,11 +1,9 @@
 import Header from "@/components/Header";
 
-export default function MainComponents({searchAction}){
+export default function MainComponents(){
     return(
         <>
-            <Header
-                searchAction={searchAction}
-            />
+            <Header/>
         </>
     )
 }
