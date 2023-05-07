@@ -10,6 +10,7 @@ import Header from "@/components/Header";
 export default function Home(){
     const [map,setMap]=useState(null);
     const searchStore = useSelector((state)=>state.searchState)
+    const mapStore = useSelector((state)=>state.mapState)
 
     const nMap = (x)=>{
         setMap(x);
@@ -30,9 +31,8 @@ export default function Home(){
             <Header/>
             <Map nMap={nMap}/>
             {
-                map?
-                    <DetailSection
-                        map={map}/>
+                mapStore.mapLoading?
+                    <DetailSection/>
                     :<></>
             }
         </main>

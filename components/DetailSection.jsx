@@ -7,7 +7,7 @@ import DetailHeader from "@/components/DetailHeader";
 import {useDispatch, useSelector} from "react-redux";
 import * as searchStateAction from "@/store/modules/search";
 
-export default function DetailSection({map}){
+export default function DetailSection(){
     const dispatch = useDispatch();
     const [touchStart, setTouchStart] = useState(null)
     const [touchEnd, setTouchEnd] = useState(null)
@@ -67,10 +67,7 @@ export default function DetailSection({map}){
                 >
                     <IoIosArrowUp size={20} color="#666666" />
                 </button>
-                <DetailHeader
-                    map={map}
-                />
-                <br/>
+                <DetailHeader/>
                 {/*<DetailContent currentStore={currentStore} expanded={expanded} />*/}
             </div>
         </div>

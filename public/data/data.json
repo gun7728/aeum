@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "title": "망원 한강공원",
+    "content": "둔치에 잔디밭이 조성되어 있어 시야가 넓고 산책로 등 휴식 공간이 짜임새 있게 잘 조성되어 있는 공원",
+    "image": "https://lh3.googleusercontent.com/p/AF1QipPqvig5_1ianVR2PaL4hy2rbR6G1DeHO9GZBN5g=s1360-w1360-h1020"
+  },
+  {
+    "id": 2,
+    "title": "경의선 숲길",
+    "content": "철길을 따라 도심을 가로지르는 경의선숲길은 서울의 대표적인 산책로로 누구나 쉽게 이용할 수 있는 시민의 휴식공간",
+    "image": "https://lh3.googleusercontent.com/p/AF1QipOClaAsOeWtt07MW63JicWPdy6ejzszgMs-Z8rO=s1360-w1360-h1020"
+  },
+  {
+    "id": 3,
+    "title": "망원시장",
+    "content": "농수산물부터 분식,~~~~~",
+    "image": "https://lh3.googleusercontent.com/p/AF1QipP-M6dZLZJlIVM2GvdXMhJZ-w-XFRr6oI15T-r2=s1360-w1360-h1020"
+  }
+]
