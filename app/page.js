@@ -1,11 +1,11 @@
 'use client'
 import Map from "@/components/Map";
-import DetailSection from "@/components/DetailSection";
 import {useEffect, useState} from "react";
 import MainComponents from "@/components/MainComponents";
 import {useSelector} from "react-redux";
 import SearchSection from "@/components/SearchSection";
 import Header from "@/components/Header";
+import DetailSection from "@/components/DetailSection";
 
 export default function Home(){
     const [map,setMap]=useState(null);

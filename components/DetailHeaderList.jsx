@@ -4,7 +4,7 @@ import {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import DetailHeaderContent from "@/components/DetailHeaderContent";
 
-export default function DetailHeader(){
+export default function DetailHeaderList(){
     const dataStore = useSelector((state)=>state.dataState)
     const pm10 = <span style={{color:"blue"}}>좋음</span>
     const pm25 = <span style={{color:"green"}}>보통</span>
@@ -16,7 +16,7 @@ export default function DetailHeader(){
                 <p><span style={{fontSize:'12px'}}>미세먼지 {pm10} 초미세먼지 {pm25}</span></p>
             </div>
             <br/>
-            <hr/>
+            {/*<hr/>*/}
             <div style={{overflow:"hidden"}}>
                 <DetailHeaderContent />
             </div>

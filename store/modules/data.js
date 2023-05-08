@@ -4,6 +4,7 @@ const initialState = {
     touristData:null,
     curPosition:[],
     curLocation:null,
+    curDetail: null,
 };
 
 const dataState = createSlice({
@@ -18,9 +19,12 @@ const dataState = createSlice({
         },
         setCurLocation(state,action){
             state.curLocation = action.payload.curLocation
-        }
+        },
+        setCurDetail(state,action){
+            state.curDetail = action.payload.curDetail
+        },
     },
 });
 
-export const {setTouristData,setCurPosition,setCurLocation} = dataState.actions;
+export const {setTouristData,setCurPosition,setCurLocation,setCurDetail} = dataState.actions;
 export default dataState.reducer;

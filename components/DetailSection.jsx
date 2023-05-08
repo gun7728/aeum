@@ -3,31 +3,35 @@
 import styles from '../styles/detail.module.scss'
 import {useEffect, useState} from "react";
 import {IoIosArrowUp} from "react-icons/io";
-import DetailHeader from "@/components/DetailHeader";
+import DetailHeaderList from "@/components/DetailHeaderList";
 import {useDispatch, useSelector} from "react-redux";
 import * as searchStateAction from "@/store/modules/search";
+import * as dataStateAction from "@/store/modules/data";
+import DetailHeaderContent from "@/components/DetailHeaderContent";
+import DetailContent from "@/components/DetailContent";
 
 export default function DetailSection(){
     const dispatch = useDispatch();
     const [touchStart, setTouchStart] = useState(null)
     const [touchEnd, setTouchEnd] = useState(null)
     const searchStore = useSelector((state)=>state.searchState)
-
-    const expanded=()=>{
-        dispatch(searchStateAction.searchAction({action:false}))
-    }
-
-    const unExpanded=()=>{
-        dispatch(searchStateAction.searchAction({action:true}))
-    }
+    const dataStore = useSelector(state => state.dataState)
 
     const setExpanded =()=>{
-        searchStore.action
-            ? dispatch(searchStateAction.searchAction({action:false}))
-            : dispatch(searchStateAction.searchAction({action:true}))
+        if(searchStore.action){
+            dispatch(searchStateAction.searchAction({action:false}))
+        }else{
+            dispatch(searchStateAction.searchAction({action:true}))
+            dispatch(dataStateAction.setCurDetail({curDetail:null}))
+        }
 
     }
 
+    useEffect(()=>{
+        if(dataStore.curDetail){
+            setExpanded()
+        }
+    },[dataStore.curDetail])
 
 // the required distance between touchStart and touchEnd to be detected as a swipe
     const minSwipeDistance = 50
@@ -45,9 +49,11 @@ export default function DetailSection(){
         const isTopSwipe = distance > minSwipeDistance
         const isBottomSwipe = distance < -minSwipeDistance
         if (isTopSwipe){
-            expanded()
+            if(!searchStore.action) return
+            setExpanded()
         }else if(isBottomSwipe){
-            unExpanded()
+            if(searchStore.action) return
+            setExpanded()
         }
     }
 
@@ -67,7 +73,10 @@ export default function DetailSection(){
                 >
                     <IoIosArrowUp size={20} color="#666666" />
                 </button>
-                <DetailHeader/>
+                {
+                    dataStore.curDetail?<DetailContent/>:<DetailHeaderList/>
+                }
+
                 {/*<DetailContent currentStore={currentStore} expanded={expanded} />*/}
             </div>
         </div>

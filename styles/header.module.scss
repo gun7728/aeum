@@ -1,3 +1,4 @@
+
 .header {
   position: absolute;
   top: 0;
@@ -90,7 +91,14 @@
   }
   transition: background-color 200ms ease;
 }
+.slider{
+  display: flex;
+  align-items: center;
+  overflow-x:scroll ;
+  justify-content: flex-start;
+}
 .detailSection{
+  flex: auto;
   text-align: center;
   display: inline-block;
   padding: 10px 20px 0 0;
