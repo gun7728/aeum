@@ -25,8 +25,16 @@ export default function DetailContent({map}){
     }
     const copyUrl = (id)=>{
         var url = window.location.href
-        navigator.clipboard.writeText(url+'/share/'+id);
-        alert("복사되었습니다.")
+
+        navigator.clipboard
+            .writeText(url+'/share/'+id)
+            .then(() => {
+                alert("successfully copied");
+            })
+            .catch(() => {
+                alert("something went wrong");
+            });
+
     }
 
     useEffect(()=>{
