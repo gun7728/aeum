@@ -37,6 +37,8 @@ export default function Map({nMap}){
                 var items = result.items; // 검색 결과의 배열
 
                 map.panTo(new naver.maps.LatLng(position.coords.latitude-0.005, position.coords.longitude));
+
+                dispatch(dataStateAction.setCurPosition({curPosition:[position.coords.latitude, position.coords.longitude]}))
                 dispatch(dataStateAction.setCurLocation({curLocation:items[0].addrdetail.sigugun}));
 
                 var marker = new naver.maps.Marker({

@@ -11,13 +11,12 @@ export default function DetailHeaderList(){
 
     return(
         <>
-            <div>
+            <div style={{paddingTop:'5px', paddingBottom:'10px'}}>
                 <p style={{fontSize:'18px'}}><span style={{fontWeight:"bold"}}>{dataStore.curLocation}</span>에 오신 것을 환영합니다.</p>
                 <p><span style={{fontSize:'12px'}}>미세먼지 {pm10} 초미세먼지 {pm25}</span></p>
             </div>
-            <br/>
             {/*<hr/>*/}
-            <div style={{overflow:"hidden"}}>
+            <div>
                 <DetailHeaderContent />
             </div>
         </>

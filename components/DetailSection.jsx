@@ -10,7 +10,7 @@ import * as dataStateAction from "@/store/modules/data";
 import DetailHeaderContent from "@/components/DetailHeaderContent";
 import DetailContent from "@/components/DetailContent";
 
-export default function DetailSection(){
+export default function DetailSection({map}){
     const dispatch = useDispatch();
     const [touchStart, setTouchStart] = useState(null)
     const [touchEnd, setTouchEnd] = useState(null)
@@ -52,8 +52,8 @@ export default function DetailSection(){
             if(!searchStore.action) return
             setExpanded()
         }else if(isBottomSwipe){
-            if(searchStore.action) return
-            setExpanded()
+            // if(searchStore.action) return
+            // setExpanded()
         }
     }
 
@@ -62,9 +62,9 @@ export default function DetailSection(){
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
-            className={`${styles.detailSection} ${!searchStore.action ? styles.expanded : ''} `}
+            className={`${styles.detailSection} ${!searchStore.action ? dataStore.curDetail? styles.detailExpanded: styles.expanded  : ''} `}
         >
-            <div className={styles.header}>
+            <div className={searchStore.action ? styles.header:styles.header}>
                 <button
                     className={`${styles.arrowButton} ${!searchStore.action ? styles.expanded : ''}`}
                     onClick={setExpanded}
@@ -74,7 +74,7 @@ export default function DetailSection(){
                     <IoIosArrowUp size={20} color="#666666" />
                 </button>
                 {
-                    dataStore.curDetail?<DetailContent/>:<DetailHeaderList/>
+                    dataStore.curDetail?<DetailContent map={map}/>:<DetailHeaderList/>
                 }
 
                 {/*<DetailContent currentStore={currentStore} expanded={expanded} />*/}

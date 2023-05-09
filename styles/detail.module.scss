@@ -30,14 +30,25 @@ $section-padding-top: 8px;
   &.expanded {
     transform: translateY(58px);
   }
+  &.detailExpanded {
+    transform: translateY(300px);
+  }
+
 }
 
 .header {
-  height: $header-height;
   margin-bottom: 8px;
 
   display: flex;
   flex-direction: column;
+
+  .idle{
+    height: $header-height;
+  }
+  .active{
+    height: 100vh;
+  }
+
 
   .arrowButton {
     height: 20px;
@@ -53,6 +64,8 @@ $section-padding-top: 8px;
     &.expanded {
       transform: rotate(180deg);
     }
+
+
 
     @keyframes bounce {
       from {

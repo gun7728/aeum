@@ -4,6 +4,7 @@ import {AiOutlineLeft, AiOutlineSearch} from "react-icons/ai";
 import {useDispatch, useSelector} from "react-redux";
 import {useEffect, useRef, useState} from "react";
 import * as searchStateAction from "@/store/modules/search";
+import * as dataStateAction from "@/store/modules/data";
 
 export default function HeaderSearch(){
     const [str,setStr] = useState()
@@ -15,6 +16,7 @@ export default function HeaderSearch(){
         if(str!=''){
             dispatch(searchStateAction.setWord({value:str}))
             dispatch(searchStateAction.searchStart({start:true}))
+            dispatch(dataStateAction.setCurDetail({curDetail:null}))
         }
     })
 

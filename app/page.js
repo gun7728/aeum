@@ -32,7 +32,7 @@ export default function Home(){
             <Map nMap={nMap}/>
             {
                 mapStore.mapLoading?
-                    <DetailSection/>
+                    <DetailSection map={map}/>
                     :<></>
             }
         </main>
