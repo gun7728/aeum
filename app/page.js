@@ -6,10 +6,12 @@ import {useSelector} from "react-redux";
 import SearchSection from "@/components/SearchSection";
 import Header from "@/components/Header";
 import DetailSection from "@/components/DetailSection";
+import Loading from "@/components/loading";
 
 export default function Home(){
     const [map,setMap]=useState(null);
-    const searchStore = useSelector((state)=>state.searchState)
+    const searchStore = useSelector((state)=>state.searchState);
+    const dataStore = useSelector((state)=>state.dataState)
     const mapStore = useSelector((state)=>state.mapState)
 
     const nMap = (x)=>{
@@ -25,6 +27,9 @@ export default function Home(){
                   overflow: 'hidden',
               }}
           >
+            {
+                dataStore.curLocation?'':<Loading/>
+            }
             {
                 searchStore.page?<SearchSection/>:<></>
             }

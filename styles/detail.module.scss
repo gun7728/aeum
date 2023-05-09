@@ -31,7 +31,7 @@ $section-padding-top: 8px;
     transform: translateY(58px);
   }
   &.detailExpanded {
-    transform: translateY(300px);
+    transform: translateY(calc(100% - 470px));
   }
 
 }

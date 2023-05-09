@@ -76,7 +76,6 @@ export default function DetailSection({map}){
                 {
                     dataStore.curDetail?<DetailContent map={map}/>:<DetailHeaderList/>
                 }
-
                 {/*<DetailContent currentStore={currentStore} expanded={expanded} />*/}
             </div>
         </div>

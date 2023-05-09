@@ -24,34 +24,38 @@ export default function Map({nMap}){
     }
     useEffect(()=>{
         if(!map) return
-        dispatch(mapStateAction.setMapLoading({mapLoading:true}))
     },[map])
 
     useEffect(()=>{
-        if(mapStore.mapLoading)
-        navigator.geolocation.getCurrentPosition((position) => {
-            naver.maps.Service.reverseGeocode({
-                location: new naver.maps.LatLng(position.coords.latitude, position.coords.longitude),
-            }, function(status, response) {
-                var result = response.result; // 검색 결과의 컨테이너
-                var items = result.items; // 검색 결과의 배열
+        if(map){
+            navigator.geolocation.getCurrentPosition((position) => {
+                naver.maps.Service.reverseGeocode({
+                    location: new naver.maps.LatLng(position.coords.latitude, position.coords.longitude),
+                }, function(status, response) {
+                    var result = response.result; // 검색 결과의 컨테이너
+                    var items = result.items; // 검색 결과의 배열
 
-                map.panTo(new naver.maps.LatLng(position.coords.latitude-0.005, position.coords.longitude));
+                    map.panTo(new naver.maps.LatLng(position.coords.latitude-0.005, position.coords.longitude));
 
-                dispatch(dataStateAction.setCurPosition({curPosition:[position.coords.latitude, position.coords.longitude]}))
-                dispatch(dataStateAction.setCurLocation({curLocation:items[0].addrdetail.sigugun}));
+                    dispatch(dataStateAction.setCurPosition({curPosition:[position.coords.latitude, position.coords.longitude]}))
+                    dispatch(dataStateAction.setCurLocation({curLocation:items[0].addrdetail.sigugun}));
 
-                var marker = new naver.maps.Marker({
-                    position: new naver.maps.LatLng(position.coords.latitude, position.coords.longitude),
-                    map: map
+                    var marker = new naver.maps.Marker({
+                        position: new naver.maps.LatLng(position.coords.latitude, position.coords.longitude),
+                        map: map
+                    });
+
+                    dispatch(mapStateAction.setMapLoading({mapLoading:true}))
+
+
+                    nMap(map);
+                    initData();
                 });
 
             });
 
-        });
-        nMap(map);
-        initData();
-    },[mapStore.mapLoading])
+        }
+    },[map])
 
     const initData = ()=>{
         const datas = require('/public/data/data.json')
@@ -64,12 +68,6 @@ export default function Map({nMap}){
 
     return(
         <>
-            <Script
-                type={'text/javascript'}
-                strategy={"beforeInteractive"}
-                src={`https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.NEXT_PUBLIC_MAP_KEY}&submodules=geocoder`}
-            />
-
             <div id="map"  style={{width:'100%', height:'100%'}}></div>
         </>
     )

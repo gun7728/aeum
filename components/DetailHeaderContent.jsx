@@ -43,20 +43,20 @@ export default function DetailHeaderContent(){
                 dataStore.touristData.map((e)=>{
                     return(
                         searchStore.action?
-                            <div key={e.id} className={styles.detailSection} >
+                            <div key={e.id} className={styles.detailHeaderSection} >
                                 <Image className={styles.image} src={e.image} alt={`${e.title}`} width={125} height={170} onClick={()=>{goToDetail(e)}}/>
                                 <p>
                                     {e.title}
                                 </p>
                             </div>
                             :
-                            <div key={e.id} className={styles.detailList}>
+                            <div key={e.id} className={styles.detailHeaderList}>
                                 <div>
-                                    <p className={styles.detailTitle} >
+                                    <p className={styles.detailHeaderTitle} >
                                         {e.title}
                                     </p>
-                                    <span className={styles.detailContent}>{e.content}</span>
-                                    <Image className={styles.detailThumb}
+                                    <span className={styles.detailHeaderContent}>{e.content}</span>
+                                    <Image className={styles.detailHeaderThumb}
                                            src={e.image}
                                            alt={`${e.title}`}
                                            width={0}
