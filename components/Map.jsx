@@ -5,8 +5,10 @@ import {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import * as dataStateAction from "@/store/modules/data"
 import * as mapStateAction from "@/store/modules/map"
+import {useRouter} from "next/navigation";
 
 export default function Map({nMap}){
+    const router = useRouter()
     const dispatch = useDispatch();
     const mapStore = useSelector((state)=>state.mapState)
     const [map,setMap] = useState();
@@ -52,6 +54,8 @@ export default function Map({nMap}){
                     initData();
                 });
 
+            },()=>{
+               alert('위치 정보 허용을 해주세요.')
             });
 
         }
