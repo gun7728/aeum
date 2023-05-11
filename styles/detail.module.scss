@@ -33,7 +33,15 @@ $section-padding-top: 8px;
   &.detailExpanded {
     transform: translateY(calc(100% - 470px));
   }
+  &.searchStartExpanded{
+    transform: translateY(58px);
+    //transform: translateY(calc(100% - 470px));
+  }
 
+  &.searchResultExpanded{
+    //transform: translateY(58px);
+    transform: translateY(calc(100% - 470px));
+  }
 }
 
 .header {

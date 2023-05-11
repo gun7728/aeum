@@ -5,6 +5,7 @@ const initialState = {
     action:true,
     page:false,
     start:false,
+    searchData:null,
 };
 
 const searchState = createSlice({
@@ -22,9 +23,12 @@ const searchState = createSlice({
         },
         searchStart(state,action){
            state.start=action.payload.start
+        },
+        setSearchData(state,action){
+           state.searchData = action.payload.searchData;
         }
     },
 });
 
-export const {setWord,searchAction,pageChange,searchStart} = searchState.actions;
+export const {setWord,searchAction,pageChange,searchStart,setSearchData} = searchState.actions;
 export default searchState.reducer;

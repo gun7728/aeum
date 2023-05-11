@@ -30,9 +30,6 @@ export default function Home(){
             {
                 dataStore.curLocation?'':<Loading/>
             }
-            {
-                searchStore.page?<SearchSection/>:<></>
-            }
             <Header/>
             <KakaoMap nMap={nMap}/>
             {

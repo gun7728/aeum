@@ -42,7 +42,7 @@ export default function DetailContent({map}){
     const getPath =async (x,y)=>{
         var xhr = new XMLHttpRequest();
         //ODsay apiKey 입력
-        var url = `https://api.odsay.com/v1/api/searchPubTransPathT?SX=${dataStore.curPosition[1]}&SY=${dataStore.curPosition[0]}&EX=${y}&EY=${x}&apiKey=60rdN9dc2rIAY6L1O3ciaA`;
+        var url = `https://api.odsay.com/v1/api/searchPubTransPathT?SX=${dataStore.curPosition[1]}&SY=${dataStore.curPosition[0]}&EX=${y}&EY=${x}&apiKey=${process.env.NEXT_PUBLIC_MAP_KEY}`;
 
         xhr.open("GET", url, true);
         xhr.send();
@@ -61,7 +61,7 @@ export default function DetailContent({map}){
     function callMapObjApiAJAX(mabObj,sx,sy,ex,ey){
         var xhr = new XMLHttpRequest();
         //ODsay apiKey 입력
-        var url = "https://api.odsay.com/v1/api/loadLane?mapObject=0:0@"+mabObj+"&apiKey=60rdN9dc2rIAY6L1O3ciaA";
+        var url = `https://api.odsay.com/v1/api/loadLane?mapObject=0:0@${mabObj}&apiKey=${process.env.NEXT_PUBLIC_MAP_KEY}`;
         xhr.open("GET", url, true);
         xhr.send();
         xhr.onreadystatechange = function() {

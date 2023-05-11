@@ -9,6 +9,7 @@ import * as searchStateAction from "@/store/modules/search";
 import * as dataStateAction from "@/store/modules/data";
 import DetailHeaderContent from "@/components/DetailHeaderContent";
 import DetailContent from "@/components/DetailContent";
+import SearchSection from "@/components/SearchSection";
 
 export default function DetailSection({map}){
     const dispatch = useDispatch();
@@ -30,6 +31,8 @@ export default function DetailSection({map}){
     useEffect(()=>{
         if(dataStore.curDetail){
             setExpanded()
+        }else if(dataStore.curDetail==null){
+            dispatch(searchStateAction.searchAction({action:true}))
         }
     },[dataStore.curDetail])
 
@@ -62,22 +65,28 @@ export default function DetailSection({map}){
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
-            className={`${styles.detailSection} ${!searchStore.action ? dataStore.curDetail? styles.detailExpanded: styles.expanded  : ''} `}
+            className={`${styles.detailSection} ${(!searchStore.action ? (dataStore.curDetail? styles.detailExpanded: styles.expanded)  : (searchStore.page?(searchStore.searchData?styles.searchResultExpanded:styles.searchStartExpanded):''))} `}
         >
-            <div className={searchStore.action ? styles.header:styles.header}>
-                <button
-                    className={`${styles.arrowButton} ${!searchStore.action ? styles.expanded : ''}`}
-                    onClick={setExpanded}
-                    // disabled={!currentStore}
-                    aria-label={!searchStore.action ? '매장 정보 접기' : '매장 정보 펼치기'}
-                >
-                    <IoIosArrowUp size={20} color="#666666" />
-                </button>
-                {
-                    dataStore.curDetail?<DetailContent map={map}/>:<DetailHeaderList/>
-                }
-                {/*<DetailContent currentStore={currentStore} expanded={expanded} />*/}
-            </div>
+
+            {
+                searchStore.page?<SearchSection/>
+
+            :
+                <div className={searchStore.action ? styles.header:styles.header}>
+                    <button
+                        className={`${styles.arrowButton} ${!searchStore.action ? styles.expanded : ''}`}
+                        onClick={setExpanded}
+                        // disabled={!currentStore}
+                        aria-label={!searchStore.action ? '매장 정보 접기' : '매장 정보 펼치기'}
+                    >
+                        <IoIosArrowUp size={20} color="#666666" />
+                    </button>
+                    {
+                        dataStore.curDetail?<DetailContent map={map}/>:<DetailHeaderList/>
+                    }
+                    {/*<DetailContent currentStore={currentStore} expanded={expanded} />*/}
+                </div>
+            }
         </div>
     )
 }

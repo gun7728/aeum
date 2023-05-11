@@ -8,7 +8,7 @@ import SearchResult from "@/components/SearchResult";
 
 export default function SearchSection() {
     const searchStore = useSelector((state) => state.searchState)
-
+    const dataStore = useSelector(state => state.dataState)
 
     const [keywords, setKeywords] = useState([])
     const [keywordsFlag,setKeywordsFlag ] = useState(false);
@@ -55,8 +55,8 @@ export default function SearchSection() {
     }
 
     return(
-        <div
-        className={`${styles.searchSection}`}>
+        <div style={( dataStore.startPoint || dataStore.endPoint ) ?{top:'30px'}:{}}
+            className={`${styles.searchSection}`}>
             {
                 searchStore.start
                     ?
