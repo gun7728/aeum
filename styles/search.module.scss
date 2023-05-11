@@ -19,8 +19,18 @@
   display: flex;
   padding-bottom: 20px;
 }
+.textSection{
+  float: left;
+  display: inline-grid;
+  padding-bottom: 20px;
+}
 .title{
-  padding-left: 10px;
+  font-size: 20px;
+  float: left;
+}
+.loc{
+  font-size: 10px;
+  float: left;
 }
 
 .allDeleteBtn{
@@ -38,9 +48,11 @@
 
 .searchResultSection {
   position: relative;
-  width: 100%;
-  height: 80vh;
-  overflow: hidden;
+  width: 110%;
+  left: -5%;
+  height: 45vh;
+  overflow-x: hidden;
+  overflow-y: scroll;
   z-index: 105;
   background-color: white;
   padding: 0px 8px 0 12px;
@@ -48,6 +60,67 @@
 }
 
 .searchListItem {
+  float: right;
   width: 100px;
+  height: 50px;
   //box-shadow: inset 0px 0px 10px 0px lightgray;
+}
+.searchListItemSection{
+  height: 140px;
+}
+
+
+.detailBtnSection{
+  width: 100%;
+}
+
+.detailContentSection{
+  height: 50px;
+  display: flex;
+  padding-bottom: 20px;
+}
+.detailImageSection{
+  width: 100%;
+  display: inline-block;
+  text-align:-webkit-center;
+}
+
+.detailContentScrollSection{
+  height: 470px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.detailInnerThumb{
+  width:30%;
+  height: auto;
+  aspect-ratio : 1 / 1;
+  border-radius: 5px;
+  margin: 5px;
+}
+
+
+.detailIcon{
+  align-self: center;
+  width: 20px;
+  min-width: 20px;
+  height: auto;
+  margin-right: 10px;
+}
+
+.detailIconBtn{
+  width: 20px;
+  height: 20px;
+  margin: 5px 10px 0px 0;
+  opacity: 0.9;
+}
+
+.detailBtn{
+  margin: 5px 2px 0px 5px;
+  width: 45px;
+  height: 20px;
+  border-radius: 15px;
+  border: solid 1px #4a4a4a;
+  background-color: white;
+  opacity: 0.8;
 }

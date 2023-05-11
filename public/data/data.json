@@ -6,7 +6,8 @@
     "image": "https://lh3.googleusercontent.com/p/AF1QipPqvig5_1ianVR2PaL4hy2rbR6G1DeHO9GZBN5g=s1360-w1360-h1020",
     "x": 37.55200750679765,
     "y": 126.9000838470429,
-    "category": "공원"
+    "category": "공원",
+    "loc": "서울 특별시 마포구 마포나루길 467 (우)04005"
   },
   {
     "id": 2,
@@ -15,7 +16,8 @@
     "image": "https://lh3.googleusercontent.com/p/AF1QipOClaAsOeWtt07MW63JicWPdy6ejzszgMs-Z8rO=s1360-w1360-h1020",
     "x":  37.54417282802694,
     "y": 126.9484912479837,
-    "category": "공원"
+    "category": "공원",
+    "loc": "서울 특별시 마포구 마포나루길 467 (우)04005"
   },
   {
     "id": 3,
@@ -24,7 +26,8 @@
     "image": "https://lh3.googleusercontent.com/p/AF1QipP-M6dZLZJlIVM2GvdXMhJZ-w-XFRr6oI15T-r2=s1360-w1360-h1020",
     "x": 37.555310450501906,
     "y": 126.90654728056344,
-    "category": "시장"
+    "category": "시장",
+    "loc": "서울 특별시 마포구 마포나루길 467 (우)04005"
   },
   {
     "id": 4,
@@ -33,7 +36,8 @@
     "image": "https://lh3.googleusercontent.com/p/AF1QipPqvig5_1ianVR2PaL4hy2rbR6G1DeHO9GZBN5g=s1360-w1360-h1020",
     "x": 37.555621253953916,
     "y": 126.90649596432621,
-    "category": "공원"
+    "category": "공원",
+    "loc": "서울 특별시 마포구 마포나루길 467 (우)04005"
   },
   {
     "id": 5,
@@ -42,7 +46,8 @@
     "image": "https://lh3.googleusercontent.com/p/AF1QipOClaAsOeWtt07MW63JicWPdy6ejzszgMs-Z8rO=s1360-w1360-h1020",
     "x": 37.555621253953916,
     "y": 126.90649596432621,
-    "category": "공원"
+    "category": "공원",
+    "loc": "서울 특별시 마포구 마포나루길 467 (우)04005"
   },
   {
     "id": 6,
@@ -51,7 +56,8 @@
     "image": "https://lh3.googleusercontent.com/p/AF1QipP-M6dZLZJlIVM2GvdXMhJZ-w-XFRr6oI15T-r2=s1360-w1360-h1020",
     "x": 37.555621253953916,
     "y": 126.90649596432621,
-    "category": "시장"
+    "category": "시장",
+    "loc": "서울 특별시 마포구 마포나루길 467 (우)04005"
   }
 
 ]

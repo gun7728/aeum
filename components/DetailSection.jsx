@@ -53,6 +53,7 @@ export default function DetailSection({map}){
         const isBottomSwipe = distance < -minSwipeDistance
         if (isTopSwipe){
             if(!searchStore.action) return
+            if(searchStore.start) return
             setExpanded()
         }else if(isBottomSwipe){
             // if(searchStore.action) return
@@ -65,7 +66,7 @@ export default function DetailSection({map}){
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
-            className={`${styles.detailSection} ${(!searchStore.action ? (dataStore.curDetail? styles.detailExpanded: styles.expanded)  : (searchStore.page?(searchStore.searchData?styles.searchResultExpanded:styles.searchStartExpanded):''))} `}
+            className={`${styles.detailSection} ${(!searchStore.action ? (dataStore.curDetail? styles.detailExpanded: styles.expanded)  : (searchStore.page?(searchStore.start?styles.searchResultExpanded:styles.searchStartExpanded):''))} `}
         >
 
             {

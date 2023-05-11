@@ -23,6 +23,11 @@ export default function HeaderSearch(){
             dispatch(dataStateAction.setCurDetail({curDetail:null}))
         }
     })
+    useEffect(()=>{
+        if(searchStore.value !=='' && searchStore.start){
+            inputRef.current.value=searchStore.value
+        }
+    },[searchStore.value,searchStore.start])
 
     useEffect(()=>{
         if(str===''&&searchStore.start){
@@ -45,6 +50,18 @@ export default function HeaderSearch(){
 
     },[dataStore.startPoint,dataStore.endPoint])
 
+    const startStr = (str) =>{
+        setStr(str)
+        if(str==''){
+            dispatch(dataStateAction.setStartPoint({startPoint:null}))
+        }
+    }
+    const endStr = (str) =>{
+        setStr(str)
+        if(str==''){
+            dispatch(dataStateAction.setEndPoint({endPoint:null}))
+        }
+    }
     const resetStartEnd = () => {
         dispatch(dataStateAction.setStartPoint({startPoint:null}))
         dispatch(dataStateAction.setEndPoint({endPoint:null}))
@@ -99,7 +116,7 @@ export default function HeaderSearch(){
                     }
 
                     }
-                    onChange={(e)=>{setStr(e.target.value)}}
+                    onChange={(e)=>{startStr(e.target.value)}}
 
                     ref={spRef}
                     className={styles.startItem}/>
@@ -116,7 +133,7 @@ export default function HeaderSearch(){
                     }
 
                     }
-                    onChange={(e)=>{setStr(e.target.value)}}
+                    onChange={(e)=>{endStr(e.target.value)}}
 
                     ref={epRef}
                     className={styles.endItem}/>

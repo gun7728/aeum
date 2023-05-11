@@ -1,12 +1,14 @@
 'use client'
 import styles from '../styles/search.module.scss'
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {Fragment, useEffect, useState} from "react";
 import {AiOutlineClose} from "react-icons/ai";
 import {FaSearchLocation} from "react-icons/fa";
 import SearchResult from "@/components/SearchResult";
+import * as searchStateAction from "@/store/modules/search";
 
 export default function SearchSection() {
+    const dispatch = useDispatch()
     const searchStore = useSelector((state) => state.searchState)
     const dataStore = useSelector(state => state.dataState)
 
@@ -54,6 +56,11 @@ export default function SearchSection() {
         setKeywords(nextKeyword)
     }
 
+    const clickKeyword = (keyword) => {
+        dispatch(searchStateAction.setWord({value:keyword}))
+        dispatch(searchStateAction.searchStart({start:true}))
+    }
+
     return(
         <div style={( dataStore.startPoint || dataStore.endPoint ) ?{top:'30px'}:{}}
             className={`${styles.searchSection}`}>
@@ -76,7 +83,7 @@ export default function SearchSection() {
                     keywords.map((e)=>
                         <div  key={e.id} className={styles.searchList}>
                             <FaSearchLocation style={{zoom:1.1}}/>
-                            <p className={styles.title} onClick={()=>{alert(e.text)}}>{e.text}</p>
+                            <p className={styles.title} onClick={()=>{clickKeyword(e.text)}}>{e.text}</p>
                             <AiOutlineClose className={styles.deleteBtn} onClick={() => handleRemoveKeyword(e.id)}/>
                         </div>
                     ):''
