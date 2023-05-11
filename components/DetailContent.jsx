@@ -7,11 +7,13 @@ import {CgPhone} from "react-icons/cg";
 import {RiShareForward2Fill} from "react-icons/ri";
 import {IoEarthOutline, IoLocationOutline} from "react-icons/io5";
 import {BsPencil} from "react-icons/bs";
+import * as dataStateAction from "@/store/modules/data";
 
 export default function DetailContent({map}){
+    const dispatch = useDispatch();
     const mapStore = useSelector(state => state.mapState)
     const dataStore = useSelector(state => state.dataState)
-    const [marker,setMarker] = useState();
+    const [line,setLine] = useState();
 
     const tooLongText =(text)=>{
         var newText;
@@ -46,8 +48,11 @@ export default function DetailContent({map}){
         xhr.send();
         xhr.onreadystatechange = function() {
             if (xhr.readyState == 4 && xhr.status == 200) {
-                console.log( JSON.parse(xhr.responseText) ); // <- xhr.responseText 로 결과를 가져올 수 있음
                 //노선그래픽 데이터 호출
+                if(xhr.responseText.includes('error')){
+                    alert('출, 도착지가 700m 이내입니다.')
+                    return;
+                }
                 callMapObjApiAJAX((JSON.parse(xhr.responseText))["result"]["path"][0].info.mapObj,dataStore.curPosition[1],dataStore.curPosition[0],y,x);
             }
         }
@@ -62,85 +67,104 @@ export default function DetailContent({map}){
         xhr.onreadystatechange = function() {
             if (xhr.readyState == 4 && xhr.status == 200) {
                 var resultJsonData = JSON.parse(xhr.responseText);
-                drawNaverMarker(sx,sy);					// 출발지 마커 표시
-                drawNaverMarker(ex,ey);					// 도착지 마커 표시
-                drawNaverPolyLine(resultJsonData);		// 노선그래픽데이터 지도위 표시
+                // drawKakaoMarker(sx,sy);					// 출발지 마커 표시
+                // drawKakaoMarker(ex,ey);					// 도착지 마커 표시
+                drawKakaoPolyLine(resultJsonData);		// 노선그래픽데이터 지도위 표시
                 // boundary 데이터가 있을경우, 해당 boundary로 지도이동
                 if(resultJsonData.result.boundary){
-                    var boundary = new naver.maps.LatLngBounds(
-                        new naver.maps.LatLng(resultJsonData.result.boundary.top-0.05, resultJsonData.result.boundary.left),
-                        new naver.maps.LatLng(resultJsonData.result.boundary.bottom, resultJsonData.result.boundary.right)
+                    var boundary = new kakao.maps.LatLngBounds(
+                        new kakao.maps.LatLng(resultJsonData.result.boundary.top-0.05, resultJsonData.result.boundary.left),
+                        new kakao.maps.LatLng(resultJsonData.result.boundary.bottom, resultJsonData.result.boundary.right)
                     );
-                    map.panToBounds(boundary);
+                    map.panTo(boundary);
                 }
             }
         }
     }
 
-    function drawNaverMarker(x,y){
-        var marker = new naver.maps.Marker({
-            position: new naver.maps.LatLng(y, x),
-            map: map
+    function drawKakaoMarker(x,y){
+        var marker = new kakao.maps.Marker({
+            position: new kakao.maps.LatLng(y, x),
         });
+        marker.setMap(map);
     }
 
-    function drawNaverPolyLine(data) {
+    function drawKakaoPolyLine(data) {
         var lineArray;
 
+        var lineList = [];
         for (var i = 0; i < data.result.lane.length; i++) {
             for (var j = 0; j < data.result.lane[i].section.length; j++) {
                 lineArray = null;
                 lineArray = new Array();
                 for (var k = 0; k < data.result.lane[i].section[j].graphPos.length; k++) {
-                    lineArray.push(new naver.maps.LatLng(data.result.lane[i].section[j].graphPos[k].y, data.result.lane[i].section[j].graphPos[k].x));
+                    lineArray.push(new kakao.maps.LatLng(data.result.lane[i].section[j].graphPos[k].y, data.result.lane[i].section[j].graphPos[k].x));
                 }
 
                 //지하철결과의 경우 노선에 따른 라인색상 지정하는 부분 (1,2호선의 경우만 예로 들음)
+                var polyline;
                 if (data.result.lane[i].type == 1) {
-                    var polyline = new naver.maps.Polyline({
+                   polyline = new kakao.maps.Polyline({
                         map: map,
                         path: lineArray,
                         strokeWeight: 3,
                         strokeColor: '#003499'
                     });
                 } else if (data.result.lane[i].type == 2) {
-                    var polyline = new naver.maps.Polyline({
+                    polyline = new kakao.maps.Polyline({
                         map: map,
                         path: lineArray,
                         strokeWeight: 3,
                         strokeColor: '#37b42d'
                     });
                 } else {
-                    var polyline = new naver.maps.Polyline({
+                    polyline = new kakao.maps.Polyline({
                         map: map,
                         path: lineArray,
                         strokeWeight: 3
                     });
                 }
+                lineList.push(polyline)
             }
         }
+
+        setLine(lineList)
     }
 
     useEffect(()=>{
         if(!dataStore.curDetail && !mapStore.mapLoading) return
 
         if(map){
-            map.setZoom(15,true)
-            map.panTo(new naver.maps.LatLng(dataStore.curDetail[4]-0.005,dataStore.curDetail[5]));
+            map.setLevel(3,true)
+            map.panTo(new kakao.maps.LatLng(dataStore.curDetail[4]-0.002,dataStore.curDetail[5]));
 
-            var mk = new naver.maps.Marker({
-                position: new naver.maps.LatLng(dataStore.curDetail[4],dataStore.curDetail[5]),
+            var mk = new kakao.maps.Marker({
+                position: new kakao.maps.LatLng(dataStore.curDetail[4],dataStore.curDetail[5]),
                 map:map
             });
 
-            setMarker(mk)
-
             return  ()=> {
-                if(!mk)return
-                mk.setMap(null);
+                if(mk){
+                    mk.setMap(null);
+                }
+
+                if(line){
+                    line.map((e)=>{
+                        e.setMap(null)
+                    })
+                }
+
             }
         }
-    },[dataStore.curDetail,mapStore.mapLoading,map])
+    },[dataStore.curDetail,mapStore.mapLoading,map,line])
+
+    const setStartPoint = (data)=>{
+        dispatch(dataStateAction.setStartPoint({startPoint:data}))
+    }
+
+    const setEndPoint = (data)=>{
+        dispatch(dataStateAction.setEndPoint({endPoint:data}))
+    }
 
     return(
         <div>
@@ -159,8 +183,8 @@ export default function DetailContent({map}){
                                 <RiShareForward2Fill className={styles.detailIconBtn} onClick={()=>copyUrl(dataStore.curDetail[0])}/>
                             </div>
                             <div style={{float:"right"}}>
-                                <button className={styles.detailBtn}><span style={{color:"gray"}}>출발</span></button>
-                                <button className={styles.detailBtn} onClick={()=>getPath(dataStore.curDetail[4],dataStore.curDetail[5])}><span style={{color:"gray"}}>도착</span></button>
+                                <button className={styles.detailBtn} onClick={()=>setStartPoint(dataStore.curDetail)}><span style={{color:"gray"}}>출발</span></button>
+                                <button className={styles.detailBtn} onClick={()=>setEndPoint(dataStore.curDetail)}><span style={{color:"gray"}}>도착</span></button>
                             </div>
                         </div>
                         <hr style={{marginBottom:'15px', width:'150%',marginLeft:'-20px', opacity:0.3}}/>

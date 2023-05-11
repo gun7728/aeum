@@ -1,5 +1,4 @@
 'use client'
-import Map from "@/components/Map";
 import {useEffect, useState} from "react";
 import MainComponents from "@/components/MainComponents";
 import {useSelector} from "react-redux";
@@ -7,6 +6,7 @@ import SearchSection from "@/components/SearchSection";
 import Header from "@/components/Header";
 import DetailSection from "@/components/DetailSection";
 import Loading from "@/components/loading";
+import KakaoMap from "@/components/KakaoMap";
 
 export default function Home(){
     const [map,setMap]=useState(null);
@@ -34,7 +34,7 @@ export default function Home(){
                 searchStore.page?<SearchSection/>:<></>
             }
             <Header/>
-            <Map nMap={nMap}/>
+            <KakaoMap nMap={nMap}/>
             {
                 mapStore.mapLoading?
                     <DetailSection map={map}/>

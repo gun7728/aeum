@@ -11,7 +11,7 @@ export function Providers ({children}){
                 <Script
                     type={'text/javascript'}
                     strategy={"beforeInteractive"}
-                    src={`https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.NEXT_PUBLIC_MAP_KEY}&submodules=geocoder`}
+                    src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_MAP_KEY}&libraries=services,clusterer&autoload=false`}
                 />
             </div>
             {children}
