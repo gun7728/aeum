@@ -106,6 +106,7 @@ export default function HeaderSearch(){
                     className={styles.exitBtn}/>
                 <input
                     onClick={()=>{
+                        dispatch(searchStateAction.searchStart({start:false}))
                         setSearchPage(true),
                         setSearchAction(true)
                     }}
@@ -122,6 +123,7 @@ export default function HeaderSearch(){
                     className={styles.startItem}/>
                 <input
                     onClick={()=>{
+                        dispatch(searchStateAction.searchStart({start:false}))
                         setSearchPage(true),
                         setSearchAction(true)
                     }}
