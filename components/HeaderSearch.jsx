@@ -38,12 +38,26 @@ export default function HeaderSearch(){
     useEffect(()=>{
         if(dataStore.startPoint){
             spRef.current.value = dataStore.startPoint[1]
+
+            if(!dataStore.endPoint){
+                epRef.current.focus();
+                dispatch(searchStateAction.searchStart({start:false}))
+                setSearchPage(true)
+                setSearchAction(true)
+            }
         }else{
             spRef.current.value = null
         }
 
         if(dataStore.endPoint){
             epRef.current.value = dataStore.endPoint[1]
+
+            if(!dataStore.startPoint) {
+                spRef.current.focus();
+                dispatch(searchStateAction.searchStart({start: false}))
+                setSearchPage(true)
+                setSearchAction(true)
+            }
         }else{
             epRef.current.value=null;
         }
@@ -118,7 +132,7 @@ export default function HeaderSearch(){
 
                     }
                     onChange={(e)=>{startStr(e.target.value)}}
-
+                    placeholder={'출발지를 선택해 주세요.'}
                     ref={spRef}
                     className={styles.startItem}/>
                 <input
@@ -136,9 +150,15 @@ export default function HeaderSearch(){
 
                     }
                     onChange={(e)=>{endStr(e.target.value)}}
-
+                    placeholder={'도착지를 선택해 주세요.'}
                     ref={epRef}
                     className={styles.endItem}/>
+                <button className={styles.confirmBtn}>
+                    확인
+                </button>
+                <button className={styles.confirmBtn}>
+                    취소
+                </button>
             </div>
 
             <div style={( dataStore.startPoint || dataStore.endPoint ) ? {display:'none'}:{}} className={styles.searchBox}>

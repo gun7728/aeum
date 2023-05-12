@@ -22,6 +22,10 @@
   display: flex;
   pointer-events: auto;
 }
+.flexItem:focus{
+  outline: #0055cc
+}
+
 .flexBtn{
   width: fit-content;
   cursor: pointer;
@@ -40,6 +44,9 @@
   height: 30px;
   display: flex;
   pointer-events: auto;
+}
+.flexItemActive:focus{
+  outline-color:  #0055cc;
 }
 
 .startEndBox {
@@ -81,6 +88,13 @@
     border: solid 1px lightgray;
   }
 
+  .endItem:focus{
+    outline-color: #0055cc;
+  }
+  .startItem:focus{
+    outline-color: #0055cc;
+  }
+
   .switchBtn{
     color: gray;
     cursor: pointer;
@@ -115,6 +129,14 @@
   }
 }
 
+.confirmBtn{
+  margin-top: 7px;
+  width: 50%;
+  height: 30px;
+  background-color: white;
+  border: solid 1px lightgray;
+}
+
 .searchBox {
   position: relative;
   width: 100%;
@@ -126,7 +148,7 @@
     padding: 0 15px;
     height: 40px;
     border-radius: 24px;
-    box-shadow: 0 4px 16px 0 rgba(136, 136, 136, 0.3);
+    box-shadow: 0 4px 16px 0 rgba(84, 84, 86, 0.3);
   }
   button {
   }

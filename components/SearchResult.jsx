@@ -17,7 +17,7 @@ export default function SearchResult(){
         if(searchStore.value){
             var resultList = [];
             dataStore.touristData.map((e)=>{
-                if(JSON.stringify(e.title + ' ' + e.content).includes(searchStore.value)){
+                if(JSON.stringify(e.title + ' ' + e.content + ' ' + e.loc).includes(searchStore.value)){
                     resultList.push(e);
                 }
             })
