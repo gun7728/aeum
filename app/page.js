@@ -1,23 +1,20 @@
 'use client'
 import {useEffect, useState} from "react";
-import MainComponents from "@/components/MainComponents";
 import {useSelector} from "react-redux";
-import SearchSection from "@/components/SearchSection";
 import Header from "@/components/Header";
 import DetailSection from "@/components/DetailSection";
 import Loading from "@/components/loading";
 import KakaoMap from "@/components/KakaoMap";
+import FadeAlert from "@/components/FadeAlert";
 
 export default function Home(){
     const [map,setMap]=useState(null);
-    const searchStore = useSelector((state)=>state.searchState);
     const dataStore = useSelector((state)=>state.dataState)
     const mapStore = useSelector((state)=>state.mapState)
 
     const nMap = (x)=>{
         setMap(x);
     }
-
     return(
         <main
               style={{
@@ -30,6 +27,7 @@ export default function Home(){
             {
                 dataStore.curLocation?'':<Loading/>
             }
+            <FadeAlert/>
             <Header/>
             <KakaoMap nMap={nMap}/>
             {

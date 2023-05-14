@@ -8,6 +8,7 @@ import {RiShareForward2Fill} from "react-icons/ri";
 import {IoEarthOutline, IoLocationOutline} from "react-icons/io5";
 import {BsPencil} from "react-icons/bs";
 import * as dataStateAction from "@/store/modules/data";
+import * as alertStateAction from "@/store/modules/alert"
 
 export default function DetailContent({map}){
     const dispatch = useDispatch();
@@ -26,17 +27,22 @@ export default function DetailContent({map}){
         return newText;
     }
     const copyUrl = (id)=>{
+        dispatch(alertStateAction.setAlert({alert:true}))
+        dispatch(alertStateAction.setMsg({msg:'URL이 복사되었습니다.'}))
         var url = window.location.href
 
         navigator.clipboard
             .writeText(url+'/share/'+id)
             .then(() => {
-                alert("successfully copied");
+                setTimeout(()=>{
+                    console.log('??')
+                    dispatch(alertStateAction.setAlert({alert:false}))
+                    dispatch(alertStateAction.setMsg({msg:null}))
+                },1500)
             })
             .catch(() => {
                 alert("something went wrong");
             });
-
     }
 
     const getPath =async (x,y)=>{
