@@ -31,7 +31,6 @@
   cursor: pointer;
   position: absolute;
   top: 0;
-  left: 5px;
   background: none;
   border: none;
   zoom: 2.5;
@@ -139,7 +138,8 @@
 
 .searchBox {
   position: relative;
-  width: 100%;
+  width: 90%;
+  left: 5%;
   padding-top: 10px;
   //padding: 0 8px 0 12px;
 
@@ -210,6 +210,12 @@
   padding-bottom: 5px;
 }
 
+.detailUrl{
+  padding-top: 5.5px;
+  font-size: small;
+  opacity: 0.7;
+  padding-bottom: 5px;
+}
 .detailContent{
   font-size: small;
   opacity: 0.7;

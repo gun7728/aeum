@@ -171,6 +171,10 @@ export default function DetailContent({map}){
     const setEndPoint = (data)=>{
         dispatch(dataStateAction.setEndPoint({endPoint:data}))
     }
+    const clickImg = () =>{
+        console.log('??')
+    }
+
 
     return(
         <div>
@@ -209,23 +213,21 @@ export default function DetailContent({map}){
 
                                 <div className={styles.detailContentSection}>
                                     <IoEarthOutline  className={styles.detailIcon}/>
-                                    <a target="_blank"  rel="noopener noreferrer" href={'https://hangang.seoul.go.kr/archives/46737'} className={styles.detailContent}>
+                                    <a target="_blank"  rel="noopener noreferrer" href={'https://hangang.seoul.go.kr/archives/46737'} className={styles.detailUrl}>
                                         https://hangang.seoul.go.kr/archives/46737
                                     </a>
                                 </div>
 
                                 <div className={styles.detailContentSection}>
                                     <BsPencil  className={styles.detailIcon}/>
-                                    <div>
-                                        <span className={styles.detailContent}>{tooLongText(dataStore.curDetail[2])}</span>
-                                    </div>
+                                    <span className={styles.detailContent}>{tooLongText(dataStore.curDetail[2])}</span>
                                 </div>
                             </div>
                             <hr style={{marginBottom:'15px', width:'150%',marginLeft:'-20px', opacity:0.3}}/>
                             <div className={styles.detailImageSection}>
-                                <Image className={styles.detailInnerThumb} src={dataStore.curDetail[3]} alt={`${dataStore.curDetail[1]}`} width={50} height={50}/>
-                                <Image className={styles.detailInnerThumb} src={dataStore.curDetail[3]} alt={`${dataStore.curDetail[1]}`} width={50} height={50}/>
-                                <Image className={styles.detailInnerThumb} src={dataStore.curDetail[3]} alt={`${dataStore.curDetail[1]}`} width={50} height={50}/>
+                                <Image className={styles.detailInnerThumb} src={dataStore.curDetail[3]} alt={`${dataStore.curDetail[1]}`} width={50} height={50} onClick={()=>{clickImg()}}/>
+                                <Image className={styles.detailInnerThumb} src={dataStore.curDetail[3]} alt={`${dataStore.curDetail[1]}`} width={50} height={50} onClick={()=>{clickImg()}}/>
+                                <Image className={styles.detailInnerThumb} src={dataStore.curDetail[3]} alt={`${dataStore.curDetail[1]}`} width={50} height={50} onClick={()=>{clickImg()}}/>
                             </div>
                         </div>
                     </div>

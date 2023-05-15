@@ -37,11 +37,12 @@ export default function HeaderSearch(){
 
     useEffect(()=>{
         if(dataStore.startPoint){
+            dispatch(dataStateAction.setCurDetail({curDetail:null}))
+            dispatch(searchStateAction.searchStart({start:false}))
             spRef.current.value = dataStore.startPoint[1]
 
             if(!dataStore.endPoint){
                 epRef.current.focus();
-                dispatch(searchStateAction.searchStart({start:false}))
                 setSearchPage(true)
                 setSearchAction(true)
             }
@@ -50,11 +51,12 @@ export default function HeaderSearch(){
         }
 
         if(dataStore.endPoint){
+            dispatch(dataStateAction.setCurDetail({curDetail:null}))
+            dispatch(searchStateAction.searchStart({start:false}))
             epRef.current.value = dataStore.endPoint[1]
 
             if(!dataStore.startPoint) {
                 spRef.current.focus();
-                dispatch(searchStateAction.searchStart({start: false}))
                 setSearchPage(true)
                 setSearchAction(true)
             }
@@ -124,6 +126,7 @@ export default function HeaderSearch(){
                 <input
                     onClick={()=>{
                         dispatch(searchStateAction.searchStart({start:false}))
+                        dispatch(dataStateAction.setCurDetail({curDetail:null}))
                         setSearchPage(true),
                         setSearchAction(true)
                     }}
@@ -141,6 +144,7 @@ export default function HeaderSearch(){
                 <input
                     onClick={()=>{
                         dispatch(searchStateAction.searchStart({start:false}))
+                        dispatch(dataStateAction.setCurDetail({curDetail:null}))
                         setSearchPage(true),
                         setSearchAction(true)
                     }}

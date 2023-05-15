@@ -60,10 +60,6 @@ export default function DetailSection({map}){
             // setExpanded()
         }
     }
-    useEffect(()=>{
-        console.log(dataStore.curDetail)
-    })
-
     return(
         <div
             onTouchStart={onTouchStart}
