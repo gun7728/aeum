@@ -60,6 +60,9 @@ export default function DetailSection({map}){
             // setExpanded()
         }
     }
+    useEffect(()=>{
+        console.log(dataStore.curDetail)
+    })
 
     return(
         <div
@@ -68,10 +71,8 @@ export default function DetailSection({map}){
             onTouchEnd={onTouchEnd}
             className={`${styles.detailSection} ${(!searchStore.action ? (dataStore.curDetail? styles.detailExpanded: styles.expanded)  : (searchStore.page?(searchStore.start?styles.searchResultExpanded:styles.searchStartExpanded):''))} `}
         >
-
             {
-                searchStore.page?<SearchSection/>
-
+                (!dataStore.curDetail&&searchStore.page)?<SearchSection/>
             :
                 <div className={searchStore.action ? styles.header:styles.header}>
                     <button
@@ -80,7 +81,10 @@ export default function DetailSection({map}){
                         // disabled={!currentStore}
                         aria-label={!searchStore.action ? '매장 정보 접기' : '매장 정보 펼치기'}
                     >
-                        <IoIosArrowUp size={20} color="#666666" />
+                        {
+                            searchStore.page?<div className={styles.goToListBtn}>☰ 목록보기</div>:<IoIosArrowUp size={20} color="#666666" />
+                        }
+
                     </button>
                     {
                         dataStore.curDetail?<DetailContent map={map}/>:<DetailHeaderList/>

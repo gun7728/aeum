@@ -29,8 +29,10 @@
   float: left;
 }
 .loc{
-  font-size: 10px;
+  font-size: 12px;
   float: left;
+  padding-top: 5px;
+  margin-bottom: -10px;
 }
 
 .allDeleteBtn{
@@ -67,7 +69,7 @@
   //box-shadow: inset 0px 0px 10px 0px lightgray;
 }
 .searchListItemSection{
-  height: 140px;
+  padding: 10px 0 10px 0;
 }
 
 

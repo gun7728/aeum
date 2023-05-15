@@ -166,7 +166,11 @@ export default function HeaderSearch(){
 
             <div style={( dataStore.startPoint || dataStore.endPoint ) ? {display:'none'}:{}} className={styles.searchBox}>
                 <AiOutlineSearch className={styles.searchBtn}  onClick={()=>{setSearchWord()}}/>
-                <AiOutlineLeft style={!searchStore.page?{display:'none'}:''} className={styles.flexBtn} onClick={()=>{setSearchPage(false)}}/>
+                <AiOutlineLeft style={!searchStore.page?{display:'none'}:''} className={styles.flexBtn}
+                   onClick={()=>{
+                       setSearchPage(false)
+                       dispatch(dataStateAction.setCurDetail({curDetail:null}))
+                }}/>
                     <input
                         ref={inputRef}
                         className={styles.flexItem}
@@ -181,7 +185,8 @@ export default function HeaderSearch(){
                            onChange={(e)=>{setStr(e.target.value)}}
                            onClick={()=>{
                                setSearchPage(true),
-                               setSearchAction(true)
+                               setSearchAction(true),
+                               dispatch(dataStateAction.setCurDetail({curDetail:null}))
                            }}
                            type={"text"}
                            placeholder={'장소, 주소 검색'}

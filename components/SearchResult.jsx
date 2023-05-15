@@ -6,6 +6,7 @@ import * as dataStateAction from "@/store/modules/data";
 import styles from '@/styles/search.module.scss'
 import {CgPhone} from "react-icons/cg";
 import {RiShareForward2Fill} from "react-icons/ri";
+import * as alertStateAction from "@/store/modules/alert";
 
 export default function SearchResult(){
     const dispatch = useDispatch();
@@ -31,12 +32,19 @@ export default function SearchResult(){
     }
 
     const copyUrl = (id)=>{
+        dispatch(alertStateAction.setAlert({alert:true}))
+        dispatch(alertStateAction.setMsg({msg:'URL이 복사되었습니다.'}))
         var url = window.location.href
 
+        console.log(url)
         navigator.clipboard
-            .writeText(url+'/share/'+id)
+            .writeText(url+'share/'+id)
             .then(() => {
-                alert("successfully copied");
+                setTimeout(()=>{
+                    console.log('??')
+                    dispatch(alertStateAction.setAlert({alert:false}))
+                    dispatch(alertStateAction.setMsg({msg:null}))
+                },1500)
             })
             .catch(() => {
                 alert("something went wrong");

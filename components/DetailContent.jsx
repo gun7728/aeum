@@ -32,7 +32,7 @@ export default function DetailContent({map}){
         var url = window.location.href
 
         navigator.clipboard
-            .writeText(url+'/share/'+id)
+            .writeText(url+'share/'+id)
             .then(() => {
                 setTimeout(()=>{
                     console.log('??')
