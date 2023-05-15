@@ -32,7 +32,7 @@ export default function Home(){
     return(
         <div
             ref={scrollInto}
-            style={{height:'100vh'}}>
+            style={{height:'100%'}}>
             <main
                   style={{
                       position: 'relative',
