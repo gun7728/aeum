@@ -62,7 +62,7 @@ export default function SearchSection() {
     }
 
     return(
-        <div style={( dataStore.startPoint || dataStore.endPoint ) ?{top:'30px'}:{}}
+        <div style={( dataStore.startPoint || dataStore.endPoint ) ?(searchStore.start?{}:{top:'30px'}):{}}
             className={`${styles.searchSection}`}>
             {
                 searchStore.start

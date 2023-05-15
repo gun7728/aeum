@@ -62,6 +62,9 @@ export default function HeaderSearch(){
             epRef.current.value=null;
         }
 
+        if(dataStore.endPoint && dataStore.startPoint){
+            // console.log('??')
+        }
     },[dataStore.startPoint,dataStore.endPoint])
 
     const startStr = (str) =>{

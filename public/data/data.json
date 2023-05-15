@@ -69,5 +69,27 @@
     "category": "시장",
     "loc": "서울 특별시 마포구 마포나루길 467 (우)04005"
   }
+,
+  {
+    "id": 8,
+    "title": "망원시장",
+    "content": "농수산물부터 분식,~~~~~",
+    "image": "https://lh3.googleusercontent.com/p/AF1QipP-M6dZLZJlIVM2GvdXMhJZ-w-XFRr6oI15T-r2=s1360-w1360-h1020",
+    "x": 37.555621253953916,
+    "y": 126.90649596432621,
+    "category": "시장",
+    "loc": "서울 특별시 마포구 마포나루길 467 (우)04005"
+  }
+,
+  {
+    "id":9,
+    "title": "망원시장",
+    "content": "농수산물부터 분식,~~~~~",
+    "image": "https://lh3.googleusercontent.com/p/AF1QipP-M6dZLZJlIVM2GvdXMhJZ-w-XFRr6oI15T-r2=s1360-w1360-h1020",
+    "x": 37.555621253953916,
+    "y": 126.90649596432621,
+    "category": "시장",
+    "loc": "서울 특별시 마포구 마포나루길 467 (우)04005"
+  }
 
 ]
