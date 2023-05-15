@@ -35,14 +35,19 @@ export default function FadeAlert(){
         <>
             {
                 alertStore.msg?
-                <div className={styles.fadeAlert}
-                     style={{opacity:`${alertOpacity}%`, zIndex:alertZIndex}}>
-                    <span className={styles.fadeAlertMsg}>
-                        <div>
-                            {alertStore.msg}
+                    <>
+                        <div className={styles.fadeAlert}
+                             style={{opacity:`${alertOpacity}%`, zIndex:alertZIndex}}>
+
                         </div>
-                    </span>
-                </div>
+                        <div  className={styles.fadeAlertMsg} >
+                            <div style={{height:'100%', display:"table", width:'100%'}}>
+                                <span style={{display:"table-cell",verticalAlign:"middle",width:'100%'}}>
+                                  {alertStore.msg}
+                                </span>
+                            </div>
+                        </div>
+                    </>
                     :
                 <></>
             }
