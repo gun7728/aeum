@@ -27,7 +27,7 @@ export default function SearchResult(){
     },[searchStore.value])
 
     const goToDetail =(e)=>{
-        dispatch(searchStateAction.searchAction({action:true}))
+        dispatch(searchStateAction.listOpen({listOpen:false}))
         dispatch(dataStateAction.setCurDetail({curDetail:Object.values(e)}))
     }
 

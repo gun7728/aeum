@@ -32,17 +32,21 @@ export default function DetailHeaderContent(){
     }
 
     const goToDetail =(e)=>{
-        dispatch(searchStateAction.searchAction({action:true}))
+        if(searchStore.listOpen){
+            dispatch(searchStateAction.listReOpen({listReOpen:true}))
+        }
+
+        dispatch(searchStateAction.listOpen({listOpen:false}))
         dispatch(dataStateAction.setCurDetail({curDetail:Object.values(e)}))
     }
 
     return (
         //${styles.slider} ${searchStore.action? 'styles':'active'}`
-        <div className={searchStore.action?styles.slideridle:styles.slideractive} ref={scrollRef} onMouseDown={onDragStart} onMouseUp={onDragEnd} onMouseMove={e=>setTimeout(onDragMove(e),200)} role={"option"} >
+        <div className={!searchStore.listOpen?styles.slideridle:styles.slideractive} ref={scrollRef} onMouseDown={onDragStart} onMouseUp={onDragEnd} onMouseMove={e=>setTimeout(onDragMove(e),200)} role={"option"} >
             {
                 dataStore.touristData.map((e)=>{
                     return(
-                        searchStore.action?
+                        !searchStore.listOpen?
                             <div key={e.id} className={styles.detailHeaderSection} >
                                 <Image className={styles.image} src={e.image} alt={`${e.title}`} width={125} height={170} onClick={()=>{goToDetail(e)}}/>
                                 <p>

@@ -44,7 +44,7 @@ export default function HeaderSearch(){
             if(!dataStore.endPoint){
                 epRef.current.focus();
                 setSearchPage(true)
-                setSearchAction(true)
+                setSearchOpen(true)
             }
         }else{
             spRef.current.value = null
@@ -58,7 +58,7 @@ export default function HeaderSearch(){
             if(!dataStore.startPoint) {
                 spRef.current.focus();
                 setSearchPage(true)
-                setSearchAction(true)
+                setSearchOpen(true)
             }
         }else{
             epRef.current.value=null;
@@ -99,8 +99,8 @@ export default function HeaderSearch(){
         dispatch(dataStateAction.setEndPoint({endPoint:sp}))
     }
 
-    const setSearchAction = ((bool)=>{
-        dispatch(searchStateAction.searchAction({action:bool}))
+    const setSearchOpen = ((bool)=>{
+        dispatch(searchStateAction.listOpen({listOpen:bool}))
     })
 
     const setSearchPage = ((bool)=>{
@@ -128,7 +128,7 @@ export default function HeaderSearch(){
                         dispatch(searchStateAction.searchStart({start:false}))
                         dispatch(dataStateAction.setCurDetail({curDetail:null}))
                         setSearchPage(true),
-                        setSearchAction(true)
+                        setSearchOpen(false)
                     }}
                     onKeyDown={(e)=>{
                         if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
@@ -146,7 +146,7 @@ export default function HeaderSearch(){
                         dispatch(searchStateAction.searchStart({start:false}))
                         dispatch(dataStateAction.setCurDetail({curDetail:null}))
                         setSearchPage(true),
-                        setSearchAction(true)
+                        setSearchOpen(false)
                     }}
 
                     onKeyDown={(e)=>{
@@ -189,7 +189,7 @@ export default function HeaderSearch(){
                            onChange={(e)=>{setStr(e.target.value)}}
                            onClick={()=>{
                                setSearchPage(true),
-                               setSearchAction(true),
+                               setSearchOpen(false),
                                dispatch(dataStateAction.setCurDetail({curDetail:null}))
                            }}
                            type={"text"}

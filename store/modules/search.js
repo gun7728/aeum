@@ -2,7 +2,8 @@ import {createSlice} from "@reduxjs/toolkit";
 
 const initialState = {
     value:null,
-    action:true,
+    listOpen:false,
+    listReOpen:false,
     page:false,
     start:false,
     searchData:null,
@@ -15,8 +16,11 @@ const searchState = createSlice({
        setWord(state,action){
            state.value = action.payload.value
        },
-        searchAction(state,action){
-           state.action=action.payload.action
+        listOpen(state,action){
+           state.listOpen=action.payload.listOpen
+        },
+        listReOpen(state,action){
+            state.listReOpen=action.payload.listReOpen
         },
         pageChange(state,action){
            state.page=action.payload.page
@@ -30,5 +34,5 @@ const searchState = createSlice({
     },
 });
 
-export const {setWord,searchAction,pageChange,searchStart,setSearchData} = searchState.actions;
+export const {setWord,listOpen,listReOpen,pageChange,searchStart,setSearchData} = searchState.actions;
 export default searchState.reducer;

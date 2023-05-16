@@ -1,7 +1,7 @@
 'use client'
 
 import styles from '../styles/detail.module.scss'
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {IoIosArrowUp} from "react-icons/io";
 import DetailHeaderList from "@/components/DetailHeaderList";
 import {useDispatch, useSelector} from "react-redux";
@@ -12,27 +12,34 @@ import DetailContent from "@/components/DetailContent";
 import SearchSection from "@/components/SearchSection";
 
 export default function DetailSection({map}){
+    const openBtn = useRef();
     const dispatch = useDispatch();
     const [touchStart, setTouchStart] = useState(null)
     const [touchEnd, setTouchEnd] = useState(null)
     const searchStore = useSelector((state)=>state.searchState)
     const dataStore = useSelector(state => state.dataState)
+    const [listFlag,setListFlag] = useState(false);
 
-    const setExpanded =()=>{
-        if(searchStore.action){
-            dispatch(searchStateAction.searchAction({action:false}))
+    const setExpanded =async ()=>{
+        if(searchStore.listOpen && searchStore.listReOpen){
+            await dispatch(dataStateAction.setCurDetail({curDetail:null}))
+            dispatch(searchStateAction.listOpen({listOpen:true}))
+            dispatch(searchStateAction.listReOpen({listReOpen:false}))
+            return;
+        }
+        if(!searchStore.listOpen){
+            dispatch(searchStateAction.listOpen({listOpen:true}))
         }else{
-            dispatch(searchStateAction.searchAction({action:true}))
+            dispatch(searchStateAction.listOpen({listOpen:false}))
             dispatch(dataStateAction.setCurDetail({curDetail:null}))
         }
-
     }
 
     useEffect(()=>{
         if(dataStore.curDetail){
             setExpanded()
         }else if(dataStore.curDetail==null){
-            dispatch(searchStateAction.searchAction({action:true}))
+            dispatch(searchStateAction.listOpen({listOpen:false}))
         }
     },[dataStore.curDetail])
 
@@ -52,7 +59,7 @@ export default function DetailSection({map}){
         const isTopSwipe = distance > minSwipeDistance
         const isBottomSwipe = distance < -minSwipeDistance
         if (isTopSwipe){
-            if(!searchStore.action) return
+            if(searchStore.listOpen) return
             if(searchStore.start) return
             setExpanded()
         }else if(isBottomSwipe){
@@ -65,20 +72,24 @@ export default function DetailSection({map}){
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
-            className={`${styles.detailSection} ${(!searchStore.action ? (dataStore.curDetail? styles.detailExpanded: styles.expanded)  : (searchStore.page?(searchStore.start?styles.searchResultExpanded:styles.searchStartExpanded):''))} `}
+            className={`${styles.detailSection} ${(searchStore.listOpen ? (dataStore.curDetail? styles.detailExpanded: styles.expanded)  : (searchStore.page?(searchStore.start?styles.searchResultExpanded:styles.searchStartExpanded):''))} `}
         >
             {
                 (!dataStore.curDetail&&searchStore.page)?<SearchSection/>
             :
-                <div className={searchStore.action ? styles.header:styles.header}>
+                <div className={!searchStore.listOpen ? styles.header:styles.header}>
                     <button
-                        className={`${styles.arrowButton} ${!searchStore.action ? styles.expanded : ''}`}
-                        onClick={setExpanded}
+                        ref={openBtn}
+                        className={`${styles.arrowButton} ${searchStore.listOpen ? styles.expanded : ''}`}
+                        onClick={()=>{
+                            searchStore.listOpen?setListFlag(false):setListFlag(true)
+                            setExpanded()
+                        }}
                         // disabled={!currentStore}
-                        aria-label={!searchStore.action ? '매장 정보 접기' : '매장 정보 펼치기'}
+                        aria-label={searchStore.listOpen ? '매장 정보 접기' : '매장 정보 펼치기'}
                     >
                         {
-                            searchStore.page?<div className={styles.goToListBtn}>☰ 목록보기</div>:<IoIosArrowUp size={20} color="#666666" />
+                            searchStore.page?<div className={styles.goToListBtn}>☰ 목록보기</div>:searchStore.listReOpen?<div className={styles.goToListBtn}>☰ 목록보기</div>:<IoIosArrowUp size={20} color="#666666" />
                         }
 
                     </button>
