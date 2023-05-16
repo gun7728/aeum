@@ -18,7 +18,6 @@ export default function DetailSection({map}){
     const [touchEnd, setTouchEnd] = useState(null)
     const searchStore = useSelector((state)=>state.searchState)
     const dataStore = useSelector(state => state.dataState)
-    const [listFlag,setListFlag] = useState(false);
 
     const setExpanded =async ()=>{
         if(searchStore.listOpen && searchStore.listReOpen){
@@ -81,10 +80,7 @@ export default function DetailSection({map}){
                     <button
                         ref={openBtn}
                         className={`${styles.arrowButton} ${searchStore.listOpen ? styles.expanded : ''}`}
-                        onClick={()=>{
-                            searchStore.listOpen?setListFlag(false):setListFlag(true)
-                            setExpanded()
-                        }}
+                        onClick={setExpanded}
                         // disabled={!currentStore}
                         aria-label={searchStore.listOpen ? '매장 정보 접기' : '매장 정보 펼치기'}
                     >

@@ -6,6 +6,7 @@ import {AiOutlineClose} from "react-icons/ai";
 import {FaSearchLocation} from "react-icons/fa";
 import SearchResult from "@/components/SearchResult";
 import * as searchStateAction from "@/store/modules/search";
+import {log} from "next/dist/server/typescript/utils";
 
 export default function SearchSection() {
     const dispatch = useDispatch()
@@ -62,7 +63,7 @@ export default function SearchSection() {
     }
 
     return(
-        <div style={( dataStore.startPoint || dataStore.endPoint ) ?(searchStore.start?{}:{top:'30px'}):{}}
+        <div style={( dataStore.startPoint || dataStore.endPoint ) ?(searchStore.start?{}:{top:'40px'}):{}}
             className={`${styles.searchSection}`}>
             {
                 searchStore.start

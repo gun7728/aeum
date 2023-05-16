@@ -35,7 +35,6 @@ export default function DetailContent({map}){
             .writeText(url+'share/'+id)
             .then(() => {
                 setTimeout(()=>{
-                    console.log('??')
                     dispatch(alertStateAction.setAlert({alert:false}))
                     dispatch(alertStateAction.setMsg({msg:null}))
                 },1500)

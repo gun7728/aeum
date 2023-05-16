@@ -36,12 +36,10 @@ export default function SearchResult(){
         dispatch(alertStateAction.setMsg({msg:'URL이 복사되었습니다.'}))
         var url = window.location.href
 
-        console.log(url)
         navigator.clipboard
             .writeText(url+'share/'+id)
             .then(() => {
                 setTimeout(()=>{
-                    console.log('??')
                     dispatch(alertStateAction.setAlert({alert:false}))
                     dispatch(alertStateAction.setMsg({msg:null}))
                 },1500)
@@ -51,12 +49,21 @@ export default function SearchResult(){
             });
     }
 
-    const setStartPoint = (data)=>{
-        dispatch(dataStateAction.setStartPoint({startPoint:Object.values(data)}))
+
+    const setStartPoint = async (data)=>{
+        dispatch(searchStateAction.searchStart({start:true}))
+        dispatch(searchStateAction.pageChange({page:false}))
+
+        await  dispatch(dataStateAction.setStartPoint({startPoint:Object.values(data)}))
+        await  dispatch(searchStateAction.listOpen({listOpen:false}))
     }
 
-    const setEndPoint = (data)=>{
-        dispatch(dataStateAction.setEndPoint({endPoint:Object.values(data)}))
+    const setEndPoint = async (data)=>{
+        dispatch(searchStateAction.searchStart({start:true}))
+        dispatch(searchStateAction.pageChange({page:false}))
+
+        await dispatch(dataStateAction.setEndPoint({endPoint:Object.values(data)}))
+        await dispatch(searchStateAction.listOpen({listOpen:false}))
     }
 
     useEffect(()=>{

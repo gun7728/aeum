@@ -87,14 +87,24 @@ export default function HeaderSearch(){
         dispatch(dataStateAction.setCurDetail({curDetail:null}))
         dispatch(searchStateAction.setWord({value:null}))
         dispatch(searchStateAction.pageChange({page:false}))
+        dispatch(searchStateAction.searchStart({start:false}))
+        dispatch(searchStateAction.listOpen({listOpen:false}))
+        dispatch(searchStateAction.listReOpen({listReOpen:false}))
+
+        setSearchOpen(false)
+
         setSearchPage(false)
 
         inputRef.current.value=null
     }
 
     const switchStartEnd = () =>{
+        console.log('??')
         var sp  = dataStore.startPoint;
         var ep  = dataStore.endPoint;
+
+
+
         dispatch(dataStateAction.setStartPoint({startPoint:ep}))
         dispatch(dataStateAction.setEndPoint({endPoint:sp}))
     }
@@ -114,6 +124,14 @@ export default function HeaderSearch(){
             dispatch(searchStateAction.setWord({value:null}))
         }
     })
+    const setSearchStatus = () => {
+        dispatch(searchStateAction.searchStart({start:false}))
+        dispatch(dataStateAction.setCurDetail({curDetail:null}))
+        dispatch(searchStateAction.listOpen({listOpen:false}))
+        dispatch(searchStateAction.listReOpen({listReOpen:false}))
+        setSearchPage(true)
+        setSearchOpen(false)
+    }
     return(
         <>
             <div style={( dataStore.startPoint || dataStore.endPoint ) ? {} :  {display:'none'}} className={styles.startEndBox}>
@@ -124,12 +142,7 @@ export default function HeaderSearch(){
                     onClick={()=>resetStartEnd()}
                     className={styles.exitBtn}/>
                 <input
-                    onClick={()=>{
-                        dispatch(searchStateAction.searchStart({start:false}))
-                        dispatch(dataStateAction.setCurDetail({curDetail:null}))
-                        setSearchPage(true),
-                        setSearchOpen(false)
-                    }}
+                    onClick={setSearchStatus}
                     onKeyDown={(e)=>{
                         if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
                             setSearchWord()
@@ -142,13 +155,7 @@ export default function HeaderSearch(){
                     ref={spRef}
                     className={styles.startItem}/>
                 <input
-                    onClick={()=>{
-                        dispatch(searchStateAction.searchStart({start:false}))
-                        dispatch(dataStateAction.setCurDetail({curDetail:null}))
-                        setSearchPage(true),
-                        setSearchOpen(false)
-                    }}
-
+                    onClick={setSearchStatus}
                     onKeyDown={(e)=>{
                         if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
                             setSearchWord()
