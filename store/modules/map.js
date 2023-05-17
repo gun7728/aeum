@@ -2,6 +2,7 @@ import {createSlice} from "@reduxjs/toolkit";
 
 const initialState = {
     mapLoading:false,
+    routePolyline:[],
 };
 
 const mapState = createSlice({
@@ -11,8 +12,11 @@ const mapState = createSlice({
         setMapLoading(state,action){
             state.mapLoading = action.payload.mapLoading
         },
+        setRoutePolyline(state, action){
+            state.routePolyline = action.payload.routePolyline
+        }
     },
 });
 
-export const {setMapLoading} = mapState.actions;
+export const {setMapLoading, setRoutePolyline} = mapState.actions;
 export default mapState.reducer;

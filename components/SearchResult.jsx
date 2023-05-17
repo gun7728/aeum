@@ -13,6 +13,7 @@ export default function SearchResult(){
     const searchStore = useSelector((state)=>state.searchState)
     const dataStore = useSelector(state => state.dataState)
     const [results, setResults] = useState([]);
+    const [customPoint, setCustomPoint] = useState();
 
     useEffect(()=>{
         if(searchStore.value){
@@ -66,8 +67,47 @@ export default function SearchResult(){
         await dispatch(searchStateAction.listOpen({listOpen:false}))
     }
 
+    const setStartPointCustom = async ()=>{
+        console.log(customPoint)
+        dispatch(searchStateAction.searchStart({start:true}))
+        dispatch(searchStateAction.pageChange({page:false}))
+
+        await  dispatch(dataStateAction.setStartPoint({startPoint:Object.values(customPoint)}))
+        await  dispatch(searchStateAction.listOpen({listOpen:false}))
+    }
+    const setEndPointCustom = async ()=>{
+        dispatch(searchStateAction.searchStart({start:true}))
+        dispatch(searchStateAction.pageChange({page:false}))
+
+        await dispatch(dataStateAction.setEndPoint({endPoint:Object.values(customPoint)}))
+        await dispatch(searchStateAction.listOpen({listOpen:false}))
+    }
+
+
+
+
     useEffect(()=>{
         dispatch(searchStateAction.setSearchData({searchData:results}))
+        if(results.length<=0){
+            new kakao.maps.services.Geocoder().addressSearch(searchStore.value,
+                (res,status)=>{
+                    if (status === kakao.maps.services.Status.OK) {
+                        var customPoint = {
+                            id:Math.floor(Math.random())+1,
+                            title:searchStore.value,
+                            content:searchStore.value,
+                            image:"custom",
+                            x:parseFloat(res[0].y),
+                            y:parseFloat(res[0].x),
+                            category:"custom",
+                            loc:"custom",
+                        }
+                        setCustomPoint(customPoint)
+                    }else{
+                        setCustomPoint(null);
+                    }
+                });
+        }
     },[results])
 
     return(
@@ -102,8 +142,24 @@ export default function SearchResult(){
                         )
                     })
                     :
-                <div>
-                    검색 결과가 없습니다.
+                <div className={styles.searchListItemSection}>
+                    <div>
+                        검색 결과가 없습니다.
+                    </div>
+                    <br/>
+                        {
+                            customPoint?
+                                <div>
+                                    해당 위치를
+                                    <button className={styles.detailBtn} onClick={()=>setStartPointCustom()}><span style={{color:"gray"}}>출발</span></button>
+                                    <button className={styles.detailBtn} onClick={()=>setEndPointCustom()}><span style={{color:"gray"}}>도착</span></button>
+                                    로 지정하시겠습니까?
+                                </div>
+                            :
+                                <div>
+                                    잘못된 주소입니다.
+                                </div>
+                        }
                 </div>
             }
         </div>

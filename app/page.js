@@ -45,7 +45,7 @@ export default function Home(){
                     dataStore.curLocation?'':<Loading/>
                 }
                 <FadeAlert/>
-                <Header/>
+                <Header map={map}/>
                 <KakaoMap nMap={nMap}/>
                 {
                     mapStore.mapLoading?

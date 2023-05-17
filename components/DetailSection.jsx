@@ -67,34 +67,41 @@ export default function DetailSection({map}){
         }
     }
     return(
-        <div
-            onTouchStart={onTouchStart}
-            onTouchMove={onTouchMove}
-            onTouchEnd={onTouchEnd}
-            className={`${styles.detailSection} ${(searchStore.listOpen ? (dataStore.curDetail? styles.detailExpanded: styles.expanded)  : (searchStore.page?(searchStore.start?styles.searchResultExpanded:styles.searchStartExpanded):''))} `}
-        >
-            {
-                (!dataStore.curDetail&&searchStore.page)?<SearchSection/>
-            :
-                <div className={!searchStore.listOpen ? styles.header:styles.header}>
-                    <button
-                        ref={openBtn}
-                        className={`${styles.arrowButton} ${searchStore.listOpen ? styles.expanded : ''}`}
-                        onClick={setExpanded}
-                        // disabled={!currentStore}
-                        aria-label={searchStore.listOpen ? '매장 정보 접기' : '매장 정보 펼치기'}
-                    >
-                        {
-                            searchStore.page?<div className={styles.goToListBtn}>☰ 목록보기</div>:searchStore.listReOpen?<div className={styles.goToListBtn}>☰ 목록보기</div>:<IoIosArrowUp size={20} color="#666666" />
-                        }
+        <>
+            {/*{*/}
+            {/*    */}
+            {/*}*/}
+            <div
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+                style={(dataStore.endPoint && dataStore.startPoint)?{transform:'translateY(100%)'}:{}}
+                className={`${styles.detailSection} ${(searchStore.listOpen ? (dataStore.curDetail? styles.detailExpanded: styles.expanded)  : (searchStore.page?(searchStore.start?styles.searchResultExpanded:styles.searchStartExpanded):''))} `}
+            >
+                {
+                    (!dataStore.curDetail&&searchStore.page)?<SearchSection/>
+                :
+                    <div className={!searchStore.listOpen ? styles.header:styles.header}>
+                        <button
+                            ref={openBtn}
+                            className={`${styles.arrowButton} ${searchStore.listOpen ? styles.expanded : ''}`}
+                            onClick={setExpanded}
+                            // disabled={!currentStore}
+                            aria-label={searchStore.listOpen ? '매장 정보 접기' : '매장 정보 펼치기'}
+                        >
+                            {
+                                searchStore.page?<div className={styles.goToListBtn}>☰ 목록보기</div>:searchStore.listReOpen?<div className={styles.goToListBtn}>☰ 목록보기</div>:<IoIosArrowUp size={20} color="#666666" />
+                            }
 
-                    </button>
-                    {
-                        dataStore.curDetail?<DetailContent map={map}/>:<DetailHeaderList/>
-                    }
-                    {/*<DetailContent currentStore={currentStore} expanded={expanded} />*/}
-                </div>
-            }
-        </div>
+                        </button>
+                        {
+                            dataStore.curDetail?<DetailContent map={map}/>:<DetailHeaderList/>
+                        }
+                        {/*<DetailContent currentStore={currentStore} expanded={expanded} />*/}
+                    </div>
+                }
+            </div>
+
+        </>
     )
 }
