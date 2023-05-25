@@ -1,15 +1,17 @@
-import {useDispatch, useSelector} from "react-redux";
 import Image from "next/image";
 import styles from "/styles/header.module.scss"
 import {useRef, useState} from "react";
-import * as dataStateAction from "@/store/modules/data";
-import * as searchStateAction from "@/store/modules/search";
+import useSWR from "swr";
+import useSearchAction from "@/hooks/useSearchAction";
+import useStores from "@/hooks/useStores";
+
 
 export default function DetailHeaderContent(){
-    const dataStore = useSelector((state)=>state.dataState)
-    const dispatch = useDispatch();
+    const {setListOpen, setListReOpen} = useSearchAction()
+    const {setChoseStores} = useStores()
 
-    const searchStore = useSelector((state)=>state.searchState)
+    const { data:stores } = useSWR('/stores');
+    const { data:open } = useSWR('/list/open');
 
     const scrollRef = useRef();
     const [isDrag, setIsDrag] = useState(false)
@@ -32,21 +34,20 @@ export default function DetailHeaderContent(){
     }
 
     const goToDetail =(e)=>{
-        if(searchStore.listOpen){
-            dispatch(searchStateAction.listReOpen({listReOpen:true}))
+        if(open){
+            setListReOpen(true)
         }
 
-        dispatch(searchStateAction.listOpen({listOpen:false}))
-        dispatch(dataStateAction.setCurDetail({curDetail:Object.values(e)}))
+        setListOpen(false);
+        setChoseStores(Object.values(e))
     }
 
     return (
-        //${styles.slider} ${searchStore.action? 'styles':'active'}`
-        <div className={!searchStore.listOpen?styles.slideridle:styles.slideractive} ref={scrollRef} onMouseDown={onDragStart} onMouseUp={onDragEnd} onMouseMove={e=>setTimeout(onDragMove(e),200)} role={"option"} >
+        <div className={!open?styles.slideridle:styles.slideractive} ref={scrollRef} onMouseDown={onDragStart} onMouseUp={onDragEnd} onMouseMove={e=>setTimeout(onDragMove(e),200)} role={"option"} >
             {
-                dataStore.touristData.map((e)=>{
+                stores.map((e)=>{
                     return(
-                        !searchStore.listOpen?
+                        !open?
                             <div key={e.id} className={styles.detailHeaderSection} >
                                 <Image className={styles.image} src={e.image} alt={`${e.title}`} width={125} height={170} onClick={()=>{goToDetail(e)}}/>
                                 <p>

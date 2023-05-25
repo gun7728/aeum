@@ -1,75 +1,71 @@
 'use client'
 
 import Script from 'next/script'
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import * as dataStateAction from "@/store/modules/data"
 import * as mapStateAction from "@/store/modules/map"
 import {useRouter} from "next/navigation";
-import {Map} from 'react-kakao-maps-sdk'
+import useMap, { INITIAL_CENTER, INITIAL_ZOOM } from "@/hooks/useMap";
+import Map from "@/components/Map";
+import useStores from "@/hooks/useStores";
+import useSWR from "swr";
 
-export default function KakaoMap({nMap}){
-    // const router = useRouter()
+export default function KakaoMap(){
     const dispatch = useDispatch();
-    const [map,setMap] = useState();
 
-    useEffect(()=>{
-        if(!map) return
-        nMap(map);
-    },[map])
+    const { initializeStores } = useStores();
+    const { initializeMap, initializeCurrentPosition } = useMap();
 
-    useEffect(()=>{
-        if(map){
-            navigator.geolocation.getCurrentPosition((position) => {
+    const onLoadMap = async (map) => {
+        await initData()
+        getPosition(map)
+        initializeMap(map);
+    };
 
-                map.panTo(new kakao.maps.LatLng(position.coords.latitude, position.coords.longitude))
-                dispatch(mapStateAction.setMapLoading({mapLoading:true}))
+    const initData = async ()=>{
+        initializeStores(await require('/public/data/data.json'));
+    };
 
-                dispatch(dataStateAction.setCurPosition({curPosition:[position.coords.latitude, position.coords.longitude]}))
+    const initPosition = (position) => {
+        initializeCurrentPosition(position)
+    }
 
-                var marker = new kakao.maps.Marker({
-                    position: new kakao.maps.LatLng(position.coords.latitude, position.coords.longitude)
-                });
 
-                new kakao.maps.services.Geocoder().coord2Address(position.coords.longitude,position.coords.latitude,
-                    (res,status)=>{
-                    if (status === kakao.maps.services.Status.OK) {
-                        dispatch(dataStateAction.setCurLocation({curLocation:res[0].address.region_2depth_name}));
-                    }
-                });
+    const getPosition = (map) =>{
+        navigator.geolocation.getCurrentPosition((position) => {
+            map.panTo(new kakao.maps.LatLng(position.coords.latitude, position.coords.longitude))
+            dispatch(mapStateAction.setMapLoading({mapLoading:true}))
 
-                marker.setMap(map);
-
-            },()=>{
-                alert('위치 정보 허용을 해주세요.')
+            initPosition([position.coords.latitude, position.coords.longitude])
+            var marker = new kakao.maps.Marker({
+                position: new kakao.maps.LatLng(position.coords.latitude, position.coords.longitude)
             });
 
-        }
-    },[map])
-    //
-    const initData = ()=>{
-        const datas = require('/public/data/data.json')
-        dispatch(dataStateAction.setTouristData({touristData:datas}))
-    }
-    useEffect(()=>{
-        // initMap()
-        kakao.maps.load(() => {
-            var container = document.getElementById('map'),
-                options = {
-                    center: new kakao.maps.LatLng(37.71344096516783, 126.8666797982575),
-                    level: 5
-                };
+            new kakao.maps.services.Geocoder().coord2Address(position.coords.longitude,position.coords.latitude,
+                (res,status)=>{
+                if (status === kakao.maps.services.Status.OK) {
+                    dispatch(dataStateAction.setCurLocation({curLocation:res[0].address.region_2depth_name}));
+                }
+            });
 
-            var map = new kakao.maps.Map(container, options);
+            marker.setMap(map);
 
-            setMap(map)
-            initData();
+        },()=>{
+            alert('위치 정보 허용을 해주세요.')
         });
-    },[])
+
+    }
+    //
+
+
+
 
     return(
         <>
-            <div id="map"  style={{width:'100%', height:'100%'}}></div>
+            <Map
+                onLoad={onLoadMap}
+            />
         </>
     )
 }

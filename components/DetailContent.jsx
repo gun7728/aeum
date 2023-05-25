@@ -9,11 +9,12 @@ import {IoEarthOutline, IoLocationOutline} from "react-icons/io5";
 import {BsPencil} from "react-icons/bs";
 import * as dataStateAction from "@/store/modules/data";
 import * as alertStateAction from "@/store/modules/alert"
+import useSWR from "swr";
 
-export default function DetailContent({map}){
+export default function DetailContent(){
+    const {data:map} = useSWR('/map')
+    const {data:choseStore} = useSWR('/stores/chose')
     const dispatch = useDispatch();
-    const mapStore = useSelector(state => state.mapState)
-    const dataStore = useSelector(state => state.dataState)
 
     const tooLongText =(text)=>{
         var newText;
@@ -48,14 +49,14 @@ export default function DetailContent({map}){
 
 
     useEffect(()=>{
-        if(!dataStore.curDetail && !mapStore.mapLoading) return
+        if(!choseStore && !map) return
 
         if(map){
             map.setLevel(3,true)
-            map.panTo(new kakao.maps.LatLng(dataStore.curDetail[4]-0.002,dataStore.curDetail[5]));
+            map.panTo(new kakao.maps.LatLng(choseStore[4]-0.002,choseStore[5]));
 
             var mk = new kakao.maps.Marker({
-                position: new kakao.maps.LatLng(dataStore.curDetail[4],dataStore.curDetail[5]),
+                position: new kakao.maps.LatLng(choseStore[4],choseStore[5]),
                 map:map
             });
 
@@ -66,7 +67,7 @@ export default function DetailContent({map}){
 
             }
         }
-    },[dataStore.curDetail,mapStore.mapLoading,map])
+    },[choseStore,map])
 
     const setStartPoint = (data)=>{
         dispatch(dataStateAction.setStartPoint({startPoint:data}))
@@ -83,22 +84,22 @@ export default function DetailContent({map}){
     return(
         <div>
             {
-                dataStore.curDetail?
+                choseStore?
                     <div>
                         <div className={styles.detailTitleSection}>
                             <h1 className={styles.detailTitle} >
-                                {dataStore.curDetail[1]}
+                                {choseStore[1]}
                             </h1>
-                            <h4 style={{opacity:0.5}}>{dataStore.curDetail[6]}</h4>
+                            <h4 style={{opacity:0.5}}>{choseStore[6]}</h4>
                         </div>
                         <div className={styles.detailBtnSection}>
                             <div style={{float:"left"}}>
                                 <CgPhone className={styles.detailIconBtn}/>
-                                <RiShareForward2Fill className={styles.detailIconBtn} onClick={()=>copyUrl(dataStore.curDetail[0])}/>
+                                <RiShareForward2Fill className={styles.detailIconBtn} onClick={()=>copyUrl(choseStore[0])}/>
                             </div>
                             <div style={{float:"right"}}>
-                                <button className={styles.detailBtn} onClick={()=>setStartPoint(dataStore.curDetail)}><span style={{color:"gray"}}>출발</span></button>
-                                <button className={styles.detailBtn} onClick={()=>setEndPoint(dataStore.curDetail)}><span style={{color:"gray"}}>도착</span></button>
+                                <button className={styles.detailBtn} onClick={()=>setStartPoint(choseStore)}><span style={{color:"gray"}}>출발</span></button>
+                                <button className={styles.detailBtn} onClick={()=>setEndPoint(choseStore)}><span style={{color:"gray"}}>도착</span></button>
                             </div>
                         </div>
                         <hr style={{marginBottom:'15px', width:'150%',marginLeft:'-20px', opacity:0.3}}/>
@@ -124,14 +125,14 @@ export default function DetailContent({map}){
 
                                 <div className={styles.detailContentSection}>
                                     <BsPencil  className={styles.detailIcon}/>
-                                    <span className={styles.detailContent}>{tooLongText(dataStore.curDetail[2])}</span>
+                                    <span className={styles.detailContent}>{tooLongText(choseStore[2])}</span>
                                 </div>
                             </div>
                             <hr style={{marginBottom:'15px', width:'150%',marginLeft:'-20px', opacity:0.3}}/>
                             <div className={styles.detailImageSection}>
-                                <Image className={styles.detailInnerThumb} src={dataStore.curDetail[3]} alt={`${dataStore.curDetail[1]}`} width={50} height={50} onClick={()=>{clickImg()}}/>
-                                <Image className={styles.detailInnerThumb} src={dataStore.curDetail[3]} alt={`${dataStore.curDetail[1]}`} width={50} height={50} onClick={()=>{clickImg()}}/>
-                                <Image className={styles.detailInnerThumb} src={dataStore.curDetail[3]} alt={`${dataStore.curDetail[1]}`} width={50} height={50} onClick={()=>{clickImg()}}/>
+                                <Image className={styles.detailInnerThumb} src={choseStore[3]} alt={`${choseStore[1]}`} width={50} height={50} onClick={()=>{clickImg()}}/>
+                                <Image className={styles.detailInnerThumb} src={choseStore[3]} alt={`${choseStore[1]}`} width={50} height={50} onClick={()=>{clickImg()}}/>
+                                <Image className={styles.detailInnerThumb} src={choseStore[3]} alt={`${choseStore[1]}`} width={50} height={50} onClick={()=>{clickImg()}}/>
                             </div>
                         </div>
                     </div>

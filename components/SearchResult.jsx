@@ -7,25 +7,27 @@ import styles from '@/styles/search.module.scss'
 import {CgPhone} from "react-icons/cg";
 import {RiShareForward2Fill} from "react-icons/ri";
 import * as alertStateAction from "@/store/modules/alert";
+import useSWR from "swr";
 
 export default function SearchResult(){
+    const {data:stores} = useSWR('/stores')
+    const {data:searchWord} = useSWR('/search/word')
+
     const dispatch = useDispatch();
-    const searchStore = useSelector((state)=>state.searchState)
-    const dataStore = useSelector(state => state.dataState)
     const [results, setResults] = useState([]);
     const [customPoint, setCustomPoint] = useState();
 
     useEffect(()=>{
-        if(searchStore.value){
+        if(searchWord){
             var resultList = [];
-            dataStore.touristData.map((e)=>{
-                if(JSON.stringify(e.title + ' ' + e.content + ' ' + e.loc).includes(searchStore.value)){
+            stores.map((e)=>{
+                if(JSON.stringify(e.title + ' ' + e.content + ' ' + e.loc).includes(searchWord)){
                     resultList.push(e);
                 }
             })
             setResults(resultList)
         }
-    },[searchStore.value])
+    },[searchWord])
 
     const goToDetail =(e)=>{
         dispatch(searchStateAction.listOpen({listOpen:false}))
@@ -89,13 +91,13 @@ export default function SearchResult(){
     useEffect(()=>{
         dispatch(searchStateAction.setSearchData({searchData:results}))
         if(results.length<=0){
-            new kakao.maps.services.Geocoder().addressSearch(searchStore.value,
+            new kakao.maps.services.Geocoder().addressSearch(searchWord,
                 (res,status)=>{
                     if (status === kakao.maps.services.Status.OK) {
                         var customPoint = {
                             id:Math.floor(Math.random())+1,
-                            title:searchStore.value,
-                            content:searchStore.value,
+                            title:searchWord,
+                            content:searchWord,
                             image:"custom",
                             x:parseFloat(res[0].y),
                             y:parseFloat(res[0].x),

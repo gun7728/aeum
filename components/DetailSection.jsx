@@ -10,9 +10,17 @@ import * as dataStateAction from "@/store/modules/data";
 import DetailHeaderContent from "@/components/DetailHeaderContent";
 import DetailContent from "@/components/DetailContent";
 import SearchSection from "@/components/SearchSection";
+import useSearchAction from "@/hooks/useSearchAction";
+import useSWR from "swr";
+import useStores from "@/hooks/useStores";
 
 export default function DetailSection({map}){
-    const openBtn = useRef();
+    const {setListOpen, setListReOpen} = useSearchAction()
+    const {setChoseStores} = useStores()
+    const { data:open } = useSWR('/list/open');
+    const { data:reOpen } = useSWR('/list/reopen');
+    const {data:choseStore} = useSWR('/stores/chose')
+
     const dispatch = useDispatch();
     const [touchStart, setTouchStart] = useState(null)
     const [touchEnd, setTouchEnd] = useState(null)
@@ -20,27 +28,29 @@ export default function DetailSection({map}){
     const dataStore = useSelector(state => state.dataState)
 
     const setExpanded =async ()=>{
-        if(searchStore.listOpen && searchStore.listReOpen){
-            await dispatch(dataStateAction.setCurDetail({curDetail:null}))
-            dispatch(searchStateAction.listOpen({listOpen:true}))
-            dispatch(searchStateAction.listReOpen({listReOpen:false}))
+        if(open && reOpen){
+            setChoseStores(null);
+            // await dispatch(dataStateAction.setCurDetail({curDetail:null}))
+            setListOpen(true)
+            setListReOpen(false);
             return;
         }
-        if(!searchStore.listOpen){
-            dispatch(searchStateAction.listOpen({listOpen:true}))
+        if(!open){
+            setListOpen(true)
         }else{
-            dispatch(searchStateAction.listOpen({listOpen:false}))
-            dispatch(dataStateAction.setCurDetail({curDetail:null}))
+            setListOpen(false)
+            setChoseStores(null);
+            // dispatch(dataStateAction.setCurDetail({curDetail:null}))
         }
     }
 
     useEffect(()=>{
-        if(dataStore.curDetail){
+        if(choseStore){
             setExpanded()
-        }else if(dataStore.curDetail==null){
-            dispatch(searchStateAction.listOpen({listOpen:false}))
+        }else if(choseStore==null){
+            setListOpen(false)
         }
-    },[dataStore.curDetail])
+    },[choseStore])
 
 // the required distance between touchStart and touchEnd to be detected as a swipe
     const minSwipeDistance = 50
@@ -58,7 +68,7 @@ export default function DetailSection({map}){
         const isTopSwipe = distance > minSwipeDistance
         const isBottomSwipe = distance < -minSwipeDistance
         if (isTopSwipe){
-            if(searchStore.listOpen) return
+            if(open) return
             if(searchStore.start) return
             setExpanded()
         }else if(isBottomSwipe){
@@ -76,26 +86,25 @@ export default function DetailSection({map}){
                 onTouchMove={onTouchMove}
                 onTouchEnd={onTouchEnd}
                 style={(dataStore.endPoint && dataStore.startPoint)?{transform:'translateY(100%)'}:{}}
-                className={`${styles.detailSection} ${(searchStore.listOpen ? (dataStore.curDetail? styles.detailExpanded: styles.expanded)  : (searchStore.page?(searchStore.start?styles.searchResultExpanded:styles.searchStartExpanded):''))} `}
+                className={`${styles.detailSection} ${(open ? (choseStore? styles.detailExpanded: styles.expanded)  : (searchStore.page?(searchStore.start?styles.searchResultExpanded:styles.searchStartExpanded):''))} `}
             >
                 {
-                    (!dataStore.curDetail&&searchStore.page)?<SearchSection/>
+                    (!choseStore&&searchStore.page)?<SearchSection/>
                 :
-                    <div className={!searchStore.listOpen ? styles.header:styles.header}>
+                    <div className={!open ? styles.header:styles.header}>
                         <button
-                            ref={openBtn}
-                            className={`${styles.arrowButton} ${searchStore.listOpen ? styles.expanded : ''}`}
+                            className={`${styles.arrowButton} ${open ? styles.expanded : ''}`}
                             onClick={setExpanded}
                             // disabled={!currentStore}
-                            aria-label={searchStore.listOpen ? '매장 정보 접기' : '매장 정보 펼치기'}
+                            aria-label={open ? '매장 정보 접기' : '매장 정보 펼치기'}
                         >
                             {
-                                searchStore.page?<div className={styles.goToListBtn}>☰ 목록보기</div>:searchStore.listReOpen?<div className={styles.goToListBtn}>☰ 목록보기</div>:<IoIosArrowUp size={20} color="#666666" />
+                                searchStore.page?<div className={styles.goToListBtn}>☰ 목록보기</div>:reOpen?<div className={styles.goToListBtn}>☰ 목록보기</div>:<IoIosArrowUp size={20} color="#666666" />
                             }
 
                         </button>
                         {
-                            dataStore.curDetail?<DetailContent map={map}/>:<DetailHeaderList/>
+                            choseStore?<DetailContent/>:<DetailHeaderList/>
                         }
                         {/*<DetailContent currentStore={currentStore} expanded={expanded} />*/}
                     </div>

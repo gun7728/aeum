@@ -7,12 +7,16 @@ import {FaSearchLocation} from "react-icons/fa";
 import SearchResult from "@/components/SearchResult";
 import * as searchStateAction from "@/store/modules/search";
 import {log} from "next/dist/server/typescript/utils";
+import useSWR from "swr";
+import useSearchAction from "@/hooks/useSearchAction";
 
 export default function SearchSection() {
-    const dispatch = useDispatch()
-    const searchStore = useSelector((state) => state.searchState)
     const dataStore = useSelector(state => state.dataState)
 
+    const {setSearchWord, setSearchStart} = useSearchAction()
+
+    const {data:searchStart} = useSWR('/search')
+    const {data:searchWord} = useSWR('/search/word')
     const [keywords, setKeywords] = useState([])
     const [keywordsFlag,setKeywordsFlag ] = useState(false);
 
@@ -30,9 +34,9 @@ export default function SearchSection() {
 
     useEffect(()=>{
         if(keywordsFlag){
-            handleAddKeyword(searchStore.value)
+            handleAddKeyword(searchWord)
         }
-    },[searchStore.value])
+    },[searchWord])
 
 
     const handleAddKeyword = (text) => {
@@ -58,15 +62,17 @@ export default function SearchSection() {
     }
 
     const clickKeyword = (keyword) => {
-        dispatch(searchStateAction.setWord({value:keyword}))
-        dispatch(searchStateAction.searchStart({start:true}))
+        setSearchWord(keyword)
+        // dispatch(searchStateAction.setWord({value:keyword}))
+        setSearchStart(true)
+        // dispatch(searchStateAction.searchStart({start:true}))
     }
 
     return(
-        <div style={( dataStore.startPoint || dataStore.endPoint ) ?(searchStore.start?{}:{top:'40px'}):{}}
+        <div style={( dataStore.startPoint || dataStore.endPoint ) ?(searchStart?{}:{top:'40px'}):{}}
             className={`${styles.searchSection}`}>
             {
-                searchStore.start
+                searchStart
                     ?
                     <></>
                     :
@@ -76,7 +82,7 @@ export default function SearchSection() {
             }
             <br/>
             {
-                searchStore.start
+                searchStart
                     ?
                     <SearchResult/>
                     :

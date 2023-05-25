@@ -1,37 +1,23 @@
 'use client'
-import {useEffect, useRef, useState} from "react";
 import {useSelector} from "react-redux";
 import Header from "@/components/Header";
 import DetailSection from "@/components/DetailSection";
 import Loading from "@/components/loading";
 import KakaoMap from "@/components/KakaoMap";
 import FadeAlert from "@/components/FadeAlert";
+import useSWR from "swr";
+import useStores from "@/hooks/useStores";
+import {useEffect} from "react";
+import useMap from "@/hooks/useMap";
 
 export default function Home(){
-    const [map,setMap]=useState(null);
+    const { data:map } = useSWR('/map');
+    const { data:position } = useSWR('/map/curPos');
+
     const dataStore = useSelector((state)=>state.dataState)
-    const mapStore = useSelector((state)=>state.mapState)
-
-    const nMap = (x)=>{
-        setMap(x);
-    }
-
-
-    const scrollInto = useRef(null)
-
-    useEffect(() => {
-        if (typeof window !== "undefined") {
-            if(mapStore.mapLoading){
-                setTimeout(()=>{
-                    window.scrollTo({top:3000, behavior:"smooth"})
-                },1000)
-            }
-        }
-    })
 
     return(
         <div
-            ref={scrollInto}
             style={{height:'100%'}}>
             <main
                   style={{
@@ -42,14 +28,14 @@ export default function Home(){
                   }}
               >
                 {
-                    dataStore.curLocation?'':<Loading/>
+                    position?'':<Loading/>
                 }
                 <FadeAlert/>
-                <Header map={map}/>
-                <KakaoMap nMap={nMap}/>
+                <Header/>
+                <KakaoMap/>
                 {
-                    mapStore.mapLoading?
-                        <DetailSection map={map}/>
+                    map?
+                        <DetailSection />
                         :<></>
                 }
             </main>

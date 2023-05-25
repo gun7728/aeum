@@ -6,9 +6,17 @@ import {useEffect, useRef, useState} from "react";
 import * as searchStateAction from "@/store/modules/search";
 import * as dataStateAction from "@/store/modules/data";
 import {HiOutlineSwitchVertical, HiX} from "react-icons/hi";
+import useSWR from "swr";
+import useSearchAction from "@/hooks/useSearchAction";
 
 
-export default function HeaderSearch({map}){
+export default function HeaderSearch(){
+    const {setListOpen,setListReOpen,setSearchStart, setSearchWord} = useSearchAction();
+    const {data:map} = useSWR('/map')
+    const {data:open} = useSWR('/list/open');
+    const {data:reOpen} = useSWR('/list/reopen');
+    const {data:searchStart} = useSWR('/search')
+
     const [str,setStr] = useState()
     const inputRef = useRef();
     const spRef = useRef();
@@ -16,35 +24,37 @@ export default function HeaderSearch({map}){
     const dispatch = useDispatch();
     const searchStore = useSelector((state)=>state.searchState)
     const dataStore = useSelector(state => state.dataState);
-    const mapStore = useSelector(state => state.mapState)
     const [startMarker, setStartMarker] = useState();
     const [endMarker, setEndMarker] = useState();
     const [polyline, setPolyline] = useState(null);
     const [startFlag, setStartFlag] = useState(true);
 
-    const setSearchWord = (()=>{
+    const searchWordFunc = (()=>{
         if(str!=''){
-            dispatch(searchStateAction.setWord({value:str}))
-            dispatch(searchStateAction.searchStart({start:true}))
+            setSearchWord(str);
+            setSearchStart(true)
+            // dispatch(searchStateAction.searchStart({start:true}))
             dispatch(dataStateAction.setCurDetail({curDetail:null}))
         }
     })
     useEffect(()=>{
-        if(searchStore.value !=='' && searchStore.start){
+        if(searchStore.value !=='' && searchStart){
             inputRef.current.value=searchStore.value
         }
-    },[searchStore.value,searchStore.start])
+    },[searchStore.value,searchStart])
 
     useEffect(()=>{
-        if(str===''&&searchStore.start){
-            dispatch(searchStateAction.searchStart({start:false}))
+        if(str===''&&searchStart){
+            setSearchStart(false)
+            // dispatch(searchStateAction.searchStart({start:false}))
         }
     },[str])
 
     useEffect(()=>{
         if(dataStore.startPoint){
             dispatch(dataStateAction.setCurDetail({curDetail:null}))
-            dispatch(searchStateAction.searchStart({start:false}))
+            setSearchStart(false)
+            // dispatch(searchStateAction.searchStart({start:false}))
             spRef.current.value = dataStore.startPoint[1]
 
             if(!dataStore.endPoint){
@@ -58,7 +68,8 @@ export default function HeaderSearch({map}){
 
         if(dataStore.endPoint){
             dispatch(dataStateAction.setCurDetail({curDetail:null}))
-            dispatch(searchStateAction.searchStart({start:false}))
+            setSearchStart(false)
+            // dispatch(searchStateAction.searchStart({start:false}))
             epRef.current.value = dataStore.endPoint[1]
 
             if(!dataStore.startPoint) {
@@ -88,7 +99,8 @@ export default function HeaderSearch({map}){
             }
 
             await dispatch(dataStateAction.setStartPoint({startPoint:null}))
-            await dispatch(searchStateAction.listOpen({listOpen:false}))
+            // await dispatch(searchStateAction.listOpen({listOpen:false}))
+            setListOpen(false)
         }
     }
     const endStr = async (str) =>{
@@ -108,7 +120,8 @@ export default function HeaderSearch({map}){
             }
 
             await dispatch(dataStateAction.setEndPoint({endPoint:null}))
-            await dispatch(searchStateAction.listOpen({listOpen:false}))
+            // await dispatch(searchStateAction.listOpen({listOpen:false}))
+            setListOpen(false)
         }
     }
     const resetStartEnd = async () => {
@@ -135,9 +148,12 @@ export default function HeaderSearch({map}){
         await dispatch(dataStateAction.setEndPoint({endPoint:null}))
         await dispatch(dataStateAction.setCurDetail({curDetail:null}))
         await dispatch(searchStateAction.pageChange({page:false}))
-        await dispatch(searchStateAction.searchStart({start:false}))
-        await dispatch(searchStateAction.listOpen({listOpen:false}))
-        await dispatch(searchStateAction.listReOpen({listReOpen:false}))
+        // await dispatch(searchStateAction.searchStart({start:false}))
+        // await dispatch(searchStateAction.listOpen({listOpen:false}))
+        // await dispatch(searchStateAction.listReOpen({listReOpen:false}))
+        setSearchStart(false)
+        setListOpen(false)
+        setListReOpen(false)
 
         setSearchOpen(false)
 
@@ -195,25 +211,31 @@ export default function HeaderSearch({map}){
     },[dataStore.endPoint])
 
     const setSearchOpen = ((bool)=>{
-        dispatch(searchStateAction.listOpen({listOpen:bool}))
+        setListOpen(bool)
+        // dispatch(searchStateAction.listOpen({listOpen:bool}))
     })
 
     const setSearchPage = ((bool)=>{
         if(searchStore.start&&!bool){
-            dispatch(searchStateAction.searchStart({start:false}))
+            setSearchStart(false)
+            // dispatch(searchStateAction.searchStart({start:false}))
         }else{
             dispatch(searchStateAction.pageChange({page:bool}))
         }
         if(!bool) {
             inputRef.current.value=null
-            dispatch(searchStateAction.setWord({value:null}))
+            setSearchWord(null)
+            // dispatch(searchStateAction.setWord({value:null}))
         }
     })
     const setSearchStatus = () => {
-        dispatch(searchStateAction.searchStart({start:false}))
+        setSearchStart(false);
+        // dispatch(searchStateAction.searchStart({start:false}))
         dispatch(dataStateAction.setCurDetail({curDetail:null}))
-        dispatch(searchStateAction.listOpen({listOpen:false}))
-        dispatch(searchStateAction.listReOpen({listReOpen:false}))
+        setListOpen(false)
+        setListReOpen(false)
+        // dispatch(searchStateAction.listOpen({listOpen:false}))
+        // dispatch(searchStateAction.listReOpen({listReOpen:false}))
         setSearchPage(true)
         setSearchOpen(false)
     }
@@ -334,7 +356,7 @@ export default function HeaderSearch({map}){
                     onClick={setSearchStatus}
                     onKeyDown={(e)=>{
                         if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
-                            setSearchWord()
+                            searchWordFunc()
                         }
                     }
 
@@ -347,7 +369,7 @@ export default function HeaderSearch({map}){
                     onClick={setSearchStatus}
                     onKeyDown={(e)=>{
                         if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
-                            setSearchWord()
+                            searchWordFunc()
                         }
                     }
 
@@ -367,7 +389,7 @@ export default function HeaderSearch({map}){
             </div>
 
             <div style={( dataStore.startPoint || dataStore.endPoint ) ? {display:'none'}:{}} className={styles.searchBox}>
-                <AiOutlineSearch className={styles.searchBtn}  onClick={()=>{setSearchWord()}}/>
+                <AiOutlineSearch className={styles.searchBtn}  onClick={()=>{searchWordFunc()}}/>
                 <AiOutlineLeft style={!searchStore.page?{display:'none'}:''} className={styles.flexBtn}
                    onClick={()=>{
                        setSearchPage(false)
@@ -379,7 +401,7 @@ export default function HeaderSearch({map}){
                             className={!searchStore.page?`${styles.flexItem}`: `${styles.flexItemActive}`}
                            onKeyDown={(e)=>{
                                if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
-                                   setSearchWord()
+                                   searchWordFunc()
                                }
                            }
 
