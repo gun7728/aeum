@@ -1,9 +1,6 @@
 import {useCallback} from "react";
 import {mutate} from "swr";
 
-export const LIST_OPEN = false;
-export const LIST_RE_OPEN = false;
-
 export const LIST_OPEN_KEY = '/list/open'
 export const LIST_RE_OPEN_KEY = '/list/reopen'
 

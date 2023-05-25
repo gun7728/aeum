@@ -48,7 +48,7 @@ export default function DetailContent(){
                 alert("something went wrong");
             });
     }
-    
+
     useEffect(()=>{
         if(!choseStore && !map) return
 

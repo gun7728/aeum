@@ -1,31 +1,32 @@
 'use client'
 import styles from "@/styles/header.module.scss";
 import {AiOutlineLeft, AiOutlineSearch} from "react-icons/ai";
-import {useDispatch, useSelector} from "react-redux";
 import {useEffect, useRef, useState} from "react";
-import * as searchStateAction from "@/store/modules/search";
-import * as dataStateAction from "@/store/modules/data";
 import {HiOutlineSwitchVertical, HiX} from "react-icons/hi";
 import useSWR from "swr";
 import useSearchAction from "@/hooks/useSearchAction";
 import useList from "@/hooks/useList";
+import useStores from "@/hooks/useStores";
 
 
 export default function HeaderSearch(){
     const {setListOpen,setListReOpen} = useList();
-    const {setSearchStart, setSearchWord} = useSearchAction();
+    const {setSearchStart, setSearchWord, setSearchOpen} = useSearchAction();
+    const {setChoseStore, setStartStore, setEndStore} = useStores();
+
     const {data:map} = useSWR('/map')
-    const {data:open} = useSWR('/list/open');
-    const {data:reOpen} = useSWR('/list/reopen');
-    const {data:searchStart} = useSWR('/search')
+
+    const {data:searchStart} = useSWR('/search');
+    const {data:searchWord} = useSWR('/search/word');
+    const {data:searchOpen} = useSWR('/search/list')
+
+    const {data:startStore} = useSWR('/stores/start')
+    const {data:endStore} = useSWR('/stores/end')
 
     const [str,setStr] = useState()
     const inputRef = useRef();
     const spRef = useRef();
     const epRef = useRef();
-    const dispatch = useDispatch();
-    const searchStore = useSelector((state)=>state.searchState)
-    const dataStore = useSelector(state => state.dataState);
     const [startMarker, setStartMarker] = useState();
     const [endMarker, setEndMarker] = useState();
     const [polyline, setPolyline] = useState(null);
@@ -35,31 +36,28 @@ export default function HeaderSearch(){
         if(str!=''){
             setSearchWord(str);
             setSearchStart(true)
-            // dispatch(searchStateAction.searchStart({start:true}))
-            dispatch(dataStateAction.setCurDetail({curDetail:null}))
+            setChoseStore(null)
         }
     })
     useEffect(()=>{
-        if(searchStore.value !=='' && searchStart){
-            inputRef.current.value=searchStore.value
+        if(searchWord !=='' && searchStart){
+            inputRef.current.value=searchWord
         }
-    },[searchStore.value,searchStart])
+    },[searchWord,searchStart])
 
     useEffect(()=>{
         if(str===''&&searchStart){
             setSearchStart(false)
-            // dispatch(searchStateAction.searchStart({start:false}))
         }
     },[str])
 
     useEffect(()=>{
-        if(dataStore.startPoint){
-            dispatch(dataStateAction.setCurDetail({curDetail:null}))
+        if(startStore){
+            setChoseStore(null);
             setSearchStart(false)
-            // dispatch(searchStateAction.searchStart({start:false}))
-            spRef.current.value = dataStore.startPoint[1]
+            spRef.current.value = startStore[1]
 
-            if(!dataStore.endPoint){
+            if(!endStore){
                 epRef.current.focus();
                 setSearchPage(true)
                 setSearchOpen(true)
@@ -68,13 +66,12 @@ export default function HeaderSearch(){
             spRef.current.value = null
         }
 
-        if(dataStore.endPoint){
-            dispatch(dataStateAction.setCurDetail({curDetail:null}))
+        if(endStore){
+            setChoseStore(null);
             setSearchStart(false)
-            // dispatch(searchStateAction.searchStart({start:false}))
-            epRef.current.value = dataStore.endPoint[1]
+            epRef.current.value = endStore[1]
 
-            if(!dataStore.startPoint) {
+            if(!startStore) {
                 spRef.current.focus();
                 setSearchPage(true)
                 setSearchOpen(true)
@@ -82,7 +79,7 @@ export default function HeaderSearch(){
         }else{
             epRef.current.value=null;
         }
-    },[dataStore.startPoint,dataStore.endPoint])
+    },[startStore,endStore])
 
     const startStr =async  (str) =>{
         setStr(str)
@@ -100,8 +97,7 @@ export default function HeaderSearch(){
                 setStartFlag(true)
             }
 
-            await dispatch(dataStateAction.setStartPoint({startPoint:null}))
-            // await dispatch(searchStateAction.listOpen({listOpen:false}))
+            setStartStore(null)
             setListOpen(false)
         }
     }
@@ -121,8 +117,7 @@ export default function HeaderSearch(){
                 setStartFlag(true)
             }
 
-            await dispatch(dataStateAction.setEndPoint({endPoint:null}))
-            // await dispatch(searchStateAction.listOpen({listOpen:false}))
+            setEndStore(null)
             setListOpen(false)
         }
     }
@@ -146,34 +141,31 @@ export default function HeaderSearch(){
         }
         setPolyline(null);
 
-        await dispatch(dataStateAction.setStartPoint({startPoint:null}))
-        await dispatch(dataStateAction.setEndPoint({endPoint:null}))
-        await dispatch(dataStateAction.setCurDetail({curDetail:null}))
-        await dispatch(searchStateAction.pageChange({page:false}))
-        // await dispatch(searchStateAction.searchStart({start:false}))
-        // await dispatch(searchStateAction.listOpen({listOpen:false}))
-        // await dispatch(searchStateAction.listReOpen({listReOpen:false}))
+        setStartStore(null)
+        setEndStore(null)
+        setChoseStore(null)
+        setSearchOpen(false)
         setSearchStart(false)
         setListOpen(false)
         setListReOpen(false)
-
-        setSearchOpen(false)
-
         setSearchPage(false)
 
         inputRef.current.value=null
     }
 
-    const switchStartEnd = () =>{
-        var sp  = dataStore.startPoint;
-        var ep  = dataStore.endPoint;
+    const switchStartEnd = async () =>{
+        await startMarker?.setMap(null)
+        await endMarker?.setMap(null)
 
-        dispatch(dataStateAction.setStartPoint({startPoint:ep}))
-        dispatch(dataStateAction.setEndPoint({endPoint:sp}))
+        var sp  = startStore;
+        var ep  = endStore;
+
+        setStartStore(ep)
+        setEndStore(sp)
     }
 
     useEffect(()=>{
-        if(!dataStore.startPoint) return;
+        if(!startStore) return;
 
         var icon = new kakao.maps.MarkerImage(
             'https://i1.daumcdn.net/dmaps/apis/n_local_blit_04.png',
@@ -184,17 +176,17 @@ export default function HeaderSearch(){
             });
 
         var marker = new kakao.maps.Marker({
-            position: new kakao.maps.LatLng(dataStore.startPoint[4],dataStore.startPoint[5]),
+            position: new kakao.maps.LatLng(startStore[4],startStore[5]),
             image: icon
         });
 
 
         setStartMarker(marker)
         marker.setMap(map);
-    },[dataStore.startPoint])
+    },[startStore])
 
     useEffect(()=>{
-        if(!dataStore.endPoint) return;
+        if(!endStore) return;
 
         var icon = new kakao.maps.MarkerImage(
             'https://i1.daumcdn.net/dmaps/apis/n_local_blit_04.png',
@@ -205,24 +197,20 @@ export default function HeaderSearch(){
             });
 
         var marker = new kakao.maps.Marker({
-            position: new kakao.maps.LatLng(dataStore.endPoint[4],dataStore.endPoint[5]),
+            position: new kakao.maps.LatLng(endStore[4],endStore[5]),
         });
 
         setEndMarker(marker)
         marker.setMap(map);
-    },[dataStore.endPoint])
-
-    const setSearchOpen = ((bool)=>{
-        setListOpen(bool)
-        // dispatch(searchStateAction.listOpen({listOpen:bool}))
-    })
+    },[endStore])
 
     const setSearchPage = ((bool)=>{
-        if(searchStore.start&&!bool){
+        if(searchStart&&!bool){
             setSearchStart(false)
             // dispatch(searchStateAction.searchStart({start:false}))
         }else{
-            dispatch(searchStateAction.pageChange({page:bool}))
+            setSearchOpen(bool)
+            // dispatch(searchStateAction.pageChange({page:bool}))
         }
         if(!bool) {
             inputRef.current.value=null
@@ -233,18 +221,18 @@ export default function HeaderSearch(){
     const setSearchStatus = () => {
         setSearchStart(false);
         // dispatch(searchStateAction.searchStart({start:false}))
-        dispatch(dataStateAction.setCurDetail({curDetail:null}))
+        setChoseStore(null)
+        // dispatch(dataStateAction.setCurDetail({curDetail:null}))
         setListOpen(false)
         setListReOpen(false)
         // dispatch(searchStateAction.listOpen({listOpen:false}))
         // dispatch(searchStateAction.listReOpen({listReOpen:false}))
         setSearchPage(true)
-        setSearchOpen(false)
     }
 
     const startPath = () => {
         if(!startFlag) return;
-        getPath(map, dataStore.startPoint[5], dataStore.startPoint[4], dataStore.endPoint[5], dataStore.endPoint[4]);
+        getPath(map, startStore[5], startStore[4], endStore[5], endStore[4]);
     }
 
     function getPath(map, sx, sy, ex, ey) {
@@ -347,7 +335,7 @@ export default function HeaderSearch(){
 
     return(
         <>
-            <div style={( dataStore.startPoint || dataStore.endPoint ) ? {} :  {display:'none'}} className={styles.startEndBox}>
+            <div style={( endStore || startStore ) ? {} :  {display:'none'}} className={styles.startEndBox}>
                 <HiOutlineSwitchVertical
                     onClick={()=>switchStartEnd()}
                     className={styles.switchBtn}/>
@@ -390,17 +378,18 @@ export default function HeaderSearch(){
                 </button>
             </div>
 
-            <div style={( dataStore.startPoint || dataStore.endPoint ) ? {display:'none'}:{}} className={styles.searchBox}>
+            <div style={( endStore || startStore ) ? {display:'none'}:{}} className={styles.searchBox}>
                 <AiOutlineSearch className={styles.searchBtn}  onClick={()=>{searchWordFunc()}}/>
-                <AiOutlineLeft style={!searchStore.page?{display:'none'}:''} className={styles.flexBtn}
+                <AiOutlineLeft style={!searchOpen?{display:'none'}:''} className={styles.flexBtn}
                    onClick={()=>{
                        setSearchPage(false)
-                       dispatch(dataStateAction.setCurDetail({curDetail:null}))
+                       setChoseStore(null)
+                       // dispatch(dataStateAction.setCurDetail({curDetail:null}))
                 }}/>
                     <input
                         ref={inputRef}
                         className={styles.flexItem}
-                            className={!searchStore.page?`${styles.flexItem}`: `${styles.flexItemActive}`}
+                            className={!searchOpen?`${styles.flexItem}`: `${styles.flexItemActive}`}
                            onKeyDown={(e)=>{
                                if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
                                    searchWordFunc()
@@ -411,8 +400,9 @@ export default function HeaderSearch(){
                            onChange={(e)=>{setStr(e.target.value)}}
                            onClick={()=>{
                                setSearchPage(true),
-                               setSearchOpen(false),
-                               dispatch(dataStateAction.setCurDetail({curDetail:null}))
+                               setListOpen(false),
+                               setChoseStore(null)
+                               // dispatch(dataStateAction.setCurDetail({curDetail:null}))
                            }}
                            type={"text"}
                            placeholder={'장소, 주소 검색'}

@@ -15,7 +15,7 @@ import useSWR from "swr";
 import useStores from "@/hooks/useStores";
 import useList from "@/hooks/useList";
 
-export default function DetailSection({map}){
+export default function DetailSection(){
     const {setListOpen, setListReOpen} = useList()
     const {setChoseStore} = useStores()
     const { data:open } = useSWR('/list/open');
@@ -24,25 +24,23 @@ export default function DetailSection({map}){
     const { data:startStore } = useSWR('/stores/start')
     const { data:endStore } = useSWR('/stores/end')
     const { data:searchStart } = useSWR('/search')
+    const { data:searchOpen } = useSWR('/search/list')
 
     const [touchStart, setTouchStart] = useState(null)
     const [touchEnd, setTouchEnd] = useState(null)
-    const searchStore = useSelector((state)=>state.searchState)
 
     const setExpanded =async ()=>{
         if(open && reOpen){
-            setChoseStore(null);
-            // await dispatch(dataStateAction.setCurDetail({curDetail:null}))
-            setListOpen(true)
-            setListReOpen(false);
+            await setChoseStore(null);
+            await setListOpen(true)
+            await setListReOpen(false);
             return;
         }
         if(!open){
-            setListOpen(true)
+            await setListOpen(true)
         }else{
-            setListOpen(false)
-            setChoseStore(null);
-            // dispatch(dataStateAction.setCurDetail({curDetail:null}))
+            await setListOpen(false)
+            await setChoseStore(null);
         }
     }
 
@@ -88,10 +86,10 @@ export default function DetailSection({map}){
                 onTouchMove={onTouchMove}
                 onTouchEnd={onTouchEnd}
                 style={(endStore && startStore)?{transform:'translateY(100%)'}:{}}
-                className={`${styles.detailSection} ${(open ? (choseStore? styles.detailExpanded: styles.expanded)  : (searchStore.page?(searchStart?styles.searchResultExpanded:styles.searchStartExpanded):''))} `}
+                className={`${styles.detailSection} ${(open ? (choseStore? styles.detailExpanded: styles.expanded)  : (searchOpen?(searchStart?styles.searchResultExpanded:styles.searchStartExpanded):''))} `}
             >
                 {
-                    (!choseStore&&searchStore.page)?<SearchSection/>
+                    (!choseStore&&searchOpen)?<SearchSection/>
                 :
                     <div className={!open ? styles.header:styles.header}>
                         <button
@@ -101,7 +99,7 @@ export default function DetailSection({map}){
                             aria-label={open ? '매장 정보 접기' : '매장 정보 펼치기'}
                         >
                             {
-                                searchStore.page?<div className={styles.goToListBtn}>☰ 목록보기</div>:reOpen?<div className={styles.goToListBtn}>☰ 목록보기</div>:<IoIosArrowUp size={20} color="#666666" />
+                                searchOpen?<div className={styles.goToListBtn}>☰ 목록보기</div>:reOpen?<div className={styles.goToListBtn}>☰ 목록보기</div>:<IoIosArrowUp size={20} color="#666666" />
                             }
 
                         </button>

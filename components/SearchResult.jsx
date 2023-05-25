@@ -8,10 +8,19 @@ import {CgPhone} from "react-icons/cg";
 import {RiShareForward2Fill} from "react-icons/ri";
 import * as alertStateAction from "@/store/modules/alert";
 import useSWR from "swr";
+import useStores from "@/hooks/useStores";
+import useSearchAction from "@/hooks/useSearchAction";
+import useList from "@/hooks/useList";
+import useAlert from "@/hooks/useAlert";
 
 export default function SearchResult(){
     const {data:stores} = useSWR('/stores')
     const {data:searchWord} = useSWR('/search/word')
+
+    const {setStartStore, setEndStore, setChoseStore } = useStores()
+    const {setListOpen, setListReOpen} = useList()
+    const {setAlertStart, setAlertMsg} = useAlert()
+    const {setSearchStart, setSearchOpen} = useSearchAction()
 
     const dispatch = useDispatch();
     const [results, setResults] = useState([]);
@@ -30,21 +39,21 @@ export default function SearchResult(){
     },[searchWord])
 
     const goToDetail =(e)=>{
-        dispatch(searchStateAction.listOpen({listOpen:false}))
-        dispatch(dataStateAction.setCurDetail({curDetail:Object.values(e)}))
+        setListOpen(false)
+        setChoseStore(Object.values(e))
     }
 
     const copyUrl = (id)=>{
-        dispatch(alertStateAction.setAlert({alert:true}))
-        dispatch(alertStateAction.setMsg({msg:'URL이 복사되었습니다.'}))
+        setAlertStart(true)
+        setAlertMsg('URL이 복사되었습니다.')
         var url = window.location.href
 
         navigator.clipboard
             .writeText(url+'share/'+id)
             .then(() => {
                 setTimeout(()=>{
-                    dispatch(alertStateAction.setAlert({alert:false}))
-                    dispatch(alertStateAction.setMsg({msg:null}))
+                    setAlertStart(false)
+                    setAlertMsg(null)
                 },1500)
             })
             .catch(() => {
@@ -53,36 +62,26 @@ export default function SearchResult(){
     }
 
 
-    const setStartPoint = async (data)=>{
-        dispatch(searchStateAction.searchStart({start:true}))
-        dispatch(searchStateAction.pageChange({page:false}))
+    const setPoint = async (key, data)=>{
+        await setSearchStart(true)
+        await setSearchOpen(false)
 
-        await  dispatch(dataStateAction.setStartPoint({startPoint:Object.values(data)}))
-        await  dispatch(searchStateAction.listOpen({listOpen:false}))
-    }
+        switch (key){
+            case "start":
+                await setStartStore(Object.values(data))
+                break;
+            case "end":
+                await setEndStore(Object.values(data))
+                break;
+            case "custom_start":
+                await setStartStore(Object.values(customPoint))
+                break;
+            case "custom_end":
+                await setEndStore(Object.values(customPoint))
+                break;
+        }
 
-    const setEndPoint = async (data)=>{
-        dispatch(searchStateAction.searchStart({start:true}))
-        dispatch(searchStateAction.pageChange({page:false}))
-
-        await dispatch(dataStateAction.setEndPoint({endPoint:Object.values(data)}))
-        await dispatch(searchStateAction.listOpen({listOpen:false}))
-    }
-
-    const setStartPointCustom = async ()=>{
-        console.log(customPoint)
-        dispatch(searchStateAction.searchStart({start:true}))
-        dispatch(searchStateAction.pageChange({page:false}))
-
-        await  dispatch(dataStateAction.setStartPoint({startPoint:Object.values(customPoint)}))
-        await  dispatch(searchStateAction.listOpen({listOpen:false}))
-    }
-    const setEndPointCustom = async ()=>{
-        dispatch(searchStateAction.searchStart({start:true}))
-        dispatch(searchStateAction.pageChange({page:false}))
-
-        await dispatch(dataStateAction.setEndPoint({endPoint:Object.values(customPoint)}))
-        await dispatch(searchStateAction.listOpen({listOpen:false}))
+        await setListOpen(false)
     }
 
 
@@ -135,8 +134,8 @@ export default function SearchResult(){
                                         <RiShareForward2Fill className={styles.detailIconBtn} onClick={()=>copyUrl(e.id)}/>
                                     </div>
                                     <div style={{float:"right"}}>
-                                        <button className={styles.detailBtn} onClick={()=>setStartPoint(e)}><span style={{color:"gray"}}>출발</span></button>
-                                        <button className={styles.detailBtn} onClick={()=>setEndPoint(e)}><span style={{color:"gray"}}>도착</span></button>
+                                        <button className={styles.detailBtn} onClick={()=>setPoint("start",e)}><span style={{color:"gray"}}>출발</span></button>
+                                        <button className={styles.detailBtn} onClick={()=>setPoint("end",e)}><span style={{color:"gray"}}>도착</span></button>
                                     </div>
                                 </div>
                                 <hr style={{marginBottom:'15px', width:'150%',marginLeft:'-20px', opacity:0.3}}/>
@@ -153,8 +152,8 @@ export default function SearchResult(){
                             customPoint?
                                 <div>
                                     해당 위치를
-                                    <button className={styles.detailBtn} onClick={()=>setStartPointCustom()}><span style={{color:"gray"}}>출발</span></button>
-                                    <button className={styles.detailBtn} onClick={()=>setEndPointCustom()}><span style={{color:"gray"}}>도착</span></button>
+                                    <button className={styles.detailBtn} onClick={()=>setPoint("custom_start",customPoint)}><span style={{color:"gray"}}>출발</span></button>
+                                    <button className={styles.detailBtn} onClick={()=>setPoint("custom_end",customPoint)}><span style={{color:"gray"}}>도착</span></button>
                                     로 지정하시겠습니까?
                                 </div>
                             :
