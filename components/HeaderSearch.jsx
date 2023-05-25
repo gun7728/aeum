@@ -8,10 +8,12 @@ import * as dataStateAction from "@/store/modules/data";
 import {HiOutlineSwitchVertical, HiX} from "react-icons/hi";
 import useSWR from "swr";
 import useSearchAction from "@/hooks/useSearchAction";
+import useList from "@/hooks/useList";
 
 
 export default function HeaderSearch(){
-    const {setListOpen,setListReOpen,setSearchStart, setSearchWord} = useSearchAction();
+    const {setListOpen,setListReOpen} = useList();
+    const {setSearchStart, setSearchWord} = useSearchAction();
     const {data:map} = useSWR('/map')
     const {data:open} = useSWR('/list/open');
     const {data:reOpen} = useSWR('/list/reopen');

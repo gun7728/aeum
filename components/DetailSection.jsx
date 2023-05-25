@@ -13,23 +13,25 @@ import SearchSection from "@/components/SearchSection";
 import useSearchAction from "@/hooks/useSearchAction";
 import useSWR from "swr";
 import useStores from "@/hooks/useStores";
+import useList from "@/hooks/useList";
 
 export default function DetailSection({map}){
-    const {setListOpen, setListReOpen} = useSearchAction()
-    const {setChoseStores} = useStores()
+    const {setListOpen, setListReOpen} = useList()
+    const {setChoseStore} = useStores()
     const { data:open } = useSWR('/list/open');
     const { data:reOpen } = useSWR('/list/reopen');
-    const {data:choseStore} = useSWR('/stores/chose')
+    const { data:choseStore } = useSWR('/stores/chose')
+    const { data:startStore } = useSWR('/stores/start')
+    const { data:endStore } = useSWR('/stores/end')
+    const { data:searchStart } = useSWR('/search')
 
-    const dispatch = useDispatch();
     const [touchStart, setTouchStart] = useState(null)
     const [touchEnd, setTouchEnd] = useState(null)
     const searchStore = useSelector((state)=>state.searchState)
-    const dataStore = useSelector(state => state.dataState)
 
     const setExpanded =async ()=>{
         if(open && reOpen){
-            setChoseStores(null);
+            setChoseStore(null);
             // await dispatch(dataStateAction.setCurDetail({curDetail:null}))
             setListOpen(true)
             setListReOpen(false);
@@ -39,7 +41,7 @@ export default function DetailSection({map}){
             setListOpen(true)
         }else{
             setListOpen(false)
-            setChoseStores(null);
+            setChoseStore(null);
             // dispatch(dataStateAction.setCurDetail({curDetail:null}))
         }
     }
@@ -69,7 +71,7 @@ export default function DetailSection({map}){
         const isBottomSwipe = distance < -minSwipeDistance
         if (isTopSwipe){
             if(open) return
-            if(searchStore.start) return
+            if(searchStart) return
             setExpanded()
         }else if(isBottomSwipe){
             // if(searchStore.action) return
@@ -85,8 +87,8 @@ export default function DetailSection({map}){
                 onTouchStart={onTouchStart}
                 onTouchMove={onTouchMove}
                 onTouchEnd={onTouchEnd}
-                style={(dataStore.endPoint && dataStore.startPoint)?{transform:'translateY(100%)'}:{}}
-                className={`${styles.detailSection} ${(open ? (choseStore? styles.detailExpanded: styles.expanded)  : (searchStore.page?(searchStore.start?styles.searchResultExpanded:styles.searchStartExpanded):''))} `}
+                style={(endStore && startStore)?{transform:'translateY(100%)'}:{}}
+                className={`${styles.detailSection} ${(open ? (choseStore? styles.detailExpanded: styles.expanded)  : (searchStore.page?(searchStart?styles.searchResultExpanded:styles.searchStartExpanded):''))} `}
             >
                 {
                     (!choseStore&&searchStore.page)?<SearchSection/>

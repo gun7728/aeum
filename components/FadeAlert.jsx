@@ -1,21 +1,23 @@
 import styles from '@/styles/alert.module.scss'
 import {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
+import useSWR from "swr";
 export default function FadeAlert(){
-    const alertStore = useSelector(state => state.alertState);
+    const {data:alertStart} = useSWR('/alert')
+    const {data:alertMsg} = useSWR('/alert/msg')
 
     const [alertOpacity, setAlertOpacity] = useState(0);
     const [alertZIndex, setAlertZIndex] = useState(0);
 
     useEffect(()=>{
-        if(alertStore.alert){
+        if(alertStart){
             setAlertOpacity(80)
             setAlertZIndex(999)
             opaCont()
         }else{
             setAlertZIndex(0);
         }
-    },[alertStore.alert])
+    },[alertStart])
 
     useEffect(()=>{
         opaCont()
@@ -34,7 +36,7 @@ export default function FadeAlert(){
     return (
         <>
             {
-                alertStore.msg?
+                alertMsg?
                     <>
                         <div className={styles.fadeAlert}
                              style={{opacity:`${alertOpacity}%`, zIndex:alertZIndex}}>
@@ -43,7 +45,7 @@ export default function FadeAlert(){
                         <div  className={styles.fadeAlertMsg} >
                             <div style={{height:'100%', display:"table", width:'100%'}}>
                                 <span style={{display:"table-cell",verticalAlign:"middle",width:'100%'}}>
-                                  {alertStore.msg}
+                                  {alertMsg}
                                 </span>
                             </div>
                         </div>

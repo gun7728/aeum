@@ -1,5 +1,4 @@
 'use client'
-import {useDispatch, useSelector} from "react-redux";
 import Image from "next/image";
 import styles from "@/styles/header.module.scss";
 import {useEffect} from "react";
@@ -7,14 +6,16 @@ import {CgPhone} from "react-icons/cg";
 import {RiShareForward2Fill} from "react-icons/ri";
 import {IoEarthOutline, IoLocationOutline} from "react-icons/io5";
 import {BsPencil} from "react-icons/bs";
-import * as dataStateAction from "@/store/modules/data";
-import * as alertStateAction from "@/store/modules/alert"
 import useSWR from "swr";
+import useAlert from "@/hooks/useAlert";
+import useStores from "@/hooks/useStores";
 
 export default function DetailContent(){
+    const {setAlertStart,setAlertMsg} = useAlert()
+    const {setStartStore,setEndStore} = useStores()
+
     const {data:map} = useSWR('/map')
     const {data:choseStore} = useSWR('/stores/chose')
-    const dispatch = useDispatch();
 
     const tooLongText =(text)=>{
         var newText;
@@ -27,27 +28,27 @@ export default function DetailContent(){
         return newText;
     }
     const copyUrl = (id)=>{
-        dispatch(alertStateAction.setAlert({alert:true}))
-        dispatch(alertStateAction.setMsg({msg:'URL이 복사되었습니다.'}))
+        setAlertStart(true)
+        // dispatch(alertStateAction.setAlert({alert:true}))
+        setAlertMsg('URL이 복사되었습니다.')
+        // dispatch(alertStateAction.setMsg({msg:}))
         var url = window.location.href
 
         navigator.clipboard
             .writeText(url+'share/'+id)
             .then(() => {
                 setTimeout(()=>{
-                    dispatch(alertStateAction.setAlert({alert:false}))
-                    dispatch(alertStateAction.setMsg({msg:null}))
+                    setAlertStart(false)
+                    setAlertMsg(null)
+                    // dispatch(alertStateAction.setAlert({alert:false}))
+                    // dispatch(alertStateAction.setMsg({msg:null}))
                 },1500)
             })
             .catch(() => {
                 alert("something went wrong");
             });
     }
-
-
-
-
-
+    
     useEffect(()=>{
         if(!choseStore && !map) return
 
@@ -70,11 +71,11 @@ export default function DetailContent(){
     },[choseStore,map])
 
     const setStartPoint = (data)=>{
-        dispatch(dataStateAction.setStartPoint({startPoint:data}))
+        setStartStore(data)
     }
 
     const setEndPoint = (data)=>{
-        dispatch(dataStateAction.setEndPoint({endPoint:data}))
+        setEndStore(data)
     }
     const clickImg = () =>{
         console.log('??')

@@ -4,11 +4,12 @@ import {useRef, useState} from "react";
 import useSWR from "swr";
 import useSearchAction from "@/hooks/useSearchAction";
 import useStores from "@/hooks/useStores";
+import useList from "@/hooks/useList";
 
 
 export default function DetailHeaderContent(){
-    const {setListOpen, setListReOpen} = useSearchAction()
-    const {setChoseStores} = useStores()
+    const {setListOpen, setListReOpen} = useList()
+    const {setChoseStore} = useStores()
 
     const { data:stores } = useSWR('/stores');
     const { data:open } = useSWR('/list/open');
@@ -39,7 +40,7 @@ export default function DetailHeaderContent(){
         }
 
         setListOpen(false);
-        setChoseStores(Object.values(e))
+        setChoseStore(Object.values(e))
     }
 
     return (
