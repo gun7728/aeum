@@ -18,7 +18,7 @@ export default function HeaderSearch(){
 
     const {data:searchStart} = useSWR('/search');
     const {data:searchWord} = useSWR('/search/word');
-    const {data:searchOpen} = useSWR('/search/list')
+    const {data:searchOpen} = useSWR('/search/open')
 
     const {data:startStore} = useSWR('/stores/start')
     const {data:endStore} = useSWR('/stores/end')
@@ -207,26 +207,19 @@ export default function HeaderSearch(){
     const setSearchPage = ((bool)=>{
         if(searchStart&&!bool){
             setSearchStart(false)
-            // dispatch(searchStateAction.searchStart({start:false}))
         }else{
             setSearchOpen(bool)
-            // dispatch(searchStateAction.pageChange({page:bool}))
         }
         if(!bool) {
             inputRef.current.value=null
             setSearchWord(null)
-            // dispatch(searchStateAction.setWord({value:null}))
         }
     })
     const setSearchStatus = () => {
         setSearchStart(false);
-        // dispatch(searchStateAction.searchStart({start:false}))
         setChoseStore(null)
-        // dispatch(dataStateAction.setCurDetail({curDetail:null}))
         setListOpen(false)
         setListReOpen(false)
-        // dispatch(searchStateAction.listOpen({listOpen:false}))
-        // dispatch(searchStateAction.listReOpen({listReOpen:false}))
         setSearchPage(true)
     }
 
@@ -248,6 +241,7 @@ export default function HeaderSearch(){
                     //노선그래픽 데이터 호출
                     if (xhr.responseText.includes('error')) {
                         alert('출, 도착지가 700m 이내입니다.')
+                        setStartFlag(true)
                         return;
                     }
 
@@ -369,7 +363,11 @@ export default function HeaderSearch(){
                     ref={epRef}
                     className={styles.endItem}/>
                 <button
-                    onClick={()=>{if(startFlag){startPath()}}}
+                    onClick={()=>{
+                        if(startFlag){
+                            startPath()
+                        }
+                    }}
                     className={styles.confirmBtn}>
                     확인
                 </button>
@@ -384,7 +382,6 @@ export default function HeaderSearch(){
                    onClick={()=>{
                        setSearchPage(false)
                        setChoseStore(null)
-                       // dispatch(dataStateAction.setCurDetail({curDetail:null}))
                 }}/>
                     <input
                         ref={inputRef}
@@ -402,7 +399,6 @@ export default function HeaderSearch(){
                                setSearchPage(true),
                                setListOpen(false),
                                setChoseStore(null)
-                               // dispatch(dataStateAction.setCurDetail({curDetail:null}))
                            }}
                            type={"text"}
                            placeholder={'장소, 주소 검색'}

@@ -1,6 +1,5 @@
 import styles from '@/styles/alert.module.scss'
 import {useEffect, useState} from "react";
-import {useSelector} from "react-redux";
 import useSWR from "swr";
 export default function FadeAlert(){
     const {data:alertStart} = useSWR('/alert')

@@ -29,9 +29,7 @@ export default function DetailContent(){
     }
     const copyUrl = (id)=>{
         setAlertStart(true)
-        // dispatch(alertStateAction.setAlert({alert:true}))
         setAlertMsg('URL이 복사되었습니다.')
-        // dispatch(alertStateAction.setMsg({msg:}))
         var url = window.location.href
 
         navigator.clipboard
@@ -40,8 +38,6 @@ export default function DetailContent(){
                 setTimeout(()=>{
                     setAlertStart(false)
                     setAlertMsg(null)
-                    // dispatch(alertStateAction.setAlert({alert:false}))
-                    // dispatch(alertStateAction.setMsg({msg:null}))
                 },1500)
             })
             .catch(() => {

@@ -1,20 +1,18 @@
 'use client'
 import styles from '../styles/search.module.scss'
-import {useDispatch, useSelector} from "react-redux";
 import {Fragment, useEffect, useState} from "react";
 import {AiOutlineClose} from "react-icons/ai";
 import {FaSearchLocation} from "react-icons/fa";
 import SearchResult from "@/components/SearchResult";
-import * as searchStateAction from "@/store/modules/search";
-import {log} from "next/dist/server/typescript/utils";
 import useSWR from "swr";
 import useSearchAction from "@/hooks/useSearchAction";
 
 export default function SearchSection() {
-    const dataStore = useSelector(state => state.dataState)
 
     const {setSearchWord, setSearchStart} = useSearchAction()
 
+    const {data:startStore} = useSWR('/stores/start')
+    const {data:endStore} = useSWR('/stores/end')
     const {data:searchStart} = useSWR('/search')
     const {data:searchWord} = useSWR('/search/word')
     const [keywords, setKeywords] = useState([])
@@ -63,13 +61,11 @@ export default function SearchSection() {
 
     const clickKeyword = (keyword) => {
         setSearchWord(keyword)
-        // dispatch(searchStateAction.setWord({value:keyword}))
         setSearchStart(true)
-        // dispatch(searchStateAction.searchStart({start:true}))
     }
 
     return(
-        <div style={( dataStore.startPoint || dataStore.endPoint ) ?(searchStart?{}:{top:'40px'}):{}}
+        <div style={( startStore || endStore ) ?(searchStart?{}:{top:'40px'}):{}}
             className={`${styles.searchSection}`}>
             {
                 searchStart

@@ -4,13 +4,8 @@ import styles from '../styles/detail.module.scss'
 import {useEffect, useRef, useState} from "react";
 import {IoIosArrowUp} from "react-icons/io";
 import DetailHeaderList from "@/components/DetailHeaderList";
-import {useDispatch, useSelector} from "react-redux";
-import * as searchStateAction from "@/store/modules/search";
-import * as dataStateAction from "@/store/modules/data";
-import DetailHeaderContent from "@/components/DetailHeaderContent";
 import DetailContent from "@/components/DetailContent";
 import SearchSection from "@/components/SearchSection";
-import useSearchAction from "@/hooks/useSearchAction";
 import useSWR from "swr";
 import useStores from "@/hooks/useStores";
 import useList from "@/hooks/useList";
@@ -24,7 +19,7 @@ export default function DetailSection(){
     const { data:startStore } = useSWR('/stores/start')
     const { data:endStore } = useSWR('/stores/end')
     const { data:searchStart } = useSWR('/search')
-    const { data:searchOpen } = useSWR('/search/list')
+    const { data:searchOpen } = useSWR('/search/open')
 
     const [touchStart, setTouchStart] = useState(null)
     const [touchEnd, setTouchEnd] = useState(null)

@@ -1,21 +1,12 @@
 'use client'
-
-import Script from 'next/script'
-import {useEffect, useMemo, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import * as dataStateAction from "@/store/modules/data"
-import * as mapStateAction from "@/store/modules/map"
-import {useRouter} from "next/navigation";
-import useMap, { INITIAL_CENTER, INITIAL_ZOOM } from "@/hooks/useMap";
+import useMap from "@/hooks/useMap";
 import Map from "@/components/Map";
 import useStores from "@/hooks/useStores";
-import useSWR from "swr";
 
 export default function KakaoMap(){
-    const dispatch = useDispatch();
 
     const { initializeStores } = useStores();
-    const { initializeMap, initializeCurrentPosition } = useMap();
+    const { initializeMap, initializeCurrentPosition,initializeCurrentLocation } = useMap();
 
     const onLoadMap = async (map) => {
         await initData()
@@ -35,7 +26,6 @@ export default function KakaoMap(){
     const getPosition = (map) =>{
         navigator.geolocation.getCurrentPosition((position) => {
             map.panTo(new kakao.maps.LatLng(position.coords.latitude, position.coords.longitude))
-            dispatch(mapStateAction.setMapLoading({mapLoading:true}))
 
             initPosition([position.coords.latitude, position.coords.longitude])
             var marker = new kakao.maps.Marker({
@@ -45,7 +35,7 @@ export default function KakaoMap(){
             new kakao.maps.services.Geocoder().coord2Address(position.coords.longitude,position.coords.latitude,
                 (res,status)=>{
                 if (status === kakao.maps.services.Status.OK) {
-                    dispatch(dataStateAction.setCurLocation({curLocation:res[0].address.region_2depth_name}));
+                    initializeCurrentLocation(res[0].address.region_2depth_name)
                 }
             });
 

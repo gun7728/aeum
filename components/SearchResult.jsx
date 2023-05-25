@@ -1,12 +1,8 @@
-import {useDispatch, useSelector} from "react-redux";
 import {useEffect, useState} from "react";
 import Image from "next/image";
-import * as searchStateAction from "@/store/modules/search";
-import * as dataStateAction from "@/store/modules/data";
 import styles from '@/styles/search.module.scss'
 import {CgPhone} from "react-icons/cg";
 import {RiShareForward2Fill} from "react-icons/ri";
-import * as alertStateAction from "@/store/modules/alert";
 import useSWR from "swr";
 import useStores from "@/hooks/useStores";
 import useSearchAction from "@/hooks/useSearchAction";
@@ -16,13 +12,15 @@ import useAlert from "@/hooks/useAlert";
 export default function SearchResult(){
     const {data:stores} = useSWR('/stores')
     const {data:searchWord} = useSWR('/search/word')
+    const {data:map} = useSWR('/map')
+    const {data:startStore} = useSWR('/stores/start')
+    const {data:endStore} = useSWR('/stores/end')
 
     const {setStartStore, setEndStore, setChoseStore } = useStores()
-    const {setListOpen, setListReOpen} = useList()
+    const {setListOpen} = useList()
     const {setAlertStart, setAlertMsg} = useAlert()
-    const {setSearchStart, setSearchOpen} = useSearchAction()
+    const {setSearchStart, setSearchOpen, setSearchData} = useSearchAction()
 
-    const dispatch = useDispatch();
     const [results, setResults] = useState([]);
     const [customPoint, setCustomPoint] = useState();
 
@@ -63,6 +61,20 @@ export default function SearchResult(){
 
 
     const setPoint = async (key, data)=>{
+        if(startStore){
+            if(data.title == startStore[1]){
+                alert('출발지와 목적지를 동일하게 설정하실 수 없습니다.')
+                return;
+            }
+        }
+
+        if(endStore){
+            if(data.title == endStore[1]){
+                alert('출발지와 목적지를 동일하게 설정하실 수 없습니다.')
+                return;
+            }
+        }
+
         await setSearchStart(true)
         await setSearchOpen(false)
 
@@ -81,6 +93,7 @@ export default function SearchResult(){
                 break;
         }
 
+        map.panTo(new kakao.maps.LatLng(data.x,data.y))
         await setListOpen(false)
     }
 
@@ -88,7 +101,7 @@ export default function SearchResult(){
 
 
     useEffect(()=>{
-        dispatch(searchStateAction.setSearchData({searchData:results}))
+        setSearchData(results)
         if(results.length<=0){
             new kakao.maps.services.Geocoder().addressSearch(searchWord,
                 (res,status)=>{
