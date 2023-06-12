@@ -275,7 +275,7 @@ export default function HeaderSearch(){
 
     function googlePath(map, sx, sy, ex, ey){
         var xhr = new XMLHttpRequest();
-        var url = `/googleApi/json?origin=${sy}%2C${sx}&destination=${ey}%2C${ex}&mode=transit&key=AIzaSyA0Pyow7qSypXqnUYZDZJU6yZ4XSlNJDuQ`;
+        var url = `/googleApi/json?origin=${sy}%2C${sx}&destination=${ey}%2C${ex}&mode=transit&key=${process.env.GOOGLE_KEY}`;
         xhr.open("GET", url, true);
         xhr.send();
         xhr.onreadystatechange = function () {
