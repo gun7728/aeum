@@ -7,6 +7,7 @@ import useSWR from "swr";
 import useSearchAction from "@/hooks/useSearchAction";
 import useList from "@/hooks/useList";
 import useStores from "@/hooks/useStores";
+import {decode} from "@googlemaps/polyline-codec"
 
 
 export default function HeaderSearch(){
@@ -225,7 +226,192 @@ export default function HeaderSearch(){
 
     const startPath = () => {
         if(!startFlag) return;
-        getPath(map, startStore[5], startStore[4], endStore[5], endStore[4]);
+        // getPath(map, startStore[5], startStore[4], endStore[5], endStore[4]);
+        // tmapPath(map);
+        googlePath(map, startStore[5], startStore[4], endStore[5], endStore[4])
+        // tMapResult(map, startStore[5], startStore[4], endStore[5], endStore[4])
+    }
+
+    function decodePolyline(encoded) {
+        if (!encoded) {
+            return [];
+        }
+        var poly = [];
+        var index = 0, len = encoded.length;
+        var lat = 0, lng = 0;
+
+        while (index < len) {
+            var b, shift = 0, result = 0;
+
+            do {
+                b = encoded.charCodeAt(index++) - 63;
+                result = result | ((b & 0x1f) << shift);
+                shift += 5;
+            } while (b >= 0x20);
+
+            var dlat = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+            lat += dlat;
+
+            shift = 0;
+            result = 0;
+
+            do {
+                b = encoded.charCodeAt(index++) - 63;
+                result = result | ((b & 0x1f) << shift);
+                shift += 5;
+            } while (b >= 0x20);
+
+            var dlng = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+            lng += dlng;
+
+            var p = {
+                y: lat / 1e5,
+                x: lng / 1e5,
+            };
+            poly.push(p);
+        }
+        return poly;
+    }
+
+    function googlePath(map, sx, sy, ex, ey){
+        var xhr = new XMLHttpRequest();
+        var url = `/googleApi/json?origin=${sy}%2C${sx}&destination=${ey}%2C${ex}&mode=transit&key=AIzaSyA0Pyow7qSypXqnUYZDZJU6yZ4XSlNJDuQ`;
+        xhr.open("GET", url, true);
+        xhr.send();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                var resultJsonData = JSON.parse(xhr.responseText).routes;
+
+
+                var route = resultJsonData[0].legs[0];
+
+                console.log(route)
+                route.steps.map((step)=>{
+                    var color =  '#111111'
+
+                    var lineAr = [];
+                    if(step.travel_mode==='TRANSIT'){
+                        color=step.transit_details.line.color
+
+
+                        var lines =  decodePolyline(step.polyline.points)
+                        lines.map((line)=>{
+                            lineAr.push(new kakao.maps.LatLng(line.y, line.x))
+                        })
+
+                    }else if(step.travel_mode==='WALKING'){
+                        step.steps.map((st)=>{
+
+                            var lines =  decodePolyline((st.polyline.points).toString())
+                            lines.map((line)=>{
+                                lineAr.push(new kakao.maps.LatLng(line.y, line.x))
+                            })
+                        })
+                        // var lines =  decodePolyline(step.polyline.points)
+                        // lines.map((line)=>{
+                        //     lineAr.push(new kakao.maps.LatLng(line.y, line.x))
+                        // })
+                    }
+
+
+                    new kakao.maps.Polyline({
+                        map: map,
+                        path: lineAr,
+                        strokeWeight: 5,
+                        strokeColor: color
+                    })
+                    // console.log(lineAr)
+
+                })
+                // var steps =  decodePolyline()
+
+                // var lineAr = [];
+                // poly.map((line)=>{
+                //     lineAr.push(new kakao.maps.LatLng(line.y, line.x))
+                // })
+                //
+                // new kakao.maps.Polyline({
+                //     map: map,
+                //     path: lineAr,
+                //     strokeWeight: 5,
+                //     strokeColor: '#003499'
+                // })
+
+            }
+        }
+        // fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=heading%3D90%3A${sy}%2C${sx}&destination=${ey}%2C${ex}&key=AIzaSyA0Pyow7qSypXqnUYZDZJU6yZ4XSlNJDuQ`, options)
+        //     .then(response => response.json())
+        //     .then(response => console.log(response))
+        //     .catch(err => console.error(err));
+
+    }
+    function tmapPath(map){
+        const data = require('/public/data/tmap2.json')
+
+        var datas = data.metaData.plan.itineraries.sort((a,b)=>a.totalTime-b.totalTime)
+
+
+        console.log(datas)
+
+        var allPath =  datas[6].legs;
+
+        var lineList=new Array(allPath.length).fill(0);
+        allPath.map((path,idx)=>{
+            if(path.mode==='BUS'){
+                var lineArray = lineConvert(path.passShape.linestring)
+                lineList[idx]=(
+                    new kakao.maps.Polyline({
+                    map: map,
+                    path: lineArray,
+                    strokeWeight: 5,
+                    strokeColor: '#'+path.routeColor
+                }))
+            }else if(path.mode==='WALK'){
+                path.steps.map((step)=>{
+                    var lineArray = lineConvert(step.linestring)
+                    lineList[idx]=(
+                        new kakao.maps.Polyline({
+                            map: map,
+                            path: lineArray,
+                            strokeWeight: 5,
+                            strokeColor: '#000000'
+                        }))
+                })
+            }else if(path.mode==='TRANSFER'){
+                var lineArray = lineConvert(path.passShape.linestring)
+                lineList[idx]=(
+                    new kakao.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 5,
+                        strokeColor: '#000000'
+                    }))
+            }else if(path.mode==='SUBWAY'){
+                var lineArray = lineConvert(path.passShape.linestring)
+                lineList[idx]=(
+                    new kakao.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 5,
+                        strokeColor: '#'+path.routeColor
+                    }))
+            }
+        })
+
+        console.log(lineList)
+        // setPolyline(lineList);
+    }
+
+    function lineConvert(line){
+        var lineString = line
+        var lineAr = [];
+        var lineList = lineString.split(' ')
+        lineList.map((e)=>{
+            var xy = e.split(',');
+            lineAr.push(new kakao.maps.LatLng(xy[1], xy[0]))
+        })
+
+        return lineAr;
     }
 
     function getPath(map, sx, sy, ex, ey) {
@@ -284,6 +470,31 @@ export default function HeaderSearch(){
                 }
             }
         }
+    }
+
+    function tMapResult(map, sx, sy, ex, ey){
+        const options = {
+            method: 'POST',
+            headers: {
+                accept: 'application/json',
+                'content-type': 'application/json',
+                appKey: 'SmS45nXtKg6A50z1o8fk4240ewoFBidx9xvUvE3j'
+            },
+            body: JSON.stringify({
+                startX: sx,
+                startY: sy,
+                endX: ex,
+                endY: ey,
+                lang: 0,
+                format: 'json',
+                count: 10,
+            })
+        };
+
+        fetch('https://apis.openapi.sk.com/transit/routes', options)
+            .then(response => response.json())
+            .then(response => console.log(response))
+            .catch(err => console.error(err));
     }
 
     function drawKakaoPolyLine(map, data) {

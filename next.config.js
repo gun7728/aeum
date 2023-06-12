@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async rewrites() {
+    return [
+      {
+        source: '/googleApi/:path*',
+        destination: `https://maps.googleapis.com/maps/api/directions/:path*`,
+      },
+    ];
+  },
   experimental: {
     appDir: true,
   },

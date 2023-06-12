@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@googlemaps/polyline-codec": "^1.0.28",
     "@reduxjs/toolkit": "^1.9.5",
     "next": "13.3.4",
     "next-redux-wrapper": "^8.1.0",

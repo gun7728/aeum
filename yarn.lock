@@ -9,6 +9,11 @@
   dependencies:
     "regenerator-runtime" "^0.13.11"
 
+"@googlemaps/polyline-codec@^1.0.28":
+  "integrity" "sha512-m7rh8sbxlrHvebXEweBHX8r1uPtToPRYxWDD6p6k2YG8hyhBe0Wi6xRUVFpxpEseMNgF+OBotFQC5senj8K7TQ=="
+  "resolved" "https://registry.npmjs.org/@googlemaps/polyline-codec/-/polyline-codec-1.0.28.tgz"
+  "version" "1.0.28"
+
 "@next/env@13.3.4":
   "integrity" "sha512-oTK/wRV2qga86m/4VdrR1+/56UA6U1Qv3sIgowB+bZjahniZLEG5BmmQjfoGv7ZuLXBZ8Eec6hkL9BqJcrEL2g=="
   "resolved" "https://registry.npmjs.org/@next/env/-/env-13.3.4.tgz"
