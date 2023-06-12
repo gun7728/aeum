@@ -9,10 +9,11 @@ import {BsPencil} from "react-icons/bs";
 import useSWR from "swr";
 import useAlert from "@/hooks/useAlert";
 import useStores from "@/hooks/useStores";
+import useMap from "@/hooks/useMap";
 
 export default function DetailContent(){
     const {setAlertStart,setAlertMsg} = useAlert()
-    const {setStartStore,setEndStore} = useStores()
+    const {setStartStore,setEndStore} = useMap()
 
     const {data:map} = useSWR('/map')
     const {data:choseStore} = useSWR('/stores/chose')

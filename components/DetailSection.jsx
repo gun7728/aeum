@@ -16,10 +16,10 @@ export default function DetailSection(){
     const { data:open } = useSWR('/list/open');
     const { data:reOpen } = useSWR('/list/reopen');
     const { data:choseStore } = useSWR('/stores/chose')
-    const { data:startStore } = useSWR('/stores/start')
-    const { data:endStore } = useSWR('/stores/end')
     const { data:searchStart } = useSWR('/search')
     const { data:searchOpen } = useSWR('/search/open')
+    const { data:startStore } = useSWR('/map/start')
+    const { data:endStore } = useSWR('/map/end')
 
     const [touchStart, setTouchStart] = useState(null)
     const [touchEnd, setTouchEnd] = useState(null)
