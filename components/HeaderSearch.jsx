@@ -8,6 +8,7 @@ import useSearchAction from "@/hooks/useSearchAction";
 import useList from "@/hooks/useList";
 import useStores from "@/hooks/useStores";
 import {decode} from "@googlemaps/polyline-codec"
+import process from "next/dist/build/webpack/loaders/resolve-url-loader/lib/postcss";
 
 
 export default function HeaderSearch(){
@@ -228,6 +229,7 @@ export default function HeaderSearch(){
         if(!startFlag) return;
         // getPath(map, startStore[5], startStore[4], endStore[5], endStore[4]);
         // tmapPath(map);
+        tMapRoad(map, startStore[5], startStore[4], endStore[5], endStore[4])
         googlePath(map, startStore[5], startStore[4], endStore[5], endStore[4])
         // tMapResult(map, startStore[5], startStore[4], endStore[5], endStore[4])
     }
@@ -273,6 +275,23 @@ export default function HeaderSearch(){
         return poly;
     }
 
+    function tMapRoad(sx, sy, ex, ey){
+        return new Promise((resolve, reject)=>{
+            var xhr = new XMLHttpRequest();
+            var url =  `https://apis.openapi.sk.com/tmap/routes/pedestrian?version=1&format=json&callback=result&startX=${sx}&startY=${sy}&endX=${ex}&endY=${ey}&reqCoordType=WGS84GEO&startName=출발지&endName=도착지&appKey=${process.env.TMAP_KEY}`
+            xhr.open("GET", url, true);
+            xhr.send()
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var resultJsonData = JSON.parse(xhr.responseText);
+
+                    resolve(resultJsonData);
+                }
+            }
+        })
+    }
+
+
     function googlePath(map, sx, sy, ex, ey){
         var xhr = new XMLHttpRequest();
         var url = `/googleApi/json?origin=${sy}%2C${sx}&destination=${ey}%2C${ex}&mode=transit&key=${process.env.GOOGLE_KEY}`;
@@ -281,36 +300,48 @@ export default function HeaderSearch(){
         xhr.onreadystatechange = function () {
             if (xhr.readyState == 4 && xhr.status == 200) {
                 var resultJsonData = JSON.parse(xhr.responseText).routes;
-
-
                 var route = resultJsonData[0].legs[0];
 
-                console.log(route)
-                route.steps.map((step)=>{
-                    var color =  '#111111'
+                route.steps.map(async (step) => {
+                    var color = '#111111'
 
                     var lineAr = [];
-                    if(step.travel_mode==='TRANSIT'){
-                        color=step.transit_details.line.color
+                    if (step.travel_mode === 'TRANSIT') {
+                        color = step.transit_details.line.color
 
 
-                        var lines =  decodePolyline(step.polyline.points)
-                        lines.map((line)=>{
+                        var lines = decodePolyline(step.polyline.points)
+                        lines.map((line) => {
                             lineAr.push(new kakao.maps.LatLng(line.y, line.x))
                         })
 
-                    }else if(step.travel_mode==='WALKING'){
-                        step.steps.map((st)=>{
+                    } else if (step.travel_mode === 'WALKING') {
 
-                            var lines =  decodePolyline((st.polyline.points).toString())
+                        if(checkInsideKorea({lat:step.start_location.lat,lng:step.start_location.lng})){
+                            var roadData =  await tMapRoad(step.start_location.lng, step.start_location.lat, step.end_location.lng, step.end_location.lat)
+
+                            roadData.features.map((feat)=>{
+                                if(typeof feat.geometry.coordinates[0] === "number"){
+                                    lineAr.push(new kakao.maps.LatLng(feat.geometry.coordinates[1],feat.geometry.coordinates[0]))
+                                }else{
+                                    feat.geometry.coordinates.map((coor)=>{
+                                        lineAr.push(new kakao.maps.LatLng(coor[1],coor[0]))
+                                    })
+                                }
+                            })
+                        }else{
+                            step.steps.map((st)=>{
+
+                                var lines =  decodePolyline((st.polyline.points).toString())
+                                lines.map((line)=>{
+                                    lineAr.push(new kakao.maps.LatLng(line.y, line.x))
+                                })
+                            })
+                            var lines =  decodePolyline(step.polyline.points)
                             lines.map((line)=>{
                                 lineAr.push(new kakao.maps.LatLng(line.y, line.x))
                             })
-                        })
-                        // var lines =  decodePolyline(step.polyline.points)
-                        // lines.map((line)=>{
-                        //     lineAr.push(new kakao.maps.LatLng(line.y, line.x))
-                        // })
+                        }
                     }
 
 
@@ -345,6 +376,50 @@ export default function HeaderSearch(){
         //     .catch(err => console.error(err));
 
     }
+
+    function checkInsideKorea({ lat, lng }) {
+        const coordinateList = [
+            {lat:39.105648,lng:129.293848},
+            {lat:37.472782,lng:131.597259},
+            {lat:34.743466,lng:129.259321},
+            {lat:33.810255,lng:128.903499},
+            {lat:32.599185,lng:125.157071},
+            {lat:34.458362,lng:124.150105},
+            {lat:37.65974,lng:124.97210}
+        ];
+        const size = coordinateList.length;
+
+        if (size < 3) {
+            return false;
+        }
+
+        let isInner = false;
+        let followIndex = size - 1;
+
+        for (let cur = 0; cur < size; cur++) {
+            const curPos = coordinateList[cur];
+            const prevPos = coordinateList[followIndex];
+
+            if (
+                (curPos.lng < lng && prevPos.lng >= lng) ||
+                (prevPos.lng < lng && curPos.lng >= lng)
+            ) {
+                /**
+                 * 직선의 방정식: y - y1 = M * (x - x1)
+                 * 기울기: M = (y2 - y1) / (x2 - x1)
+                 */
+                if (curPos.lat + ((lng - curPos.lng) / (prevPos.lng - curPos.lng)) * (prevPos.lat - curPos.lat) < lat) {
+                    isInner = !isInner;
+                }
+            }
+
+            followIndex = cur;
+        }
+
+        console.log(isInner)
+        return isInner;
+    };
+
     function tmapPath(map){
         const data = require('/public/data/tmap2.json')
 
