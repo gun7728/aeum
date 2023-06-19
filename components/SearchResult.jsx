@@ -8,15 +8,17 @@ import useStores from "@/hooks/useStores";
 import useSearchAction from "@/hooks/useSearchAction";
 import useList from "@/hooks/useList";
 import useAlert from "@/hooks/useAlert";
+import useMap from "@/hooks/useMap";
 
 export default function SearchResult(){
     const {data:stores} = useSWR('/stores')
     const {data:searchWord} = useSWR('/search/word')
     const {data:map} = useSWR('/map')
-    const {data:startStore} = useSWR('/stores/start')
-    const {data:endStore} = useSWR('/stores/end')
+    const {data:startStore} = useSWR('/map/start')
+    const {data:endStore} = useSWR('/map/end')
 
-    const {setStartStore, setEndStore, setChoseStore } = useStores()
+    const { setChoseStore } = useStores()
+    const {setStartStore, setEndStore } = useMap()
     const {setListOpen} = useList()
     const {setAlertStart, setAlertMsg} = useAlert()
     const {setSearchStart, setSearchOpen, setSearchData} = useSearchAction()
