@@ -50,10 +50,10 @@ export default function DetailContent(){
 
         if(map){
             map.setLevel(3,true)
-            map.panTo(new kakao.maps.LatLng(choseStore[4]-0.002,choseStore[5]));
+            map.panTo(new kakao.maps.LatLng(choseStore.mapy-0.002,choseStore.mapx));
 
             var mk = new kakao.maps.Marker({
-                position: new kakao.maps.LatLng(choseStore[4],choseStore[5]),
+                position: new kakao.maps.LatLng(choseStore.mapy,choseStore.mapx),
                 map:map
             });
 
@@ -77,7 +77,6 @@ export default function DetailContent(){
         console.log('??')
     }
 
-
     return(
         <div>
             {
@@ -85,14 +84,14 @@ export default function DetailContent(){
                     <div>
                         <div className={styles.detailTitleSection}>
                             <h1 className={styles.detailTitle} >
-                                {choseStore[1]}
+                                {choseStore.title}
                             </h1>
-                            <h4 style={{opacity:0.5}}>{choseStore[6]}</h4>
+                            {/*<h4 style={{opacity:0.5}}>{choseStore[13]}</h4>*/}
                         </div>
                         <div className={styles.detailBtnSection}>
                             <div style={{float:"left"}}>
                                 <CgPhone className={styles.detailIconBtn}/>
-                                <RiShareForward2Fill className={styles.detailIconBtn} onClick={()=>copyUrl(choseStore[0])}/>
+                                <RiShareForward2Fill className={styles.detailIconBtn} onClick={()=>copyUrl(choseStore.contentid)}/>
                             </div>
                             <div style={{float:"right"}}>
                                 <button className={styles.detailBtn} onClick={()=>setStartPoint(choseStore)}><span style={{color:"gray"}}>출발</span></button>
@@ -107,9 +106,9 @@ export default function DetailContent(){
                                 <div className={styles.detailContentSection}>
                                     <IoLocationOutline className={styles.detailIcon}/>
                                     <div>
-                                        <span className={styles.detailContent}>서울 특별시 마포구 마포나루길 467 (우)04005</span>
+                                        <span className={styles.detailContent}>{choseStore.addr1}</span>
                                         <br/>
-                                        <span className={styles.detailContent}>지번 : 망원동 205-4</span>
+                                        <span className={styles.detailContent}>{choseStore.addr2}</span>
                                     </div>
                                 </div>
 
@@ -122,14 +121,14 @@ export default function DetailContent(){
 
                                 <div className={styles.detailContentSection}>
                                     <BsPencil  className={styles.detailIcon}/>
-                                    <span className={styles.detailContent}>{tooLongText(choseStore[2])}</span>
+                                    <span className={styles.detailContent}>{tooLongText(choseStore.title)}</span>
                                 </div>
                             </div>
                             <hr style={{marginBottom:'15px', width:'150%',marginLeft:'-20px', opacity:0.3}}/>
                             <div className={styles.detailImageSection}>
-                                <Image className={styles.detailInnerThumb} src={choseStore[3]} alt={`${choseStore[1]}`} width={50} height={50} onClick={()=>{clickImg()}}/>
-                                <Image className={styles.detailInnerThumb} src={choseStore[3]} alt={`${choseStore[1]}`} width={50} height={50} onClick={()=>{clickImg()}}/>
-                                <Image className={styles.detailInnerThumb} src={choseStore[3]} alt={`${choseStore[1]}`} width={50} height={50} onClick={()=>{clickImg()}}/>
+                                <Image className={styles.detailInnerThumb} src={choseStore.firstimage} alt={`${choseStore[1]}`} width={50} height={50} onClick={()=>{clickImg()}}/>
+                                <Image className={styles.detailInnerThumb} src={choseStore.firstimage2} alt={`${choseStore[1]}`} width={50} height={50} onClick={()=>{clickImg()}}/>
+                                <Image className={styles.detailInnerThumb} src={choseStore.firstimage} alt={`${choseStore[1]}`} width={50} height={50} onClick={()=>{clickImg()}}/>
                             </div>
                         </div>
                     </div>

@@ -40,7 +40,7 @@ export default function DetailHeaderContent(){
         }
 
         setListOpen(false);
-        setChoseStore(Object.values(e))
+        setChoseStore(e)
     }
 
     return (
@@ -49,8 +49,8 @@ export default function DetailHeaderContent(){
                 stores.map((e)=>{
                     return(
                         !open?
-                            <div key={e.id} className={styles.detailHeaderSection} >
-                                <Image className={styles.image} src={e.image} alt={`${e.title}`} width={125} height={170} onClick={()=>{goToDetail(e)}}/>
+                            <div key={e.contentid} className={styles.detailHeaderSection} >
+                                <Image className={styles.image} src={e.firstimage} alt={`${e.title}`} width={125} height={170} onClick={()=>{goToDetail(e)}}/>
                                 <p>
                                     {e.title}
                                 </p>
@@ -61,9 +61,9 @@ export default function DetailHeaderContent(){
                                     <p className={styles.detailHeaderTitle} >
                                         {e.title}
                                     </p>
-                                    <span className={styles.detailHeaderContent}>{e.content}</span>
+                                    <span className={styles.detailHeaderContent}>{e.addr1}</span>
                                     <Image className={styles.detailHeaderThumb}
-                                           src={e.image}
+                                           src={e.firstimage}
                                            alt={`${e.title}`}
                                            width={0}
                                            height={0}

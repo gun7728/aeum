@@ -6,13 +6,17 @@ const nextConfig = {
         source: '/googleApi/:path*',
         destination: `https://maps.googleapis.com/maps/api/directions/:path*`,
       },
+      {
+        source: '/tourApi/:path*',
+        destination: `https://apis.data.go.kr/B551011/KorService1/:path*`,
+      },
     ];
   },
   experimental: {
     appDir: true,
   },
   images:{
-    domains:['lh3.googleusercontent.com']
+    domains:['lh3.googleusercontent.com','tong.visitkorea.or.kr']
   },
   env:{
     NEXT_PUBLIC_MAP_KEY : process.env.NEXT_PUBLIC_MAP_KEY,

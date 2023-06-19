@@ -93,7 +93,7 @@ export default function SearchResult(){
                 break;
         }
 
-        map.panTo(new kakao.maps.LatLng(data.x,data.y))
+        map.panTo(new kakao.maps.LatLng(data.mapy,data.mapx))
         await setListOpen(false)
     }
 
@@ -130,21 +130,21 @@ export default function SearchResult(){
                 results.length>0?
                     results.map((e)=>{
                         return(
-                            <div key={e.id} className={styles.searchListItemSection}>
+                            <div key={e.contentid} className={styles.searchListItemSection}>
                                 <div className={styles.textSection}>
                                     <span className={styles.title}>
                                         {e.title}
                                     </span>
                                         <span  className={styles.loc}>
-                                        {e.loc}
+                                        {e.addr1}
                                     </span>
                                 </div>
-                                <Image className={styles.searchListItem} src={e.image} alt={`${e.title}`} width={125} height={170} onClick={()=>{goToDetail(e)}}/>
+                                <Image className={styles.searchListItem} src={e.firstimage} alt={`${e.title}`} width={125} height={170} onClick={()=>{goToDetail(e)}}/>
                                 <hr style={{marginBottom:'0px', width:'150%',marginLeft:'-20px', opacity:0.3}}/>
                                 <div className={styles.detailBtnSection}>
                                     <div style={{float:"left"}}>
                                         <CgPhone className={styles.detailIconBtn}/>
-                                        <RiShareForward2Fill className={styles.detailIconBtn} onClick={()=>copyUrl(e.id)}/>
+                                        <RiShareForward2Fill className={styles.detailIconBtn} onClick={()=>copyUrl(e.contentid)}/>
                                     </div>
                                     <div style={{float:"right"}}>
                                         <button className={styles.detailBtn} onClick={()=>setPoint("start",e)}><span style={{color:"gray"}}>출발</span></button>
