@@ -15,6 +15,7 @@ export default function DetailHeaderList(){
                 <p><span style={{fontSize:'12px'}}>미세먼지 {pm10} 초미세먼지 {pm25}</span></p>
             </div>
             <hr style={{marginBottom:'3px', width:'150%',marginLeft:'-20px', opacity:0.3}}/>
+            <p style={{fontSize:'10px'}}><span style={{fontWeight:"bold"}}>주변 관광지</span></p>
             <div>
                 <DetailHeaderContent />
             </div>

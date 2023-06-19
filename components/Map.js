@@ -1,8 +1,9 @@
-import {INITIAL_CENTER, INITIAL_ZOOM} from "@/hooks/useMap";
+import useMap, {INITIAL_CENTER, INITIAL_ZOOM} from "@/hooks/useMap";
 import {useEffect, useRef} from "react";
 import Script from "next/script";
 
 const Map = ({onLoad})=>{
+    const { changeBound } = useMap()
     const mapRef = useRef(null);
 
     const initializeMap = () => {
@@ -14,6 +15,12 @@ const Map = ({onLoad})=>{
 
             var container = document.getElementById('map');
             const map = new kakao.maps.Map(container, mapOptions);
+
+            kakao.maps.event.addListener(map, 'bounds_changed', function() {
+                const bounds = map.getBounds(); // 지도 영역 반환
+                changeBound(bounds)
+            });
+
             mapRef.current = map;
 
 

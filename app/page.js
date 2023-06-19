@@ -12,10 +12,8 @@ import useMap from "@/hooks/useMap";
 
 export default function Home(){
     const { data:map } = useSWR('/map');
-    const { data:stores } = useSWR('/stores');
+    const { data:nearStores } = useSWR('/stores/near');
     const { data:position } = useSWR('/map/curPos');
-
-    const dataStore = useSelector((state)=>state.dataState)
 
     return(
         <div
@@ -29,13 +27,13 @@ export default function Home(){
                   }}
               >
                 {
-                    (position && stores)?'':<Loading/>
+                    (position && nearStores)?'':<Loading/>
                 }
                 <FadeAlert/>
                 <Header/>
                 <KakaoMap/>
                 {
-                    (map && stores)?
+                    (map && nearStores)?
                         <DetailSection />
                         :<></>
                 }

@@ -11,7 +11,7 @@ export default function DetailHeaderContent(){
     const {setListOpen, setListReOpen} = useList()
     const {setChoseStore} = useStores()
 
-    const { data:stores } = useSWR('/stores');
+    const { data:nearStores } = useSWR('/stores/near');
     const { data:open } = useSWR('/list/open');
 
     const scrollRef = useRef();
@@ -42,11 +42,10 @@ export default function DetailHeaderContent(){
         setListOpen(false);
         setChoseStore(e)
     }
-
     return (
         <div className={!open?styles.slideridle:styles.slideractive} ref={scrollRef} onMouseDown={onDragStart} onMouseUp={onDragEnd} onMouseMove={e=>setTimeout(onDragMove(e),200)} role={"option"} >
             {
-                stores.map((e)=>{
+                nearStores.map((e)=>{
                     return(
                         !open?
                             <div key={e.contentid} className={styles.detailHeaderSection} >

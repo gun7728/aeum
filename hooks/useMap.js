@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { mutate } from 'swr';
+import {STORE_KEY} from "@/hooks/useStores";
 
 export const INITIAL_CENTER = [37.71344096516783, 126.8666797982575];
 export const INITIAL_ZOOM = 5;
@@ -10,6 +11,9 @@ export const MAP_CUR_LOC_KEY = '/map/curLoc';
 export const STORE_START_KEY = '/map/start';
 export const STORE_END_KEY = '/map/end';
 export const ROUTE_KEY = '/map/route';
+export const BOUND_KEY = '/map/bound';
+export const ALL_MARKER_KEY = '/map/all/marker';
+export const SCREEN_MARKER_KEY = '/map/screen/marker';
 
 const useMap = () => {
     const initializeMap = useCallback((map) => {
@@ -37,6 +41,17 @@ const useMap = () => {
         mutate(ROUTE_KEY, route)
     })
 
+    const changeBound = useCallback((bound)=>{
+        mutate(BOUND_KEY, bound)
+    })
+
+    const allStoresMarker = useCallback((allMarker) => {
+        mutate(ALL_MARKER_KEY, allMarker);
+    });
+
+    const screenMarker = useCallback((screenMarker) => {
+        mutate(SCREEN_MARKER_KEY, screenMarker);
+    });
 
 
     return {
@@ -45,7 +60,10 @@ const useMap = () => {
         initializeCurrentLocation,
         setStartStore,
         setEndStore,
-        setRoute
+        setRoute,
+        changeBound,
+        allStoresMarker,
+        screenMarker,
     };
 };
 export default useMap;
