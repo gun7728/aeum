@@ -3,7 +3,7 @@ import {useEffect, useRef} from "react";
 import Script from "next/script";
 
 const Map = ({onLoad})=>{
-    const { changeBound } = useMap()
+    const { changeBound,changeZoom } = useMap()
     const mapRef = useRef(null);
 
     const initializeMap = () => {
@@ -25,7 +25,9 @@ const Map = ({onLoad})=>{
                 if (timer) {
                     clearTimeout(timer);
                     const bounds = map.getBounds(); // 지도 영역 반환
+                    const zoom = map.getLevel(); // 지도 영역 반환
                     changeBound(bounds)
+                    changeZoom(zoom)
                 }
 
             });

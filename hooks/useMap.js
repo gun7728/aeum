@@ -12,6 +12,7 @@ export const STORE_START_KEY = '/map/start';
 export const STORE_END_KEY = '/map/end';
 export const ROUTE_KEY = '/map/route';
 export const BOUND_KEY = '/map/bound';
+export const ZOOM_KEY = '/map/zoom';
 export const ALL_MARKER_KEY = '/map/all/marker';
 export const SCREEN_MARKER_KEY = '/map/screen/marker';
 
@@ -45,6 +46,10 @@ const useMap = () => {
         mutate(BOUND_KEY, bound)
     })
 
+    const changeZoom = useCallback((bound)=>{
+        mutate(ZOOM_KEY, bound)
+    })
+
     const allStoresMarker = useCallback((allMarker) => {
         mutate(ALL_MARKER_KEY, allMarker);
     });
@@ -62,6 +67,7 @@ const useMap = () => {
         setEndStore,
         setRoute,
         changeBound,
+        changeZoom,
         allStoresMarker,
         screenMarker,
     };

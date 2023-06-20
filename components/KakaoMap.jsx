@@ -16,7 +16,9 @@ export default function KakaoMap(){
     const { data:map } = useSWR('/map');
     const { data:allMarker } = useSWR('/map/all/marker');
     const { data:bound } = useSWR('/map/bound');
+    const { data:zoom } = useSWR('/map/zoom');
     const { data:sMarker } = useSWR('/map/screen/marker')
+    const {data:choseStore} = useSWR('/stores/chose')
 
     const onLoadMap = async (map) => {
         getPosition(map)
@@ -77,8 +79,18 @@ export default function KakaoMap(){
         const boundsChange = [];
         const markers = [];
 
+
+        var size = bound;
+
+        if(zoom<=3){
+            size.ha+=-0.00248;
+            size.oa+=0.00189;
+            size.pa+=0.00536;
+            size.qa+=-0.00473
+        }
+
         allMarker.map((marker)=>{
-            if (bound.contain(marker.getPosition()) == true) {
+            if (size.contain(marker.getPosition()) == true) {
                 var data = stores[`${marker.getTitle()}`];
                 boundsChange.push(data)
 
@@ -108,7 +120,7 @@ export default function KakaoMap(){
         //         boundsChange.push({'title':marker.getTitle(), 'lat':marker.getPosition().Ga, 'lng':marker.getPosition().Ha, 'cntr_pwr': boundMarker[i].cntr_pwr})
         //     }
         // }
-    },[bound,allMarker,stores,map])
+    },[bound,allMarker,stores,map,zoom])
 
 
     // const nearbyStores = () => {
