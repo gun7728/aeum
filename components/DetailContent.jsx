@@ -1,7 +1,7 @@
 'use client'
 import Image from "next/image";
 import styles from "@/styles/header.module.scss";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {CgPhone} from "react-icons/cg";
 import {RiShareForward2Fill} from "react-icons/ri";
 import {IoEarthOutline, IoLocationOutline} from "react-icons/io5";
@@ -10,13 +10,18 @@ import useSWR from "swr";
 import useAlert from "@/hooks/useAlert";
 import useStores from "@/hooks/useStores";
 import useMap from "@/hooks/useMap";
+import process from "next/dist/build/webpack/loaders/resolve-url-loader/lib/postcss";
+import useLoading from "@/hooks/useLoading";
 
 export default function DetailContent(){
     const {setAlertStart,setAlertMsg} = useAlert()
     const {setStartStore,setEndStore} = useMap()
+    const {setLoading} = useLoading()
 
     const {data:map} = useSWR('/map')
     const {data:choseStore} = useSWR('/stores/chose')
+
+    const [getImg, setGetImg] = useState([]);
 
     const tooLongText =(text)=>{
         var newText;
@@ -49,22 +54,44 @@ export default function DetailContent(){
     useEffect(()=>{
         if(!choseStore && !map) return
 
-        if(map){
-            map.setLevel(3,true)
-            map.panTo(new kakao.maps.LatLng(choseStore.mapy-0.002,choseStore.mapx));
+        new Promise((resolve => {
+            fetch(`/tourApi/detailImage1?serviceKey=${process.env.TOUR_API_ECD_KEY}&MobileOS=ETC&MobileApp=Aeum&_type=json&contentId=${choseStore.contentid}&imageYN=Y&subImageYN=Y&numOfRows=10&pageNo=1`)
+            .then(function(response){
+                return response.json()
+            }).then(function(data) {
+                var datas = data.response.body.items.item
+                const imgList = [];
 
-            var mk = new kakao.maps.Marker({
-                position: new kakao.maps.LatLng(choseStore.mapy,choseStore.mapx),
-                map:map
-            });
-
-            return  ()=> {
-                if(mk){
-                    mk.setMap(null);
+                if(datas){
+                    datas.map((info)=>{
+                        imgList.push(info.smallimageurl);
+                    })
                 }
 
-            }
-        }
+                setGetImg(imgList);
+                setLoading(false)
+
+                if(map){
+                    map.setLevel(3,true)
+                    map.panTo(new kakao.maps.LatLng(choseStore.mapy-0.002,choseStore.mapx));
+
+                    var mk = new kakao.maps.Marker({
+                        position: new kakao.maps.LatLng(choseStore.mapy,choseStore.mapx),
+                        map:map
+                    });
+
+                    return  ()=> {
+                        if(mk){
+                            mk.setMap(null);
+                        }
+
+                    }
+                }
+
+            });
+            resolve()
+        }))
+
     },[choseStore,map])
 
     const setStartPoint = (data)=>{
@@ -84,9 +111,9 @@ export default function DetailContent(){
                 choseStore?
                     <div>
                         <div className={styles.detailTitleSection}>
-                            <h1 className={styles.detailTitle} >
+                            <h2 className={styles.detailTitle} >
                                 {choseStore.title}
-                            </h1>
+                            </h2>
                             {/*<h4 style={{opacity:0.5}}>{choseStore[13]}</h4>*/}
                         </div>
                         <div className={styles.detailBtnSection}>
@@ -109,27 +136,30 @@ export default function DetailContent(){
                                     <div>
                                         <span className={styles.detailContent}>{choseStore.addr1}</span>
                                         <br/>
-                                        <span className={styles.detailContent}>{choseStore.addr2}</span>
+                                        <span className={styles.detailContent}>{choseStore.zipcode}</span>
                                     </div>
                                 </div>
 
                                 <div className={styles.detailContentSection}>
                                     <IoEarthOutline  className={styles.detailIcon}/>
-                                    <a target="_blank"  rel="noopener noreferrer" href={'https://hangang.seoul.go.kr/archives/46737'} className={styles.detailUrl}>
-                                        https://hangang.seoul.go.kr/archives/46737
-                                    </a>
+                                    <div dangerouslySetInnerHTML={{__html: choseStore.homepage}} className={styles.detailUrl}/>
                                 </div>
 
                                 <div className={styles.detailContentSection}>
                                     <BsPencil  className={styles.detailIcon}/>
-                                    <span className={styles.detailContent}>{tooLongText(choseStore.title)}</span>
+                                    <span className={styles.detailContent}>{tooLongText(choseStore.overview)}</span>
                                 </div>
                             </div>
                             <hr style={{marginBottom:'15px', width:'150%',marginLeft:'-20px', opacity:0.3}}/>
-                            <div className={styles.detailImageSection}>
-                                <Image className={styles.detailInnerThumb} src={choseStore.firstimage} alt={`${choseStore[1]}`} width={50} height={50} onClick={()=>{clickImg()}}/>
-                                <Image className={styles.detailInnerThumb} src={choseStore.firstimage2} alt={`${choseStore[1]}`} width={50} height={50} onClick={()=>{clickImg()}}/>
-                                <Image className={styles.detailInnerThumb} src={choseStore.firstimage} alt={`${choseStore[1]}`} width={50} height={50} onClick={()=>{clickImg()}}/>
+                            <div style={{alignItems: 'center', justifyContent: 'flex-start',overflowX: 'scroll',display:'flex'}} >
+                                {
+                                    getImg.length>0?
+                                    getImg.map((img,idx)=>{
+                                        return <img key={idx} alt={choseStore.title} className={styles.detailInnerThumb} src={img} width={150} height={150} onClick={()=>{clickImg()}}/>
+                                    })
+                                        :
+                                        <div>이미지가 없습니다.</div>
+                                }
                             </div>
                         </div>
                     </div>

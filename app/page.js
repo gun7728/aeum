@@ -14,6 +14,7 @@ export default function Home(){
     const { data:map } = useSWR('/map');
     const { data:nearStores } = useSWR('/stores/near');
     const { data:position } = useSWR('/map/curPos');
+    const { data:loading } = useSWR('/loading')
 
     return(
         <div
@@ -27,7 +28,7 @@ export default function Home(){
                   }}
               >
                 {
-                    (position && nearStores)?'':<Loading/>
+                    (position && nearStores)?(loading?<Loading/>:''):<Loading/>
                 }
                 <FadeAlert/>
                 <Header/>
