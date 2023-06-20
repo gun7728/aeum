@@ -5,21 +5,24 @@ import useStores from "@/hooks/useStores";
 import process from "next/dist/build/webpack/loaders/resolve-url-loader/lib/postcss";
 import useSWR from "swr";
 import {useEffect} from "react";
+import useLoading from "@/hooks/useLoading";
 // import axios from "axios";
 
 export default function KakaoMap(){
 
-    const { initializeStores, nearStores } = useStores();
+    const { initializeStores, nearStores,setChoseStore } = useStores();
+    const {setLoading} = useLoading();
     const { initializeMap, initializeCurrentPosition,initializeCurrentLocation, allStoresMarker,screenMarker } = useMap();
 
     const { data:stores } = useSWR('/stores');
+    const { data:choseStore } = useSWR('/stores/chose');
     const { data:map } = useSWR('/map');
+    const { data:route } = useSWR('/map/route');
     const { data:allMarker } = useSWR('/map/all/marker');
     const { data:bound } = useSWR('/map/bound');
     const { data:zoom } = useSWR('/map/zoom');
     const { data:center } = useSWR('/map/center');
     const { data:sMarker } = useSWR('/map/screen/marker')
-    const {data:choseStore} = useSWR('/stores/chose')
 
     const onLoadMap = async (map) => {
         getPosition(map)
@@ -67,7 +70,7 @@ export default function KakaoMap(){
     }
 
     useEffect(()=>{
-        if(!bound || !allMarker || !stores || !map)
+        if(!bound || !allMarker || !stores || !map || route)
             return
 
 
@@ -100,6 +103,22 @@ export default function KakaoMap(){
                     map:map
                 });
 
+
+                kakao.maps.event.addListener(mk, 'click', function() {
+                    setLoading(true);
+                    fetch(`/tourApi/detailCommon1?serviceKey=${process.env.TOUR_API_ECD_KEY}&MobileOS=ETC&MobileApp=Aeum&_type=json&contentId=${data.contentid}&contentTypeId=12&defaultYN=Y&firstImageYN=Y&areacodeYN=Y&catcodeYN=Y&addrinfoYN=Y&mapinfoYN=Y&overviewYN=Y&numOfRows=10&pageNo=1`)
+                        .then(function(response){
+                            return response.json()
+                        }).then(async function(data) {
+                        var datas = data.response.body.items.item[0]
+
+                        if(choseStore)
+                            await setChoseStore(null);
+
+                        setChoseStore(datas)
+                    });
+                });
+
                 markers.push(mk);
             }
         })
@@ -107,21 +126,7 @@ export default function KakaoMap(){
         screenMarker(markers);
         nearStores(boundsChange)
 
-
-        //
-        // 마커를 생성합니다
-        // for(let i = 0 ; i < boundMarker.length ; i++) {
-        //     const marker = new kakao.maps.Marker({
-        //         title: boundMarker[i].factory_name,
-        //         position: new kakao.maps.LatLng(boundMarker[i].y, boundMarker[i].x), // 마커의 위치
-        //     });
-        //
-        //     //영역에 포함되는 마커들만 출력
-        //     if (bounds.contain(marker.getPosition()) == true) {
-        //         boundsChange.push({'title':marker.getTitle(), 'lat':marker.getPosition().Ga, 'lng':marker.getPosition().Ha, 'cntr_pwr': boundMarker[i].cntr_pwr})
-        //     }
-        // }
-    },[bound,allMarker,stores,map,zoom])
+    },[bound,allMarker,stores,map,zoom,route])
 
 
     // const nearbyStores = () => {

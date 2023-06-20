@@ -64,14 +64,14 @@ export default function SearchResult(){
 
     const setPoint = async (key, data)=>{
         if(startStore){
-            if(data.title == startStore[1]){
+            if(data.title == startStore.title){
                 alert('출발지와 목적지를 동일하게 설정하실 수 없습니다.')
                 return;
             }
         }
 
         if(endStore){
-            if(data.title == endStore[1]){
+            if(data.title == endStore.title){
                 alert('출발지와 목적지를 동일하게 설정하실 수 없습니다.')
                 return;
             }
@@ -82,16 +82,16 @@ export default function SearchResult(){
 
         switch (key){
             case "start":
-                await setStartStore(Object.values(data))
+                await setStartStore(data)
                 break;
             case "end":
-                await setEndStore(Object.values(data))
+                await setEndStore(data)
                 break;
             case "custom_start":
-                await setStartStore(Object.values(customPoint))
+                await setStartStore(customPoint)
                 break;
             case "custom_end":
-                await setEndStore(Object.values(customPoint))
+                await setEndStore(customPoint)
                 break;
         }
 

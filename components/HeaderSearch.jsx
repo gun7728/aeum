@@ -58,7 +58,7 @@ export default function HeaderSearch(){
         if(startStore){
             setChoseStore(null);
             setSearchStart(false)
-            spRef.current.value = startStore[1]
+            spRef.current.value = startStore.title
 
             if(!endStore){
                 epRef.current.focus();
@@ -72,7 +72,7 @@ export default function HeaderSearch(){
         if(endStore){
             setChoseStore(null);
             setSearchStart(false)
-            epRef.current.value = endStore[1]
+            epRef.current.value = endStore.title
 
             if(!startStore) {
                 spRef.current.focus();
@@ -178,7 +178,7 @@ export default function HeaderSearch(){
             });
 
         var marker = new kakao.maps.Marker({
-            position: new kakao.maps.LatLng(startStore[4],startStore[5]),
+            position: new kakao.maps.LatLng(startStore.mapy,startStore.mapx),
             image: icon
         });
 
@@ -199,7 +199,7 @@ export default function HeaderSearch(){
             });
 
         var marker = new kakao.maps.Marker({
-            position: new kakao.maps.LatLng(endStore[4],endStore[5]),
+            position: new kakao.maps.LatLng(endStore.mapy,endStore.mapx),
         });
 
         setEndMarker(marker)
@@ -227,7 +227,7 @@ export default function HeaderSearch(){
 
     const startPath = () => {
         if(!startFlag) return;
-        googlePath(map, startStore[5], startStore[4], endStore[5], endStore[4])
+        googlePath(map, startStore.mapy, startStore.mapx, endStore.mapy, endStore.mapx)
     }
 
     function decodePolyline(encoded) {
@@ -288,7 +288,7 @@ export default function HeaderSearch(){
     }
 
 
-    function googlePath(map, sx, sy, ex, ey){
+    function googlePath(map, sy, sx, ey, ex){
         var xhr = new XMLHttpRequest();
         var url = `/googleApi/json?origin=${sy}%2C${sx}&destination=${ey}%2C${ex}&mode=transit&key=${process.env.GOOGLE_KEY}`;
         xhr.open("GET", url, true);
@@ -364,23 +364,6 @@ export default function HeaderSearch(){
                 }
 
                 map.setBounds(bounds);
-                // var rectangleBoundary = new kakao.maps.LatLngBounds(
-                //     new kakao.maps.LatLng(resultJsonData.result.boundary.top, resultJsonData.result.boundary.left),
-                //     new kakao.maps.LatLng(resultJsonData.result.boundary.bottom, resultJsonData.result.boundary.right)
-                // );
-                // var rectangle = new kakao.maps.Rectangle({
-                //     bounds: rectangleBoundary, // 그려질 사각형의 영역정보입니다
-                //     strokeWeight: 4, // 선의 두께입니다
-                //     strokeColor: '#FF3DE5', // 선의 색깔입니다
-                //     strokeOpacity: 1, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
-                //     strokeStyle: 'shortdashdot', // 선의 스타일입니다
-                //     fillColor: '#FF8AEF', // 채우기 색깔입니다
-                //     fillOpacity: 0.8 // 채우기 불투명도 입니다
-                // });
-
-
-                // rectangle.setMap(map);
-                // map.panTo(boundary);
             }
         }
     }
