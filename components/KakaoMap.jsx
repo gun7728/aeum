@@ -82,7 +82,7 @@ export default function KakaoMap(){
 
         var size = bound;
 
-        if(zoom<=3){
+        if(zoom<=4){
             size.ha+=-0.00248;
             size.oa+=0.00189;
             size.pa+=0.00536;
