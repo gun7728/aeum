@@ -16,9 +16,18 @@ const Map = ({onLoad})=>{
             var container = document.getElementById('map');
             const map = new kakao.maps.Map(container, mapOptions);
 
-            kakao.maps.event.addListener(map, 'bounds_changed', function() {
-                const bounds = map.getBounds(); // 지도 영역 반환
-                changeBound(bounds)
+
+            kakao.maps.event.addListener(map, 'idle', function() {
+                const timer = setTimeout(function () {
+                    console.log("지도 위치가 변경 될 때마다 API요청");
+                }, 1000);
+
+                if (timer) {
+                    clearTimeout(timer);
+                    const bounds = map.getBounds(); // 지도 영역 반환
+                    changeBound(bounds)
+                }
+
             });
 
             mapRef.current = map;

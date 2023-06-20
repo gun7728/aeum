@@ -23,6 +23,7 @@ export default function KakaoMap(){
         initializeMap(map);
     };
 
+
     const initData = async (mx,my,map)=>{
         return new Promise((resolve) => {
 
@@ -52,7 +53,7 @@ export default function KakaoMap(){
 
                     allStoresMarker(markerList);
                     initializeStores(datas);
-                    nearbyStores();
+                    // nearbyStores();
                     resolve()
             }).catch(err => console.error(err));
         })
@@ -73,22 +74,21 @@ export default function KakaoMap(){
             })
         }
 
-        let boundsChange = [];
+        const boundsChange = [];
+        const markers = [];
 
         allMarker.map((marker)=>{
             if (bound.contain(marker.getPosition()) == true) {
-                boundsChange.push(stores[`${marker.getTitle()}`])
+                var data = stores[`${marker.getTitle()}`];
+                boundsChange.push(data)
+
+                var mk = new kakao.maps.Marker({
+                    position: new kakao.maps.LatLng(data.mapy,data.mapx),
+                    map:map
+                });
+
+                markers.push(mk);
             }
-        })
-
-        let markers = [];
-        boundsChange.map((data)=>{
-            var mk = new kakao.maps.Marker({
-                position: new kakao.maps.LatLng(data.mapy,data.mapx),
-                map:map
-            });
-
-            markers.push(mk);
         })
 
         screenMarker(markers);
@@ -111,32 +111,30 @@ export default function KakaoMap(){
     },[bound,allMarker,stores,map])
 
 
-    const nearbyStores = () => {
-        if(!stores)
-            return
-
-        var nearStore = stores.filter((data) => {
-            const getDistanceFromLatLonInKm = (lat1, lng1, lat2, lng2) => {
-                function deg2rad(deg) {
-                    return deg * (Math.PI / 180)
-                }
-
-                var R = 6371; // Radius of the earth in km
-                var dLat = deg2rad(lat2 - lat1);  // deg2rad below
-                var dLon = deg2rad(lng2 - lng1);
-                var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-                var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                var d = R * c; // Distance in km
-                return d;
-            }
-
-            // 반경 내에 있는지 검사합니다.
-            const distance = getDistanceFromLatLonInKm(my, mx, data.mapy, data.mapx);
-            return distance <= 3;
-        })
-
-        console.log(nearStore)
-    };
+    // const nearbyStores = () => {
+    //     if(!stores)
+    //         return
+    //
+    //     var nearStore = stores.filter((data) => {
+    //         const getDistanceFromLatLonInKm = (lat1, lng1, lat2, lng2) => {
+    //             function deg2rad(deg) {
+    //                 return deg * (Math.PI / 180)
+    //             }
+    //
+    //             var R = 6371; // Radius of the earth in km
+    //             var dLat = deg2rad(lat2 - lat1);  // deg2rad below
+    //             var dLon = deg2rad(lng2 - lng1);
+    //             var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    //             var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    //             var d = R * c; // Distance in km
+    //             return d;
+    //         }
+    //
+    //         // 반경 내에 있는지 검사합니다.
+    //         const distance = getDistanceFromLatLonInKm(my, mx, data.mapy, data.mapx);
+    //         return distance <= 3;
+    //     })
+    // };
 
 
     const getPosition = (map) =>{

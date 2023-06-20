@@ -45,6 +45,9 @@ export default function DetailHeaderContent(){
     return (
         <div className={!open?styles.slideridle:styles.slideractive} ref={scrollRef} onMouseDown={onDragStart} onMouseUp={onDragEnd} onMouseMove={e=>setTimeout(onDragMove(e),200)} role={"option"} >
             {
+                nearStores.length===0?
+                    <div>주변에 관광지가 없습니다.</div>
+                    :
                 nearStores.map((e)=>{
                     return(
                         !open?
