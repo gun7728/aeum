@@ -17,18 +17,19 @@ export default function KakaoMap(){
     const { data:allMarker } = useSWR('/map/all/marker');
     const { data:bound } = useSWR('/map/bound');
     const { data:zoom } = useSWR('/map/zoom');
+    const { data:center } = useSWR('/map/center');
     const { data:sMarker } = useSWR('/map/screen/marker')
     const {data:choseStore} = useSWR('/stores/chose')
 
     const onLoadMap = async (map) => {
         getPosition(map)
         initializeMap(map);
+        initData();
     };
 
 
-    const initData = async (mx,my,map)=>{
+    const initData = async ()=>{
         return new Promise((resolve) => {
-
             fetch(`/tourApi/areaBasedSyncList1?serviceKey=${process.env.TOUR_API_ECD_KEY}&numOfRows=20000&pageNo=1&MobileOS=ETC&MobileApp=Aeum&_type=json&showflag=1&listYN=Y&arrange=A&contentTypeId=12`)
                 .then(function(response){
                     return response.json()
@@ -148,6 +149,18 @@ export default function KakaoMap(){
     //     })
     // };
 
+    useEffect(()=>{
+        if(!center)
+            return
+
+        new kakao.maps.services.Geocoder().coord2Address(center.La,center.Ma,
+        (res,status)=>{
+            if (status === kakao.maps.services.Status.OK) {
+                initializeCurrentLocation(res[0].address.region_2depth_name)
+            }
+        });
+
+    },[center])
 
     const getPosition = (map) =>{
         navigator.geolocation.getCurrentPosition(async (position) => {
@@ -166,10 +179,25 @@ export default function KakaoMap(){
             });
 
             marker.setMap(map);
-            await initData(position.coords.longitude, position.coords.latitude,map)
 
-        },()=>{
-            alert('위치 정보 허용을 해주세요.')
+        },( )=>{
+            var lat = 37.57861
+            var lng = 126.97722
+            map.panTo(new kakao.maps.LatLng(lat, lng))
+
+            initPosition([lat, lng])
+            var marker = new kakao.maps.Marker({
+                position: new kakao.maps.LatLng(lat, lng)
+            });
+
+            new kakao.maps.services.Geocoder().coord2Address(lng,lat,
+                (res,status)=>{
+                    if (status === kakao.maps.services.Status.OK) {
+                        initializeCurrentLocation(res[0].address.region_2depth_name)
+                    }
+                });
+
+            marker.setMap(map);
         });
 
     }

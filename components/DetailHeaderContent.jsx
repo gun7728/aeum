@@ -71,7 +71,7 @@ export default function DetailHeaderContent(){
                                 </p>
                             </div>
                             :
-                            <div key={e.id} className={styles.detailHeaderList}>
+                            <div key={e.contentid} className={styles.detailHeaderList}>
                                 <div>
                                     <p className={styles.detailHeaderTitle} >
                                         {e.title}

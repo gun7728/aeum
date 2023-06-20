@@ -11,6 +11,7 @@ export const MAP_CUR_LOC_KEY = '/map/curLoc';
 export const STORE_START_KEY = '/map/start';
 export const STORE_END_KEY = '/map/end';
 export const ROUTE_KEY = '/map/route';
+export const CENTER_KEY = '/map/center';
 export const BOUND_KEY = '/map/bound';
 export const ZOOM_KEY = '/map/zoom';
 export const ALL_MARKER_KEY = '/map/all/marker';
@@ -42,12 +43,16 @@ const useMap = () => {
         mutate(ROUTE_KEY, route)
     })
 
+    const changeCenter = useCallback((center)=>{
+        mutate(CENTER_KEY, center)
+    })
+
     const changeBound = useCallback((bound)=>{
         mutate(BOUND_KEY, bound)
     })
 
-    const changeZoom = useCallback((bound)=>{
-        mutate(ZOOM_KEY, bound)
+    const changeZoom = useCallback((zoom)=>{
+        mutate(ZOOM_KEY, zoom)
     })
 
     const allStoresMarker = useCallback((allMarker) => {
@@ -70,6 +75,7 @@ const useMap = () => {
         changeZoom,
         allStoresMarker,
         screenMarker,
+        changeCenter,
     };
 };
 export default useMap;

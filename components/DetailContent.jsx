@@ -24,6 +24,9 @@ export default function DetailContent(){
     const [getImg, setGetImg] = useState([]);
 
     const tooLongText =(text)=>{
+        if(!text)
+            return
+
         var newText;
         if(text.length>50){
             newText = String(text).substring(0,50) + '...';

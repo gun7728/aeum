@@ -11,7 +11,7 @@ export default function DetailHeaderList(){
     return(
         <>
             <div style={{paddingTop:'5px', paddingBottom:'5px'}}>
-                <p style={{fontSize:'18px'}}><span style={{fontWeight:"bold"}}>{location}</span>에 오신 것을 환영합니다.</p>
+                <p style={{fontSize:'18px'}}><span style={{fontWeight:"bold"}}>{location}</span>관광지 리스트 입니다.</p>
                 <p><span style={{fontSize:'12px'}}>미세먼지 {pm10} 초미세먼지 {pm25}</span></p>
             </div>
             <hr style={{marginBottom:'3px', width:'150%',marginLeft:'-20px', opacity:0.3}}/>
