@@ -9,10 +9,12 @@ import SearchSection from "@/components/SearchSection";
 import useSWR from "swr";
 import useStores from "@/hooks/useStores";
 import useList from "@/hooks/useList";
+import useMap from "@/hooks/useMap";
 
 export default function DetailSection(){
     const {setListOpen, setListReOpen} = useList()
     const {setChoseStore} = useStores()
+    const {positionChange} = useMap()
     const { data:open } = useSWR('/list/open');
     const { data:reOpen } = useSWR('/list/reopen');
     const { data:choseStore } = useSWR('/stores/chose')
@@ -20,6 +22,7 @@ export default function DetailSection(){
     const { data:searchOpen } = useSWR('/search/open')
     const { data:startStore } = useSWR('/map/start')
     const { data:endStore } = useSWR('/map/end')
+    const { data:changedPosition } = useSWR('/map/position/change')
 
     const [touchStart, setTouchStart] = useState(null)
     const [touchEnd, setTouchEnd] = useState(null)
@@ -83,6 +86,10 @@ export default function DetailSection(){
                 style={(endStore && startStore)?{transform:'translateY(100%)'}:{}}
                 className={`${styles.detailSection} ${(open ? (choseStore? styles.detailExpanded: styles.expanded)  : (searchOpen?(searchStart?styles.searchResultExpanded:styles.searchStartExpanded):''))} `}
             >
+                {
+                    (!changedPosition && !open) && <div onClick={positionChange} className={styles.changePosition}>지도 위치로 검색</div>
+                }
+
                 {
                     (!choseStore&&searchOpen)?<SearchSection/>
                 :

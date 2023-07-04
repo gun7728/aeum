@@ -44,6 +44,20 @@ $section-padding-top: 8px;
   }
 }
 
+
+.changePosition{
+  background-color: rgb(35,140,250);
+  color: white;
+  padding: 7px 10px 7px 10px;
+  width: 135px;
+  position: absolute;
+  top: -45px;
+  left: calc(50% - 68px);
+  border-radius: 20px;
+}
+
+
+
 .header {
   margin-bottom: 8px;
 

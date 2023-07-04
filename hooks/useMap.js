@@ -6,6 +6,7 @@ export const INITIAL_CENTER = [37.71344096516783, 126.8666797982575];
 export const INITIAL_ZOOM = 5;
 
 export const MAP_KEY = '/map';
+export const MAP_POSITION_CHANGE_KEY = '/map/position/change';
 export const MAP_CUR_POS_KEY = '/map/curPos';
 export const MAP_CUR_LOC_KEY = '/map/curLoc';
 export const STORE_START_KEY = '/map/start';
@@ -63,6 +64,10 @@ const useMap = () => {
         mutate(SCREEN_MARKER_KEY, screenMarker);
     });
 
+    const positionChange = useCallback((positionChange) => {
+        mutate(MAP_POSITION_CHANGE_KEY, positionChange);
+    });
+
 
     return {
         initializeMap,
@@ -76,6 +81,7 @@ const useMap = () => {
         allStoresMarker,
         screenMarker,
         changeCenter,
+        positionChange
     };
 };
 export default useMap;

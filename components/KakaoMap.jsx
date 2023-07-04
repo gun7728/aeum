@@ -12,7 +12,7 @@ export default function KakaoMap(){
 
     const { initializeStores, nearStores,setChoseStore } = useStores();
     const {setLoading} = useLoading();
-    const { initializeMap, initializeCurrentPosition,initializeCurrentLocation, allStoresMarker,screenMarker } = useMap();
+    const { initializeMap, initializeCurrentPosition,initializeCurrentLocation, allStoresMarker,screenMarker,positionChange  } = useMap();
 
     const { data:stores } = useSWR('/stores');
     const { data:choseStore } = useSWR('/stores/chose');
@@ -23,6 +23,7 @@ export default function KakaoMap(){
     const { data:zoom } = useSWR('/map/zoom');
     const { data:center } = useSWR('/map/center');
     const { data:sMarker } = useSWR('/map/screen/marker')
+    const { data:changedPosition } = useSWR('/map/position/change')
 
     const onLoadMap = async (map) => {
         getPosition(map)
@@ -70,9 +71,15 @@ export default function KakaoMap(){
     }
 
     useEffect(()=>{
-        if(!bound || !allMarker || !stores || !map || route)
+        if(!bound || !allMarker || !stores || !map || route || !changedPosition || !center)
             return
 
+        new kakao.maps.services.Geocoder().coord2Address(center.La,center.Ma,
+        (res,status)=>{
+            if (status === kakao.maps.services.Status.OK) {
+                initializeCurrentLocation(res[0].address.region_2depth_name)
+            }
+        });
 
         if(sMarker){
             sMarker.map((mk)=>{
@@ -123,10 +130,11 @@ export default function KakaoMap(){
             }
         })
 
+        positionChange(false);
         screenMarker(markers);
         nearStores(boundsChange)
 
-    },[bound,allMarker,stores,map,zoom,route])
+    },[bound,allMarker,stores,map,zoom,route,changedPosition,center])
 
 
     // const nearbyStores = () => {
@@ -154,27 +162,27 @@ export default function KakaoMap(){
     //     })
     // };
 
-    useEffect(()=>{
-        if(!center)
-            return
-
-        new kakao.maps.services.Geocoder().coord2Address(center.La,center.Ma,
-        (res,status)=>{
-            if (status === kakao.maps.services.Status.OK) {
-                initializeCurrentLocation(res[0].address.region_2depth_name)
-            }
-        });
-
-    },[center])
+    // useEffect(()=>{
+    //     if(!center)
+    //         return
+    //
+    //     new kakao.maps.services.Geocoder().coord2Address(center.La,center.Ma,
+    //     (res,status)=>{
+    //         if (status === kakao.maps.services.Status.OK) {
+    //             initializeCurrentLocation(res[0].address.region_2depth_name)
+    //         }
+    //     });
+    //
+    // },[center])
 
     const getPosition = (map) =>{
         navigator.geolocation.getCurrentPosition(async (position) => {
             map.panTo(new kakao.maps.LatLng(position.coords.latitude, position.coords.longitude))
 
             initPosition([position.coords.latitude, position.coords.longitude])
-            var marker = new kakao.maps.Marker({
-                position: new kakao.maps.LatLng(position.coords.latitude, position.coords.longitude)
-            });
+            // var marker = new kakao.maps.Marker({
+            //     position: new kakao.maps.LatLng(position.coords.latitude, position.coords.longitude)
+            // });
 
             new kakao.maps.services.Geocoder().coord2Address(position.coords.longitude,position.coords.latitude,
                 (res,status)=>{
@@ -191,18 +199,18 @@ export default function KakaoMap(){
             map.panTo(new kakao.maps.LatLng(lat, lng))
 
             initPosition([lat, lng])
-            var marker = new kakao.maps.Marker({
-                position: new kakao.maps.LatLng(lat, lng)
-            });
+            // var marker = new kakao.maps.Marker({
+            //     position: new kakao.maps.LatLng(lat, lng)
+            // });
 
             new kakao.maps.services.Geocoder().coord2Address(lng,lat,
-                (res,status)=>{
-                    if (status === kakao.maps.services.Status.OK) {
-                        initializeCurrentLocation(res[0].address.region_2depth_name)
-                    }
-                });
+            (res,status)=>{
+                if (status === kakao.maps.services.Status.OK) {
+                    initializeCurrentLocation(res[0].address.region_2depth_name)
+                }
+            });
 
-            marker.setMap(map);
+            // marker.setMap(map);
         });
 
     }

@@ -53,7 +53,14 @@ export default function DetailHeaderContent(){
             setListOpen(false);
             setChoseStore(datas)
         });
+    }
 
+    const subTitle = (text)=>{
+        if(text.length>6) {
+            return String(text).substring(0,6) + '...';
+        }else{
+            return text;
+        }
     }
     return (
         <div className={!open?styles.slideridle:styles.slideractive} ref={scrollRef} onMouseDown={onDragStart} onMouseUp={onDragEnd} onMouseMove={e=>setTimeout(onDragMove(e),200)} role={"option"} >
@@ -67,7 +74,7 @@ export default function DetailHeaderContent(){
                             <div key={e.contentid} className={styles.detailHeaderSection} >
                                 <Image className={styles.image} src={e.firstimage} alt={`${e.title}`} width={125} height={170} onClick={()=>{goToDetail(e)}}/>
                                 <p>
-                                    {e.title}
+                                    {subTitle(e.title)}
                                 </p>
                             </div>
                             :

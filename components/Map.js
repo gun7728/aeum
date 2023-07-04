@@ -3,10 +3,11 @@ import {useEffect, useRef} from "react";
 import Script from "next/script";
 
 const Map = ({onLoad})=>{
-    const { changeBound,changeZoom,changeCenter } = useMap()
+    const { changeBound,changeZoom,changeCenter,positionChange } = useMap()
     const mapRef = useRef(null);
 
     const initializeMap = () => {
+        positionChange(true);
         kakao.maps.load(()=>{
             const mapOptions = {
                 center: new kakao.maps.LatLng(INITIAL_CENTER[0],INITIAL_CENTER[1]),
