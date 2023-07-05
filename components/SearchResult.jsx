@@ -16,6 +16,7 @@ export default function SearchResult(){
     const {data:map} = useSWR('/map')
     const {data:startStore} = useSWR('/map/start')
     const {data:endStore} = useSWR('/map/end')
+    const { data:sMarker } = useSWR('/map/screen/marker')
 
     const { setChoseStore } = useStores()
     const {setStartStore, setEndStore } = useMap()
@@ -40,7 +41,7 @@ export default function SearchResult(){
 
     const goToDetail =(e)=>{
         setListOpen(false)
-        setChoseStore(Object.values(e))
+        setChoseStore(e)
     }
 
     const copyUrl = (id)=>{
@@ -75,6 +76,12 @@ export default function SearchResult(){
                 alert('출발지와 목적지를 동일하게 설정하실 수 없습니다.')
                 return;
             }
+        }
+
+        if(sMarker){
+            sMarker.map((mk)=>{
+                mk.setMap(null)
+            })
         }
 
         await setSearchStart(true)

@@ -17,6 +17,7 @@ export const BOUND_KEY = '/map/bound';
 export const ZOOM_KEY = '/map/zoom';
 export const ALL_MARKER_KEY = '/map/all/marker';
 export const SCREEN_MARKER_KEY = '/map/screen/marker';
+export const SEARCH_MARKER_KEY = '/map/search/marker';
 
 const useMap = () => {
     const initializeMap = useCallback((map) => {
@@ -64,6 +65,10 @@ const useMap = () => {
         mutate(SCREEN_MARKER_KEY, screenMarker);
     });
 
+    const setSearchMarker = useCallback((searchMarker) => {
+        mutate(SEARCH_MARKER_KEY, searchMarker);
+    });
+
     const positionChange = useCallback((positionChange) => {
         mutate(MAP_POSITION_CHANGE_KEY, positionChange);
     });
@@ -81,7 +86,8 @@ const useMap = () => {
         allStoresMarker,
         screenMarker,
         changeCenter,
-        positionChange
+        positionChange,
+        setSearchMarker
     };
 };
 export default useMap;

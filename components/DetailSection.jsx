@@ -87,7 +87,7 @@ export default function DetailSection(){
                 className={`${styles.detailSection} ${(open ? (choseStore? styles.detailExpanded: styles.expanded)  : (searchOpen?(searchStart?styles.searchResultExpanded:styles.searchStartExpanded):''))} `}
             >
                 {
-                    (!changedPosition && !open) && <div onClick={positionChange} className={styles.changePosition}>지도 위치로 검색</div>
+                    (!changedPosition && !open && !startStore && !endStore) && <div onClick={()=>{positionChange(true)}} className={styles.changePosition}>지도 위치로 검색</div>
                 }
 
                 {

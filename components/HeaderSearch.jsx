@@ -16,7 +16,7 @@ export default function HeaderSearch(){
     const {setListOpen,setListReOpen} = useList();
     const {setSearchStart, setSearchWord, setSearchOpen} = useSearchAction();
     const {setChoseStore} = useStores();
-    const {setStartStore, setEndStore, setRoute} = useMap();
+    const {setStartStore, setEndStore, setRoute,setSearchMarker} = useMap();
 
     const {data:map} = useSWR('/map')
 
@@ -24,6 +24,8 @@ export default function HeaderSearch(){
     const {data:searchWord} = useSWR('/search/word');
     const {data:searchOpen} = useSWR('/search/open')
     const {data:startStore} = useSWR('/map/start')
+    const {data:searchMarker} = useSWR('/map/search/marker')
+    const {data:sMarker} = useSWR('/map/screen/marker')
     const {data:endStore} = useSWR('/map/end')
     const {data:route} = useSWR('/map/route')
 
@@ -140,7 +142,18 @@ export default function HeaderSearch(){
                     e.setMap(null);
                 })
             }
+            setRoute(null)
             setStartFlag(true)
+        }
+        if(searchMarker){
+            searchMarker.setMap(null);
+            setSearchMarker(null)
+        }
+
+        if(sMarker){
+            sMarker.map((mk)=>{
+                mk.setMap(map)
+            })
         }
 
         setStartStore(null)
@@ -478,7 +491,7 @@ export default function HeaderSearch(){
                     className={styles.confirmBtn}>
                     확인
                 </button>
-                <button className={styles.confirmBtn}>
+                <button className={styles.confirmBtn} onClick={()=>resetStartEnd()}>
                     취소
                 </button>
             </div>

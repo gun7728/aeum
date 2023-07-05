@@ -15,11 +15,12 @@ import useLoading from "@/hooks/useLoading";
 
 export default function DetailContent(){
     const {setAlertStart,setAlertMsg} = useAlert()
-    const {setStartStore,setEndStore} = useMap()
+    const {setStartStore,setEndStore,setSearchMarker} = useMap()
     const {setLoading} = useLoading()
 
     const {data:map} = useSWR('/map')
     const {data:choseStore} = useSWR('/stores/chose')
+    const { data:nearStores } = useSWR('/stores/near');
 
     const [getImg, setGetImg] = useState([]);
 
@@ -78,10 +79,19 @@ export default function DetailContent(){
                     map.setLevel(3,true)
                     map.panTo(new kakao.maps.LatLng(choseStore.mapy-0.002,choseStore.mapx));
 
-                    var mk = new kakao.maps.Marker({
-                        position: new kakao.maps.LatLng(choseStore.mapy,choseStore.mapx),
-                        map:map
-                    });
+                    let choseFlag = false;
+                    nearStores.map((e)=>{
+                        if(e.contentid === choseStore.contentid){
+                            choseFlag = true;
+                        }
+                    })
+                    if(!choseFlag){
+                        var mk = new kakao.maps.Marker({
+                            position: new kakao.maps.LatLng(choseStore.mapy,choseStore.mapx),
+                            map:map
+                        });
+                        setSearchMarker(mk);
+                    }
 
                     return  ()=> {
                         if(mk){
