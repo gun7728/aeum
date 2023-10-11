@@ -538,92 +538,53 @@ export default function HeaderSearch(){
     }
     return(
         <>
-            {
-                assistOpen?
-                    <div className={styles.assistActive}>
-                        <IoIosArrowBack
-                            onClick={()=>switchStartEnd()}
-                            className={styles.backBtn}/>
-                        <HiX
-                            onClick={()=>resetStartEnd()}
-                            className={styles.exitBtn}/>
-                        <input
-                            onClick={setSearchStatus}
-                            onKeyDown={(e)=>{
-                                if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
-                                    searchWordFunc()
-                                }
-                            }
+            <div style={( endStore || startStore ) ? {} :  {display:'none'}} className={`${styles.startEndBox} }`} >
+                <HiOutlineSwitchVertical
+                    onClick={()=>switchStartEnd()}
+                    className={styles.switchBtn}/>
+                <HiX
+                    onClick={()=>resetStartEnd()}
+                    className={styles.exitBtn}/>
+                <input
+                    onClick={setSearchStatus}
+                    onKeyDown={(e)=>{
+                        if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
+                            searchWordFunc()
+                        }
+                    }
 
-                            }
-                            onChange={(e)=>{startStr(e.target.value)}}
-                            placeholder={'출발지를 선택해 주세요.'}
-                            ref={spRef}
-                            className={styles.startItem}/>
+                    }
+                    onChange={(e)=>{startStr(e.target.value)}}
+                    placeholder={'출발지를 선택해 주세요.'}
+                    ref={spRef}
+                    className={styles.startItem}/>
 
-                        <input
-                            onClick={setSearchStatus}
-                            onKeyDown={(e)=>{
-                                if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
-                                    searchWordFunc()
-                                }
-                            }
+                <input
+                    onClick={setSearchStatus}
+                    onKeyDown={(e)=>{
+                        if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
+                            searchWordFunc()
+                        }
+                    }
 
-                            }
-                            onChange={(e)=>{endStr(e.target.value)}}
-                            placeholder={'도착지를 선택해 주세요.'}
-                            ref={epRef}
-                            className={styles.endItem}/>
-                    </div>
-                    :
-                    <div style={( endStore || startStore ) ? {} :  {display:'none'}} className={`${styles.startEndBox} }`} >
-                        <HiOutlineSwitchVertical
-                            onClick={()=>switchStartEnd()}
-                            className={styles.switchBtn}/>
-                        <HiX
-                            onClick={()=>resetStartEnd()}
-                            className={styles.exitBtn}/>
-                        <input
-                            onClick={setSearchStatus}
-                            onKeyDown={(e)=>{
-                                if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
-                                    searchWordFunc()
-                                }
-                            }
-
-                            }
-                            onChange={(e)=>{startStr(e.target.value)}}
-                            placeholder={'출발지를 선택해 주세요.'}
-                            ref={spRef}
-                            className={styles.startItem}/>
-
-                        <input
-                            onClick={setSearchStatus}
-                            onKeyDown={(e)=>{
-                                if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
-                                    searchWordFunc()
-                                }
-                            }
-
-                            }
-                            onChange={(e)=>{endStr(e.target.value)}}
-                            placeholder={'도착지를 선택해 주세요.'}
-                            ref={epRef}
-                            className={styles.endItem}/>
-                        <button
-                            onClick={()=>{
-                                if(startFlag){
-                                    drawLine()
-                                }
-                            }}
-                            className={styles.confirmBtn}>
-                            확인
-                        </button>
-                        <button className={styles.confirmBtn} onClick={()=>resetStartEnd()}>
-                            취소
-                        </button>
-                    </div>
-                }
+                    }
+                    onChange={(e)=>{endStr(e.target.value)}}
+                    placeholder={'도착지를 선택해 주세요.'}
+                    ref={epRef}
+                    className={styles.endItem}/>
+                <button
+                    onClick={()=>{
+                        if(startFlag){
+                            drawLine()
+                        }
+                    }}
+                    className={styles.confirmBtn}>
+                    확인
+                </button>
+                <button className={styles.confirmBtn} onClick={()=>resetStartEnd()}>
+                    취소
+                </button>
+            </div>
 
                     <div style={( endStore || startStore ) ? {display:'none'}:{}} className={styles.searchBox}>
                 <AiOutlineSearch className={styles.searchBtn}  onClick={()=>{searchWordFunc()}}/>
