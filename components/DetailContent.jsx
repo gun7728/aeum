@@ -132,7 +132,7 @@ export default function DetailContent(){
                         <div className={styles.detailBtnSection}>
                             <div style={{float:"left"}}>
                                 <CgPhone className={styles.detailIconBtn}/>
-                                <RiShareForward2Fill className={styles.detailIconBtn} onClick={()=>copyUrl(choseStore.contentid)}/>
+                                {/*<RiShareForward2Fill className={styles.detailIconBtn} onClick={()=>copyUrl(choseStore.contentid)}/>*/}
                             </div>
                             <div style={{float:"right"}}>
                                 <button className={styles.detailBtn} onClick={()=>setStartPoint(choseStore)}><span style={{color:"gray"}}>출발</span></button>

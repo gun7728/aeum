@@ -7,6 +7,11 @@ export const SEARCH_WORD_KEY = '/search/word'
 export const SEARCH_RESULT_OPEN_KEY = '/search/result/list'
 export const SEARCH_DATA_KEY ='/search/list'
 
+export const STOP_OVER_OPEN_KEY = '/stopOver/open'
+
+
+export const ASSIST_OPEN_KEY = '/assist/open'
+
 const useSearchAction = () => {
     const setSearchStart = useCallback((searchStart)=>{
         mutate(SEARCH_START_KEY,searchStart)
@@ -27,13 +32,21 @@ const useSearchAction = () => {
     const setSearchData = useCallback((searchData)=>{
         mutate(SEARCH_DATA_KEY,searchData)
     })
+    const setStopOverOpen = useCallback((stopOver)=>{
+        mutate(STOP_OVER_OPEN_KEY,stopOver)
+    })
+    const setAssistOpen = useCallback((assistOpen)=>{
+        mutate(ASSIST_OPEN_KEY,assistOpen)
+    })
 
     return{
         setSearchStart,
         setSearchOpen,
         setSearchWord,
         setSearchResultOpen,
-        setSearchData
+        setSearchData,
+        setStopOverOpen,
+        setAssistOpen
     }
 }
 export default useSearchAction;

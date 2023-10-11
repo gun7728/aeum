@@ -48,12 +48,96 @@
   outline-color:  #0055cc;
 }
 
+.assistActive {
+  height: 120px;
+  position: relative;
+  width: 100%;
+  background-color: white;
+  box-shadow: 0 4px 16px 5px rgba(136, 136, 136, 0.3);
+
+  .backBtn{
+    color: gray;
+    cursor: pointer;
+    position: absolute;
+    top: 8px;
+    left: 2.5px;
+    background: none;
+    border: none;
+    text-align: right;
+    //width: 100%;
+    //height: 100%;
+    zoom: 3;
+    padding-top: 7px;
+    //padding-right: 10px;
+  }
+
+  input {
+    border: none;
+    padding: 0 15px;
+    height: 40px;
+    border-radius: 5px;
+    box-shadow: 0 4px 16px 0 rgba(136, 136, 136, 0.3);
+  }
+
+  .exitBtn{
+    color: gray;
+    cursor: pointer;
+    position: absolute;
+    top: 4px;
+    right: 0px;
+    background: none;
+    border: none;
+    text-align: right;
+    //width: 100%;
+    //height: 100%;
+    zoom: 4;
+    padding-top: 7px;
+    //padding-right: 10px;
+  }
+
+  .startItem {
+    margin: 45px 0 5px 0;
+    width: 70%;
+    right: 15%;
+    float: right;
+    height: 30px;
+    display: flex;
+    position: relative;
+    pointer-events: auto;
+    border: solid 1px lightgray;
+  }
+
+
+  .endItem {
+    //margin-top: 50px;
+    width: 70%;
+    right: 15%;
+    float: right;
+    height: 30px;
+    display: flex;
+    position: relative;
+    pointer-events: auto;
+    border: solid 1px lightgray;
+  }
+}
+
 .startEndBox {
   height: 120px;
   position: relative;
   width: 100%;
   background-color: white;
   box-shadow: 0 4px 16px 5px rgba(136, 136, 136, 0.3);
+
+  &.stopOverActive{
+    top: 30px;
+    height: 180px !important;
+    position: relative;
+    width: 100%;
+    background-color: white;
+    box-shadow: 0 4px 16px 5px rgba(136, 136, 136, 0.3);
+  }
+
+
 
   input {
     border: none;

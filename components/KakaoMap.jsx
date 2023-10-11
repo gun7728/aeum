@@ -191,7 +191,7 @@ export default function KakaoMap(){
                 }
             });
 
-            marker.setMap(map);
+            // marker.setMap(map);
 
         },( )=>{
             var lat = 37.57861

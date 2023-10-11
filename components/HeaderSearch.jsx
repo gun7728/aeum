@@ -2,7 +2,7 @@
 import styles from "@/styles/header.module.scss";
 import {AiOutlineLeft, AiOutlineSearch} from "react-icons/ai";
 import {useEffect, useRef, useState} from "react";
-import {HiOutlineSwitchVertical, HiX} from "react-icons/hi";
+import {HiOutlineBackspace, HiOutlineSwitchVertical, HiX} from "react-icons/hi";
 import useSWR from "swr";
 import useSearchAction from "@/hooks/useSearchAction";
 import useList from "@/hooks/useList";
@@ -10,21 +10,24 @@ import useStores from "@/hooks/useStores";
 import {decode} from "@googlemaps/polyline-codec"
 import process from "next/dist/build/webpack/loaders/resolve-url-loader/lib/postcss";
 import useMap from "@/hooks/useMap";
+import {HiOutlineBackward, IoArrowBack, IoIosArrowBack} from "react-icons/all";
 
 
 export default function HeaderSearch(){
     const {setListOpen,setListReOpen} = useList();
-    const {setSearchStart, setSearchWord, setSearchOpen} = useSearchAction();
+    const {setSearchStart, setSearchWord, setSearchOpen, setStopOverOpen, setAssistOpen} = useSearchAction();
     const {setChoseStore} = useStores();
-    const {setStartStore, setEndStore, setRoute,setSearchMarker} = useMap();
+    const {setStartStore, setEndStore, setRoute} = useMap();
+
 
     const {data:map} = useSWR('/map')
 
     const {data:searchStart} = useSWR('/search');
     const {data:searchWord} = useSWR('/search/word');
     const {data:searchOpen} = useSWR('/search/open')
+    const {data:stopOverOpen} = useSWR('/stopOver/open')
+    const {data:assistOpen} = useSWR('/assist/open')
     const {data:startStore} = useSWR('/map/start')
-    const {data:searchMarker} = useSWR('/map/search/marker')
     const {data:sMarker} = useSWR('/map/screen/marker')
     const {data:endStore} = useSWR('/map/end')
     const {data:route} = useSWR('/map/route')
@@ -35,7 +38,9 @@ export default function HeaderSearch(){
     const epRef = useRef();
     const [startMarker, setStartMarker] = useState();
     const [endMarker, setEndMarker] = useState();
+    const [assistMarker, setAssistMarker] = useState([])
     const [startFlag, setStartFlag] = useState(true);
+    const [routeList, setRouteList] = useState();
 
     const searchWordFunc = (()=>{
         if(str!=''){
@@ -83,6 +88,10 @@ export default function HeaderSearch(){
             }
         }else{
             epRef.current.value=null;
+        }
+        if(startStore && endStore){
+            setAssistOpen(true);
+            googlePath(map, startStore.mapy, startStore.mapx, endStore.mapy, endStore.mapx)
         }
     },[startStore,endStore])
 
@@ -145,11 +154,6 @@ export default function HeaderSearch(){
             setRoute(null)
             setStartFlag(true)
         }
-        if(searchMarker){
-            searchMarker.setMap(null);
-            setSearchMarker(null)
-        }
-
         if(sMarker){
             sMarker.map((mk)=>{
                 mk.setMap(map)
@@ -240,7 +244,7 @@ export default function HeaderSearch(){
 
     const startPath = () => {
         if(!startFlag) return;
-        googlePath(map, startStore.mapy, startStore.mapx, endStore.mapy, endStore.mapx)
+
     }
 
     function decodePolyline(encoded) {
@@ -309,8 +313,12 @@ export default function HeaderSearch(){
         xhr.onreadystatechange = function () {
             if (xhr.readyState == 4 && xhr.status == 200) {
                 var resultJsonData = JSON.parse(xhr.responseText).routes;
-                var route = resultJsonData[0].legs[0];
 
+                if(resultJsonData.length===0){
+                    alert('해당 경로를 찾을 수 없습니다.')
+                    return;
+                }
+                var route = resultJsonData[0].legs[0];
                 var kakaoRouteList = [];
 
                 route.steps.map(async (step) => {
@@ -354,16 +362,22 @@ export default function HeaderSearch(){
                             })
                         }
                     }
-                    var kakaoRoute = new kakao.maps.Polyline({
+                    // var kakaoRoute = new kakao.maps.Polyline({
+                    //     map: map,
+                    //     path: lineAr,
+                    //     strokeWeight: 5,
+                    //     strokeColor: color
+                    // })
+                    var kakaoRoute = {
                         map: map,
                         path: lineAr,
                         strokeWeight: 5,
                         strokeColor: color
-                    })
+                    }
                     kakaoRouteList.push(kakaoRoute)
                 })
 
-                setRoute(kakaoRouteList)
+                setRouteList(kakaoRouteList)
 
                 var points = [
                     new kakao.maps.LatLng(sy, sx),
@@ -371,6 +385,36 @@ export default function HeaderSearch(){
                 ];
 
                 var bounds = new kakao.maps.LatLngBounds();
+                var newY = (parseFloat(sy)+parseFloat(ey))/2
+                var newX = (parseFloat(ex)+parseFloat(ex))/2
+
+                fetch(`/tourApi/locationBasedList1?serviceKey=${process.env.TOUR_API_ECD_KEY}&numOfRows=20000&pageNo=1&MobileOS=ETC&MobileApp=Aeum&mapX=${newX}&mapY=${newY}&radius=1000&_type=json&listYN=Y&arrange=A&contentTypeId=12`)
+                    .then(function(response){
+                        return response.json()
+                    }).then(async function(data) {
+
+                    var datas = data.response.body.items.item
+
+                    var markerList = [];
+                    datas.forEach((dt)=>{
+
+                        var icon = typeIcons(dt.contenttypeid)
+
+                        var marker = new kakao.maps.Marker({
+                            position: new kakao.maps.LatLng(dt.mapy,dt.mapx),
+                            image: icon
+                        });
+
+                        markerList.push(marker);
+
+                    })
+                    setAssistMarker(markerList)
+
+                    markerList.forEach((mk)=>{
+                        mk.setMap(map)
+                    })
+                });
+
 
                 for (var i = 0; i < points.length; i++) {
                     bounds.extend(points[i]);
@@ -379,6 +423,52 @@ export default function HeaderSearch(){
                 map.setBounds(bounds);
             }
         }
+    }
+
+
+
+    function typeIcons(id){
+        var loc = '';
+        // 12:관광지(tours), 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 32:숙박, 38:쇼핑, 39:음식점
+        switch(String(id)){
+            case '12':
+                loc = '/icons/tours.png'
+                break;
+            case '14':
+                loc = '/icons/astrology.png'
+                break;
+            case '15':
+                loc = '/icons/concerts.png'
+                break;
+            case '25':
+                loc = '/icons/automotive.png'
+                break;
+            case '28':
+                loc = '/icons/sporting-goods.png'
+                break;
+            case '32':
+                loc = '/icons/hotels.png'
+                break;
+            case '38':
+                loc = '/icons/shopping.png'
+                break;
+            case '39':
+                loc = '/icons/food.png'
+                break;
+        }
+        var icon=  new kakao.maps.MarkerImage(
+                loc,
+            new kakao.maps.Size(31, 35));
+        return icon
+    }
+
+    function drawLine(){
+        var getRouteList = [];
+        routeList.forEach((e)=> {
+            var getRoute = new kakao.maps.Polyline(e);
+            getRouteList.push(getRoute)
+        });
+        setRoute(getRouteList)
     }
 
     function checkInsideKorea({ lat, lng }) {
@@ -446,57 +536,96 @@ export default function HeaderSearch(){
             .then(response => console.log(response))
             .catch(err => console.error(err));
     }
-
     return(
         <>
-            <div style={( endStore || startStore ) ? {} :  {display:'none'}} className={styles.startEndBox}>
-                <HiOutlineSwitchVertical
-                    onClick={()=>switchStartEnd()}
-                    className={styles.switchBtn}/>
-                <HiX
-                    onClick={()=>resetStartEnd()}
-                    className={styles.exitBtn}/>
-                <input
-                    onClick={setSearchStatus}
-                    onKeyDown={(e)=>{
-                        if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
-                            searchWordFunc()
-                        }
-                    }
+            {
+                assistOpen?
+                    <div className={styles.assistActive}>
+                        <IoIosArrowBack
+                            onClick={()=>switchStartEnd()}
+                            className={styles.backBtn}/>
+                        <HiX
+                            onClick={()=>resetStartEnd()}
+                            className={styles.exitBtn}/>
+                        <input
+                            onClick={setSearchStatus}
+                            onKeyDown={(e)=>{
+                                if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
+                                    searchWordFunc()
+                                }
+                            }
 
-                    }
-                    onChange={(e)=>{startStr(e.target.value)}}
-                    placeholder={'출발지를 선택해 주세요.'}
-                    ref={spRef}
-                    className={styles.startItem}/>
-                <input
-                    onClick={setSearchStatus}
-                    onKeyDown={(e)=>{
-                        if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
-                            searchWordFunc()
-                        }
-                    }
+                            }
+                            onChange={(e)=>{startStr(e.target.value)}}
+                            placeholder={'출발지를 선택해 주세요.'}
+                            ref={spRef}
+                            className={styles.startItem}/>
 
-                    }
-                    onChange={(e)=>{endStr(e.target.value)}}
-                    placeholder={'도착지를 선택해 주세요.'}
-                    ref={epRef}
-                    className={styles.endItem}/>
-                <button
-                    onClick={()=>{
-                        if(startFlag){
-                            startPath()
-                        }
-                    }}
-                    className={styles.confirmBtn}>
-                    확인
-                </button>
-                <button className={styles.confirmBtn} onClick={()=>resetStartEnd()}>
-                    취소
-                </button>
-            </div>
+                        <input
+                            onClick={setSearchStatus}
+                            onKeyDown={(e)=>{
+                                if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
+                                    searchWordFunc()
+                                }
+                            }
 
-            <div style={( endStore || startStore ) ? {display:'none'}:{}} className={styles.searchBox}>
+                            }
+                            onChange={(e)=>{endStr(e.target.value)}}
+                            placeholder={'도착지를 선택해 주세요.'}
+                            ref={epRef}
+                            className={styles.endItem}/>
+                    </div>
+                    :
+                    <div style={( endStore || startStore ) ? {} :  {display:'none'}} className={`${styles.startEndBox} }`} >
+                        <HiOutlineSwitchVertical
+                            onClick={()=>switchStartEnd()}
+                            className={styles.switchBtn}/>
+                        <HiX
+                            onClick={()=>resetStartEnd()}
+                            className={styles.exitBtn}/>
+                        <input
+                            onClick={setSearchStatus}
+                            onKeyDown={(e)=>{
+                                if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
+                                    searchWordFunc()
+                                }
+                            }
+
+                            }
+                            onChange={(e)=>{startStr(e.target.value)}}
+                            placeholder={'출발지를 선택해 주세요.'}
+                            ref={spRef}
+                            className={styles.startItem}/>
+
+                        <input
+                            onClick={setSearchStatus}
+                            onKeyDown={(e)=>{
+                                if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
+                                    searchWordFunc()
+                                }
+                            }
+
+                            }
+                            onChange={(e)=>{endStr(e.target.value)}}
+                            placeholder={'도착지를 선택해 주세요.'}
+                            ref={epRef}
+                            className={styles.endItem}/>
+                        <button
+                            onClick={()=>{
+                                if(startFlag){
+                                    drawLine()
+                                }
+                            }}
+                            className={styles.confirmBtn}>
+                            확인
+                        </button>
+                        <button className={styles.confirmBtn} onClick={()=>resetStartEnd()}>
+                            취소
+                        </button>
+                    </div>
+                }
+
+                    <div style={( endStore || startStore ) ? {display:'none'}:{}} className={styles.searchBox}>
                 <AiOutlineSearch className={styles.searchBtn}  onClick={()=>{searchWordFunc()}}/>
                 <AiOutlineLeft style={!searchOpen?{display:'none'}:''} className={styles.flexBtn}
                    onClick={()=>{
