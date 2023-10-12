@@ -15,6 +15,12 @@ const nextConfig = {
   experimental: {
     appDir: true,
   },
+  compiler: {
+    styledComponents: {
+      displayName: false,
+      ssr: false
+    }
+  },
   images:{
     domains:['lh3.googleusercontent.com','tong.visitkorea.or.kr']
   },

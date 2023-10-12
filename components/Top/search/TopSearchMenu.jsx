@@ -2,7 +2,7 @@
 import styles from "@/styles/header.module.scss";
 import {AiOutlineLeft, AiOutlineSearch} from "react-icons/ai";
 import {useEffect, useRef, useState} from "react";
-import {HiOutlineBackspace, HiOutlineSwitchVertical, HiX} from "react-icons/hi";
+import {HiOutlineSwitchVertical, HiX} from "react-icons/hi";
 import useSWR from "swr";
 import useSearchAction from "@/hooks/useSearchAction";
 import useList from "@/hooks/useList";
@@ -10,10 +10,11 @@ import useStores from "@/hooks/useStores";
 import {decode} from "@googlemaps/polyline-codec"
 import process from "next/dist/build/webpack/loaders/resolve-url-loader/lib/postcss";
 import useMap from "@/hooks/useMap";
-import {HiOutlineBackward, IoArrowBack, IoIosArrowBack} from "react-icons/all";
+import useMenu from "@/hooks/useMenu";
 
 
-export default function HeaderSearch(){
+export default function TopSearchMenu(){
+    const {setBottomMenuStatus} = useMenu();
     const {setListOpen,setListReOpen} = useList();
     const {setSearchStart, setSearchWord, setSearchOpen, setStopOverOpen, setAssistOpen} = useSearchAction();
     const {setChoseStore} = useStores();
@@ -45,8 +46,7 @@ export default function HeaderSearch(){
     const searchWordFunc = (()=>{
         if(str!=''){
             setSearchWord(str);
-            setSearchStart(true)
-            setChoseStore(null)
+            setBottomMenuStatus('searchResult')
         }
     })
     useEffect(()=>{
@@ -590,6 +590,7 @@ export default function HeaderSearch(){
                 <AiOutlineSearch className={styles.searchBtn}  onClick={()=>{searchWordFunc()}}/>
                 <AiOutlineLeft style={!searchOpen?{display:'none'}:''} className={styles.flexBtn}
                    onClick={()=>{
+                       setBottomMenuStatus('default')
                        setSearchPage(false)
                        setChoseStore(null)
                 }}/>
@@ -606,6 +607,7 @@ export default function HeaderSearch(){
                            }
                            onChange={(e)=>{setStr(e.target.value)}}
                            onClick={()=>{
+                               setBottomMenuStatus('search')
                                setSearchPage(true),
                                setListOpen(false),
                                setChoseStore(null)

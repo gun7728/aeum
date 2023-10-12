@@ -3,7 +3,7 @@ import styles from '../styles/search.module.scss'
 import {Fragment, useEffect, useState} from "react";
 import {AiOutlineClose} from "react-icons/ai";
 import {FaSearchLocation} from "react-icons/fa";
-import SearchResult from "@/components/SearchResult";
+import BottomSpotSearchList from "@/components/Bottom/list/BottomSpotSearchList";
 import useSWR from "swr";
 import useSearchAction from "@/hooks/useSearchAction";
 
@@ -80,7 +80,7 @@ export default function SearchSection() {
             {
                 searchStart
                     ?
-                    <SearchResult/>
+                    <BottomSpotSearchList/>
                     :
                     keywords.length>0?
                     keywords.map((e)=>

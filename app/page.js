@@ -1,7 +1,7 @@
 'use client'
 import {useSelector} from "react-redux";
-import Header from "@/components/Header";
-import DetailSection from "@/components/DetailSection";
+import TopMenu from "@/components/Top/TopMenu";
+import BottomMenu from "@/components/Bottom/BottomMenu";
 import Loading from "@/components/loading";
 import KakaoMap from "@/components/KakaoMap";
 import FadeAlert from "@/components/FadeAlert";
@@ -15,6 +15,7 @@ export default function Home(){
     const { data:nearStores } = useSWR('/stores/near');
     const { data:position } = useSWR('/map/curPos');
     const { data:loading } = useSWR('/loading')
+
 
     return(
         <div
@@ -31,11 +32,11 @@ export default function Home(){
                     (position && nearStores)?(loading?<Loading/>:''):<Loading/>
                 }
                 <FadeAlert/>
-                <Header/>
+                <TopMenu/>
                 <KakaoMap/>
                 {
                     (map && nearStores)?
-                        <DetailSection />
+                        <BottomMenu />
                         :<></>
                 }
             </main>

@@ -6,10 +6,12 @@ import process from "next/dist/build/webpack/loaders/resolve-url-loader/lib/post
 import useSWR from "swr";
 import {useEffect} from "react";
 import useLoading from "@/hooks/useLoading";
+import useMenu from "@/hooks/useMenu";
 // import axios from "axios";
 
 export default function KakaoMap(){
 
+    const {setBottomMenuStatus} = useMenu()
     const { initializeStores, nearStores,setChoseStore } = useStores();
     const {setLoading} = useLoading();
     const { initializeMap, initializeCurrentPosition,initializeCurrentLocation, allStoresMarker,screenMarker,positionChange  } = useMap();
@@ -29,12 +31,13 @@ export default function KakaoMap(){
         getPosition(map)
         initializeMap(map);
         initData();
+        setBottomMenuStatus('default')
     };
 
 
     const initData = async ()=>{
         return new Promise((resolve) => {
-            fetch(`/tourApi/areaBasedSyncList1?serviceKey=${process.env.TOUR_API_ECD_KEY}&numOfRows=20000&pageNo=1&MobileOS=ETC&MobileApp=Aeum&_type=json&showflag=1&listYN=Y&arrange=A&contentTypeId=12`)
+            fetch(`/tourApi/areaBasedSyncList1?serviceKey=${process.env.TOUR_API_ECD_KEY}&numOfRows=20000&pageNo=1&MobileOS=ETC&MobileApp=Aeum&_type=json&showflag=1&listYN=Y&arrange=A`)
                 .then(function(response){
                     return response.json()
                 }).then(function(data) {
@@ -105,9 +108,12 @@ export default function KakaoMap(){
                 var data = stores[`${marker.getTitle()}`];
                 boundsChange.push(data)
 
+                var icon = typeIcons(data.contenttypeid)
+
                 var mk = new kakao.maps.Marker({
                     position: new kakao.maps.LatLng(data.mapy,data.mapx),
-                    map:map
+                    map:map,
+                    image:icon
                 });
 
 
@@ -174,7 +180,40 @@ export default function KakaoMap(){
     //     });
     //
     // },[center])
-
+    const typeIcons = (id) =>{
+        var loc = '';
+        // 12:관광지(tours), 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 32:숙박, 38:쇼핑, 39:음식점
+        switch(String(id)){
+            case '12':
+                loc = '/icons/tours.png'
+                break;
+            case '14':
+                loc = '/icons/astrology.png'
+                break;
+            case '15':
+                loc = '/icons/concerts.png'
+                break;
+            case '25':
+                loc = '/icons/automotive.png'
+                break;
+            case '28':
+                loc = '/icons/sporting-goods.png'
+                break;
+            case '32':
+                loc = '/icons/hotels.png'
+                break;
+            case '38':
+                loc = '/icons/shopping.png'
+                break;
+            case '39':
+                loc = '/icons/food.png'
+                break;
+        }
+        var icon=  new kakao.maps.MarkerImage(
+            loc,
+            new kakao.maps.Size(31, 40));
+        return icon
+    }
     const getPosition = (map) =>{
         navigator.geolocation.getCurrentPosition(async (position) => {
             map.panTo(new kakao.maps.LatLng(position.coords.latitude, position.coords.longitude))

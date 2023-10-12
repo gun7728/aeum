@@ -10,7 +10,7 @@ import useList from "@/hooks/useList";
 import useAlert from "@/hooks/useAlert";
 import useMap from "@/hooks/useMap";
 
-export default function SearchResult(){
+export default function BottomSpotSearchList(){
     const {data:stores} = useSWR('/stores')
     const {data:searchWord} = useSWR('/search/word')
     const {data:map} = useSWR('/map')

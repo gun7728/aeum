@@ -1,54 +1,44 @@
 'use client'
 
-import styles from '../styles/detail.module.scss'
+import styles from '../../styles/detail.module.scss'
 import {useEffect, useRef, useState} from "react";
 import {IoIosArrowUp} from "react-icons/io";
-import DetailHeaderList from "@/components/DetailHeaderList";
-import DetailContent from "@/components/DetailContent";
+import BottomSpotList from "@/components/Bottom/list/BottomSpotList";
+import BottomSpotDetail from "@/components/Bottom/detail/BottomSpotDetail";
 import SearchSection from "@/components/SearchSection";
 import useSWR from "swr";
 import useStores from "@/hooks/useStores";
 import useList from "@/hooks/useList";
 import useMap from "@/hooks/useMap";
+import useMenu from "@/hooks/useMenu";
 
-export default function DetailSection(){
-    const {setListOpen, setListReOpen} = useList()
-    const {setChoseStore} = useStores()
+export default function BottomMenu(){
+    
+    //하단 바텀 메뉴 상태 관리
+    const {setBottomMenuStatus} = useMenu();
+    const {data:bottomMenuStatus} = useSWR('/bottom/status')
+
     const {positionChange} = useMap()
+
+
     const { data:open } = useSWR('/list/open');
     const { data:reOpen } = useSWR('/list/reopen');
     const { data:choseStore } = useSWR('/stores/chose')
-    const { data:searchStart } = useSWR('/search')
-    const { data:searchOpen } = useSWR('/search/open')
     const { data:startStore } = useSWR('/map/start')
     const { data:endStore } = useSWR('/map/end')
-    const { data:changedPosition } = useSWR('/map/position/change')
 
     const [touchStart, setTouchStart] = useState(null)
     const [touchEnd, setTouchEnd] = useState(null)
 
     const setExpanded =async ()=>{
-        if(open && reOpen){
-            await setChoseStore(null);
-            await setListOpen(true)
-            await setListReOpen(false);
-            return;
-        }
-        if(!open){
-            await setListOpen(true)
+        if(bottomMenuStatus==='open'){
+            setBottomMenuStatus('default')
+        }else if(bottomMenuStatus==='detail'){
+            setBottomMenuStatus('default')
         }else{
-            await setListOpen(false)
-            await setChoseStore(null);
+            setBottomMenuStatus('open')
         }
     }
-
-    useEffect(()=>{
-        if(choseStore){
-            setExpanded()
-        }else if(choseStore==null){
-            setListOpen(false)
-        }
-    },[choseStore])
 
 // the required distance between touchStart and touchEnd to be detected as a swipe
     const minSwipeDistance = 50
@@ -66,9 +56,7 @@ export default function DetailSection(){
         const isTopSwipe = distance > minSwipeDistance
         const isBottomSwipe = distance < -minSwipeDistance
         if (isTopSwipe){
-            if(open) return
-            if(searchStart) return
-            setExpanded()
+            if(bottomMenuStatus==='open') return
         }else if(isBottomSwipe){
             // if(searchStore.action) return
             // setExpanded()
@@ -76,39 +64,48 @@ export default function DetailSection(){
     }
     return(
         <>
-            {/*{*/}
-            {/*    */}
-            {/*}*/}
             <div
                 onTouchStart={onTouchStart}
                 onTouchMove={onTouchMove}
                 onTouchEnd={onTouchEnd}
                 style={(endStore && startStore)?{transform:'translateY(100%)'}:{}}
-                className={`${styles.detailSection} ${(open ? (choseStore? styles.detailExpanded: styles.expanded)  : (searchOpen?(searchStart?styles.searchResultExpanded:styles.searchStartExpanded):''))} `}
+                className={`${styles.detailSection} 
+                    ${(bottomMenuStatus==='open' && styles.expanded )} 
+                    ${(bottomMenuStatus==='detail' && styles.detailExpanded)} 
+                    ${(bottomMenuStatus==='search' && styles.searchStartExpanded)} 
+                    ${(bottomMenuStatus==='searchResult' && styles.searchResultExpanded)} 
+                `}
             >
                 {
-                    (!changedPosition && !open && !startStore && !endStore) && <div onClick={()=>{positionChange(true)}} className={styles.changePosition}>지도 위치로 검색</div>
+                    ((bottomMenuStatus==='default') && !startStore && !endStore) &&
+                    <div onClick={()=>{positionChange(true)}} className={styles.changePosition}>지도 위치로 검색</div>
                 }
 
                 {
-                    (!choseStore&&searchOpen)?<SearchSection/>
+                    bottomMenuStatus==='search'?<SearchSection/>
                 :
-                    <div className={!open ? styles.header:styles.header}>
+                    <div className={styles.header}>
                         <button
-                            className={`${styles.arrowButton} ${open ? styles.expanded : ''}`}
+                            className={`${styles.arrowButton} 
+                                ${(bottomMenuStatus==='open' || bottomMenuStatus==='detail' )&& styles.expanded}
+                            `}
                             onClick={setExpanded}
                             // disabled={!currentStore}
-                            aria-label={open ? '매장 정보 접기' : '매장 정보 펼치기'}
+                            aria-label={
+                                bottomMenuStatus==='open'
+                                    ? '매장 정보 접기' : '매장 정보 펼치기'
+                            }
                         >
                             {
-                                searchOpen?<div className={styles.goToListBtn}>☰ 목록보기</div>:reOpen?<div className={styles.goToListBtn}>☰ 목록보기</div>:<IoIosArrowUp size={20} color="#666666" />
+                                bottomMenuStatus==='search'?<div className={styles.goToListBtn}>☰ 목록보기</div>
+                                    :reOpen?<div className={styles.goToListBtn}>☰ 목록보기</div>
+                                        :<IoIosArrowUp size={20} color="#666666" />
                             }
 
                         </button>
                         {
-                            choseStore?<DetailContent/>:<DetailHeaderList/>
+                            bottomMenuStatus==='detail'?<BottomSpotDetail/>:<BottomSpotList/>
                         }
-                        {/*<DetailContent currentStore={currentStore} expanded={expanded} />*/}
                     </div>
                 }
             </div>

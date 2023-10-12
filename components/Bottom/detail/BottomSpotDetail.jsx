@@ -13,7 +13,7 @@ import useMap from "@/hooks/useMap";
 import process from "next/dist/build/webpack/loaders/resolve-url-loader/lib/postcss";
 import useLoading from "@/hooks/useLoading";
 
-export default function DetailContent(){
+export default function BottomSpotDetail(){
     const {setAlertStart,setAlertMsg} = useAlert()
     const {setStartStore,setEndStore,setSearchMarker} = useMap()
     const {setLoading} = useLoading()
