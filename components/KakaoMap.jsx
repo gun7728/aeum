@@ -14,7 +14,7 @@ export default function KakaoMap(){
     const {setBottomMenuStatus} = useMenu()
     const { initializeStores, nearStores,setChoseStore } = useStores();
     const {setLoading} = useLoading();
-    const { initializeMap, initializeCurrentPosition,initializeCurrentLocation, allStoresMarker,screenMarker,positionChange  } = useMap();
+    const { initializeMap, initializeCurrentPosition,initializeCurrentLocation, allStoresMarker,screenMarker, markerName,positionChange  } = useMap();
 
     const { data:stores } = useSWR('/stores');
     const { data:choseStore } = useSWR('/stores/chose');
@@ -25,6 +25,7 @@ export default function KakaoMap(){
     const { data:zoom } = useSWR('/map/zoom');
     const { data:center } = useSWR('/map/center');
     const { data:sMarker } = useSWR('/map/screen/marker')
+    const { data:sMarkerName } = useSWR('/map/screen/marker/name')
     const { data:changedPosition } = useSWR('/map/position/change')
 
     const onLoadMap = async (map) => {
@@ -89,9 +90,15 @@ export default function KakaoMap(){
                 mk.setMap(null)
             })
         }
+        if(sMarkerName){
+            sMarkerName.map((mn)=>{
+                mn.setMap(null)
+            })
+        }
 
         const boundsChange = [];
         const markers = [];
+        const names = [];
 
 
         var size = bound;
@@ -110,16 +117,40 @@ export default function KakaoMap(){
 
                 var icon = typeIcons(data.contenttypeid)
 
+                var content = '<span class="info-title">'+data.title+'</span>'
+
+
                 var mk = new kakao.maps.Marker({
                     position: new kakao.maps.LatLng(data.mapy,data.mapx),
                     map:map,
-                    image:icon
+                    image:icon,
+                });
+
+                // 인포윈도우로 장소에 대한 설명을 표시합니다
+                var infoWindow = new kakao.maps.InfoWindow({
+                    content: content,
+                });
+
+                infoWindow.open(map, marker);
+
+
+                var infoTitle = document.querySelectorAll('.info-title');
+                infoTitle.forEach(function(e) {
+                    var w = e.offsetWidth + 10;
+                    var ml = w/2;
+                    e.parentElement.style.top = "82px";
+                    e.parentElement.style.left = "50%";
+                    e.parentElement.style.marginLeft = -ml+"px";
+                    e.parentElement.style.width = "auto";
+                    e.parentElement.previousSibling.style.display = "none";
+                    e.parentElement.parentElement.style.border = "0px";
+                    e.parentElement.parentElement.style.background = "unset";
                 });
 
 
                 kakao.maps.event.addListener(mk, 'click', function() {
                     setLoading(true);
-                    fetch(`/tourApi/detailCommon1?serviceKey=${process.env.TOUR_API_ECD_KEY}&MobileOS=ETC&MobileApp=Aeum&_type=json&contentId=${data.contentid}&contentTypeId=12&defaultYN=Y&firstImageYN=Y&areacodeYN=Y&catcodeYN=Y&addrinfoYN=Y&mapinfoYN=Y&overviewYN=Y&numOfRows=10&pageNo=1`)
+                    fetch(`/tourApi/detailCommon1?serviceKey=${process.env.TOUR_API_ECD_KEY}&MobileOS=ETC&MobileApp=Aeum&_type=json&contentId=${data.contentid}&defaultYN=Y&firstImageYN=Y&areacodeYN=Y&catcodeYN=Y&addrinfoYN=Y&mapinfoYN=Y&overviewYN=Y&numOfRows=10&pageNo=1`)
                         .then(function(response){
                             return response.json()
                         }).then(async function(data) {
@@ -128,16 +159,19 @@ export default function KakaoMap(){
                         if(choseStore)
                             await setChoseStore(null);
 
+                        setBottomMenuStatus('detail');
                         setChoseStore(datas)
                     });
                 });
 
                 markers.push(mk);
+                names.push(infoWindow)
             }
         })
 
         positionChange(false);
         screenMarker(markers);
+        markerName(names)
         nearStores(boundsChange)
 
     },[bound,allMarker,stores,map,zoom,route,changedPosition,center])

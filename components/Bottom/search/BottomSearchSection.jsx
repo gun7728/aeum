@@ -11,6 +11,7 @@ import useMenu from "@/hooks/useMenu";
 export default function BottomSearchSection() {
 
     //하단 바텀 메뉴 상태 관리
+    const {setBottomMenuStatus} = useMenu()
     const {data:bottomMenuStatus} = useSWR('/bottom/status')
 
     const {setSearchWord, setSearchStart} = useSearchAction()
@@ -65,18 +66,15 @@ export default function BottomSearchSection() {
 
     const clickKeyword = (keyword) => {
         setSearchWord(keyword)
-        setSearchStart(true)
+        setBottomMenuStatus('searchResult')
     }
 
     return(
         <div style={( startStore || endStore ) ?(searchStart?{}:{top:'40px'}):{}}
             className={`${styles.searchSection}`}>
             {
-                searchStart
-                    ?
-                    <></>
-                    :
-                <div className={styles.searchHeader}>
+                bottomMenuStatus!=='searchResult'
+                && <div className={styles.searchHeader}>
                     <span>최근 검색</span><span className={styles.allDeleteBtn} onClick={handleClearKeywords}>전체삭제</span>
                 </div>
             }

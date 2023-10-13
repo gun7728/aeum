@@ -11,12 +11,14 @@ export const MAP_CUR_POS_KEY = '/map/curPos';
 export const MAP_CUR_LOC_KEY = '/map/curLoc';
 export const STORE_START_KEY = '/map/start';
 export const STORE_END_KEY = '/map/end';
+export const STORE_RESET_KEY = '/map/store/reset';
 export const ROUTE_KEY = '/map/route';
 export const CENTER_KEY = '/map/center';
 export const BOUND_KEY = '/map/bound';
 export const ZOOM_KEY = '/map/zoom';
 export const ALL_MARKER_KEY = '/map/all/marker';
 export const SCREEN_MARKER_KEY = '/map/screen/marker';
+export const MARKER_NAME_KEY = '/map/screen/marker/name';
 export const SEARCH_MARKER_KEY = '/map/search/marker';
 
 const useMap = () => {
@@ -65,6 +67,10 @@ const useMap = () => {
         mutate(SCREEN_MARKER_KEY, screenMarker);
     });
 
+    const markerName = useCallback((markerName) => {
+        mutate(MARKER_NAME_KEY, markerName);
+    });
+
     const setSearchMarker = useCallback((searchMarker) => {
         mutate(SEARCH_MARKER_KEY, searchMarker);
     });
@@ -72,6 +78,11 @@ const useMap = () => {
     const positionChange = useCallback((positionChange) => {
         mutate(MAP_POSITION_CHANGE_KEY, positionChange);
     });
+
+    const resetSelectStore = useCallback(()=>{
+        mutate(STORE_START_KEY, null)
+        mutate(STORE_END_KEY, null)
+    })
 
 
     return {
@@ -85,9 +96,11 @@ const useMap = () => {
         changeZoom,
         allStoresMarker,
         screenMarker,
+        markerName,
         changeCenter,
         positionChange,
-        setSearchMarker
+        setSearchMarker,
+        resetSelectStore
     };
 };
 export default useMap;

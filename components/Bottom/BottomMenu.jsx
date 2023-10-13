@@ -19,11 +19,8 @@ export default function BottomMenu(){
     const {data:bottomMenuStatus} = useSWR('/bottom/status')
 
     const {positionChange} = useMap()
+    const { data:changedPosition } = useSWR('/map/position/change')
 
-
-    const { data:open } = useSWR('/list/open');
-    const { data:reOpen } = useSWR('/list/reopen');
-    const { data:choseStore } = useSWR('/stores/chose')
     const { data:startStore } = useSWR('/map/start')
     const { data:endStore } = useSWR('/map/end')
 
@@ -40,9 +37,6 @@ export default function BottomMenu(){
         }
     }
 
-// the required distance between touchStart and touchEnd to be detected as a swipe
-    const minSwipeDistance = 50
-
     const onTouchStart = (e) => {
         setTouchEnd(null) // otherwise the swipe is fired even with usual touch events
         setTouchStart(e.targetTouches[0].clientY)
@@ -53,13 +47,10 @@ export default function BottomMenu(){
     const onTouchEnd = () => {
         if (!touchStart || !touchEnd) return
         const distance = touchStart - touchEnd
-        const isTopSwipe = distance > minSwipeDistance
-        const isBottomSwipe = distance < -minSwipeDistance
+        const isTopSwipe = distance > 50
         if (isTopSwipe){
             if(bottomMenuStatus==='open') return
-        }else if(isBottomSwipe){
-            // if(searchStore.action) return
-            // setExpanded()
+            setExpanded()
         }
     }
     return(
@@ -76,13 +67,14 @@ export default function BottomMenu(){
                     ${(bottomMenuStatus==='searchResult' && styles.searchResultExpanded)} 
                 `}
             >
-                {
-                    ((bottomMenuStatus==='default') && !startStore && !endStore) &&
+                {/*<span>{bottomMenuStatus}</span>*/}
+                 {
+                    ((bottomMenuStatus==='default') && !changedPosition) &&
                     <div onClick={()=>{positionChange(true)}} className={styles.changePosition}>지도 위치로 검색</div>
                 }
 
                 {
-                    bottomMenuStatus==='search'?<BottomSearchSection/>
+                    (bottomMenuStatus==='search' || bottomMenuStatus==='searchResult')?<BottomSearchSection/>
                 :
                     <div className={styles.header}>
                         <button

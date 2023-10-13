@@ -61,19 +61,48 @@ export default function BottomSearchList(){
                 alert("something went wrong");
             });
     }
+    const toRadians = (degrees) => {
+        return degrees * (Math.PI / 180);
+    }
+
+    const calculateDistance = (lat1, lon1, lat2, lon2) => {
+        const R = 6371; // 지구의 반지름 (단위: 킬로미터)
+        const dLat = toRadians(lat2 - lat1);
+        const dLon = toRadians(lon2 - lon1);
+
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        const distance = R * c; // 두 지점 간의 직선거리 (단위: 킬로미터)
+        return distance;
+    }
 
 
     const setPoint = async (key, data)=>{
         if(startStore){
+            var dis = calculateDistance(parseFloat(startStore.mapy), parseFloat(startStore.mapx), parseFloat(data.mapy), parseFloat(data.mapx))
             if(data.title == startStore.title){
                 alert('출발지와 목적지를 동일하게 설정하실 수 없습니다.')
+                return;
+            }
+            if(dis>20){
+                alert('출발지와 목적지의 직선 거리는 20Km를 초과할 수 없습니다.')
                 return;
             }
         }
 
         if(endStore){
+            var dis = calculateDistance(parseFloat(endStore.mapy), parseFloat(endStore.mapx), parseFloat(data.mapy), parseFloat(data.mapx))
             if(data.title == endStore.title){
                 alert('출발지와 목적지를 동일하게 설정하실 수 없습니다.')
+                return;
+            }
+            if(dis>20){
+                alert('출발지와 목적지의 직선 거리는 20Km를 초과할 수 없습니다.')
                 return;
             }
         }

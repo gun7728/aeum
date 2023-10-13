@@ -14,22 +14,23 @@ import useMenu from "@/hooks/useMenu";
 
 
 export default function TopSearchMenu(){
-    const {setBottomMenuStatus} = useMenu();
+
+    //하단 바텀 메뉴 상태 관리
+    const {setBottomMenuStatus} = useMenu()
+    const {data:bottomMenuStatus} = useSWR('/bottom/status')
+
+
     const {setListOpen,setListReOpen} = useList();
-    const {setSearchStart, setSearchWord, setSearchOpen, setStopOverOpen, setAssistOpen} = useSearchAction();
+    const {setSearchWord, setSearchOpen, setAssistOpen} = useSearchAction();
     const {setChoseStore} = useStores();
-    const {setStartStore, setEndStore, setRoute} = useMap();
+    const {setStartStore, setEndStore, setRoute, resetSelectStore} = useMap();
 
 
     const {data:map} = useSWR('/map')
 
     const {data:searchStart} = useSWR('/search');
     const {data:searchWord} = useSWR('/search/word');
-    const {data:searchOpen} = useSWR('/search/open')
-    const {data:stopOverOpen} = useSWR('/stopOver/open')
-    const {data:assistOpen} = useSWR('/assist/open')
     const {data:startStore} = useSWR('/map/start')
-    const {data:sMarker} = useSWR('/map/screen/marker')
     const {data:endStore} = useSWR('/map/end')
     const {data:route} = useSWR('/map/route')
 
@@ -40,6 +41,7 @@ export default function TopSearchMenu(){
     const [startMarker, setStartMarker] = useState();
     const [endMarker, setEndMarker] = useState();
     const [assistMarker, setAssistMarker] = useState([])
+    const [assistMarkerNames, setAssistMarkerNames] = useState([])
     const [startFlag, setStartFlag] = useState(true);
     const [routeList, setRouteList] = useState();
 
@@ -56,44 +58,29 @@ export default function TopSearchMenu(){
     },[searchWord,searchStart])
 
     useEffect(()=>{
-        if(str===''&&searchStart){
-            setSearchStart(false)
+        if(str===''&&bottomMenuStatus==='search'){
+            setBottomMenuStatus('default')
+            // inputRef.current.blur()
         }
     },[str])
 
     useEffect(()=>{
         if(startStore){
-            setChoseStore(null);
-            setSearchStart(false)
+            setBottomMenuStatus('search')
             spRef.current.value = startStore.title
-
-            if(!endStore){
-                epRef.current.focus();
-                setSearchPage(true)
-                setSearchOpen(true)
-            }
-        }else{
-            spRef.current.value = null
+            epRef.current.focus();
         }
-
         if(endStore){
-            setChoseStore(null);
-            setSearchStart(false)
+            setBottomMenuStatus('search')
             epRef.current.value = endStore.title
-
-            if(!startStore) {
-                spRef.current.focus();
-                setSearchPage(true)
-                setSearchOpen(true)
-            }
-        }else{
-            epRef.current.value=null;
+            spRef.current.focus();
         }
         if(startStore && endStore){
-            setAssistOpen(true);
             googlePath(map, startStore.mapy, startStore.mapx, endStore.mapy, endStore.mapx)
         }
     },[startStore,endStore])
+
+
 
     const startStr =async  (str) =>{
         setStr(str)
@@ -101,6 +88,7 @@ export default function TopSearchMenu(){
             if(startMarker){
                 startMarker.setMap(null)
                 setStartMarker(null)
+                setBottomMenuStatus('searchResult')
             }
             if(route){
                 if(route.length>0){
@@ -121,6 +109,7 @@ export default function TopSearchMenu(){
             if(endMarker){
                 endMarker.setMap(null)
                 setEndMarker(null)
+                setBottomMenuStatus('searchResult')
             }
             if(route){
                 if(route.length>0){
@@ -136,40 +125,25 @@ export default function TopSearchMenu(){
         }
     }
     const resetStartEnd = async () => {
-        if(startMarker){
-            startMarker.setMap(null)
-            setStartMarker(null)
+        resetSelectStore();
+        if(assistMarker.length>0){
+            assistMarker.map((am)=>{
+                am.setMap(null);
+            })
         }
-        if(endMarker){
-            endMarker.setMap(null)
-            setEndMarker(null)
-        }
-
-        if(route){
-            if(route.length>0){
-                route.map((e)=>{
-                    e.setMap(null);
-                })
-            }
-            setRoute(null)
-            setStartFlag(true)
-        }
-        if(sMarker){
-            sMarker.map((mk)=>{
-                mk.setMap(map)
+        if(assistMarkerNames.length>0){
+            assistMarkerNames.map((amn)=>{
+                amn.setMap(null);
             })
         }
 
-        setStartStore(null)
-        setEndStore(null)
-        setChoseStore(null)
-        setSearchOpen(false)
-        setSearchStart(false)
-        setListOpen(false)
-        setListReOpen(false)
-        setSearchPage(false)
+        await startMarker?.setMap(null)
+        await endMarker?.setMap(null)
 
-        inputRef.current.value=null
+        setBottomMenuStatus('default')
+        spRef.current.value = null
+        epRef.current.value = null
+        inputRef.current.value = null
     }
 
     const switchStartEnd = async () =>{
@@ -185,20 +159,14 @@ export default function TopSearchMenu(){
 
     useEffect(()=>{
         if(!startStore) return;
-
         var icon = new kakao.maps.MarkerImage(
-            'https://i1.daumcdn.net/dmaps/apis/n_local_blit_04.png',
-            new kakao.maps.Size(31, 35),
-            {
-                shape: 'poly',
-                coords: '16,0,20,2,24,6,26,10,26,16,23,22,17,25,14,35,13,35,9,25,6,24,2,20,0,16,0,10,2,6,6,2,10,0'
-            });
+            'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/red_b.png',
+        new kakao.maps.Size(31, 40))
 
         var marker = new kakao.maps.Marker({
             position: new kakao.maps.LatLng(startStore.mapy,startStore.mapx),
             image: icon
         });
-
 
         setStartMarker(marker)
         marker.setMap(map);
@@ -206,14 +174,9 @@ export default function TopSearchMenu(){
 
     useEffect(()=>{
         if(!endStore) return;
-
         var icon = new kakao.maps.MarkerImage(
-            'https://i1.daumcdn.net/dmaps/apis/n_local_blit_04.png',
-            new kakao.maps.Size(31, 35),
-            {
-                shape: 'poly',
-                coords: '26,0,20,2,24,6,26,10,26,16,23,22,17,25,14,35,13,35,9,25,6,24,2,20,0,16,0,10,2,6,6,2,10,0'
-            });
+            'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/blue_b.png',
+            new kakao.maps.Size(31, 40))
 
         var marker = new kakao.maps.Marker({
             position: new kakao.maps.LatLng(endStore.mapy,endStore.mapx),
@@ -225,7 +188,7 @@ export default function TopSearchMenu(){
 
     const setSearchPage = ((bool)=>{
         if(searchStart&&!bool){
-            setSearchStart(false)
+
         }else{
             setSearchOpen(bool)
         }
@@ -235,11 +198,10 @@ export default function TopSearchMenu(){
         }
     })
     const setSearchStatus = () => {
-        setSearchStart(false);
+
         setChoseStore(null)
         setListOpen(false)
         setListReOpen(false)
-        setSearchPage(true)
     }
 
     const startPath = () => {
@@ -362,12 +324,6 @@ export default function TopSearchMenu(){
                             })
                         }
                     }
-                    // var kakaoRoute = new kakao.maps.Polyline({
-                    //     map: map,
-                    //     path: lineAr,
-                    //     strokeWeight: 5,
-                    //     strokeColor: color
-                    // })
                     var kakaoRoute = {
                         map: map,
                         path: lineAr,
@@ -393,9 +349,15 @@ export default function TopSearchMenu(){
                         return response.json()
                     }).then(async function(data) {
 
+                    if(data.response.body.items.length<=0){
+                        alert('해당 경로상의 관광지를 추천할 수 없습니다.')
+                        return;
+                    }
+
                     var datas = data.response.body.items.item
 
                     var markerList = [];
+                    var markerNameList = [];
                     datas.forEach((dt)=>{
 
                         var icon = typeIcons(dt.contenttypeid)
@@ -405,13 +367,41 @@ export default function TopSearchMenu(){
                             image: icon
                         });
 
+
+                        var content = '<span class="info-title">'+dt.title+'</span>'
+
+                        // 인포윈도우로 장소에 대한 설명을 표시합니다
+                        var infoWindow = new kakao.maps.InfoWindow({
+                            content: content,
+                        });
+
+                        infoWindow.open(map, marker);
+
+                        var infoTitle = document.querySelectorAll('.info-title');
+                        infoTitle.forEach(function(e) {
+                            var w = e.offsetWidth + 10;
+                            var ml = w/2;
+                            e.parentElement.style.top = "82px";
+                            e.parentElement.style.left = "50%";
+                            e.parentElement.style.marginLeft = -ml+"px";
+                            e.parentElement.style.width = "auto";
+                            e.parentElement.previousSibling.style.display = "none";
+                            e.parentElement.parentElement.style.border = "0px";
+                            e.parentElement.parentElement.style.background = "unset";
+                        });
+
                         markerList.push(marker);
+                        markerNameList.push(infoWindow);
 
                     })
                     setAssistMarker(markerList)
+                    setAssistMarkerNames(markerNameList)
 
                     markerList.forEach((mk)=>{
                         mk.setMap(map)
+                    })
+                    markerNameList.forEach((mn)=>{
+                        mn.setMap(map)
                     })
                 });
 
@@ -588,17 +578,18 @@ export default function TopSearchMenu(){
 
                     <div style={( endStore || startStore ) ? {display:'none'}:{}} className={styles.searchBox}>
                 <AiOutlineSearch className={styles.searchBtn}  onClick={()=>{searchWordFunc()}}/>
-                <AiOutlineLeft style={!searchOpen?{display:'none'}:''} className={styles.flexBtn}
+                <AiOutlineLeft style={(String(bottomMenuStatus).includes('search'))?'':{display:'none'}} className={styles.flexBtn}
                    onClick={()=>{
                        setBottomMenuStatus('default')
-                       setSearchPage(false)
                        setChoseStore(null)
                 }}/>
                     <input
                         ref={inputRef}
                         className={styles.flexItem}
-                            className={!searchOpen?`${styles.flexItem}`: `${styles.flexItemActive}`}
+                            className={!(String(bottomMenuStatus).includes('search'))?`${styles.flexItem}`: `${styles.flexItemActive}`}
                            onKeyDown={(e)=>{
+                               if(e.target.value!=='') setBottomMenuStatus('search')
+
                                if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
                                    searchWordFunc()
                                }
@@ -608,7 +599,6 @@ export default function TopSearchMenu(){
                            onChange={(e)=>{setStr(e.target.value)}}
                            onClick={()=>{
                                setBottomMenuStatus('search')
-                               setSearchPage(true),
                                setListOpen(false),
                                setChoseStore(null)
                            }}
