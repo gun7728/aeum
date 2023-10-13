@@ -16,8 +16,9 @@ export default function BottomSearchSection() {
 
     const {setSearchWord, setSearchStart} = useSearchAction()
 
-    const {data:startStore} = useSWR('/stores/start')
-    const {data:endStore} = useSWR('/stores/end')
+    const {data:startStore} = useSWR('/map/start')
+    const {data:endStore} = useSWR('/map/end')
+
     const {data:searchStart} = useSWR('/search')
     const {data:searchWord} = useSWR('/search/word')
     const [keywords, setKeywords] = useState([])
@@ -70,7 +71,7 @@ export default function BottomSearchSection() {
     }
 
     return(
-        <div style={( startStore || endStore ) ?(searchStart?{}:{top:'40px'}):{}}
+        <div style={( startStore || endStore ) ?(String(bottomMenuStatus).includes('search')?{}:{top:'40px'}):{}}
             className={`${styles.searchSection}`}>
             {
                 bottomMenuStatus!=='searchResult'

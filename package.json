@@ -22,8 +22,5 @@
     "react-redux": "^8.0.5",
     "sass": "^1.62.1",
     "swr": "^2.1.5"
-  },
-  "devDependencies": {
-    "@types/navermaps": "^3.6.4"
   }
 }

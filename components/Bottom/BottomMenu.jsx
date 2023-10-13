@@ -24,8 +24,6 @@ export default function BottomMenu(){
     const { data:startStore } = useSWR('/map/start')
     const { data:endStore } = useSWR('/map/end')
 
-    const [touchStart, setTouchStart] = useState(null)
-    const [touchEnd, setTouchEnd] = useState(null)
 
     const setExpanded =async ()=>{
         if(bottomMenuStatus==='open'){
@@ -37,37 +35,17 @@ export default function BottomMenu(){
         }
     }
 
-    const onTouchStart = (e) => {
-        setTouchEnd(null) // otherwise the swipe is fired even with usual touch events
-        setTouchStart(e.targetTouches[0].clientY)
-    }
-
-    const onTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientY)
-
-    const onTouchEnd = () => {
-        if (!touchStart || !touchEnd) return
-        const distance = touchStart - touchEnd
-        const isTopSwipe = distance > 50
-        if (isTopSwipe){
-            if(bottomMenuStatus==='open') return
-            setExpanded()
-        }
-    }
     return(
         <>
             <div
-                onTouchStart={onTouchStart}
-                onTouchMove={onTouchMove}
-                onTouchEnd={onTouchEnd}
                 style={(endStore && startStore)?{transform:'translateY(100%)'}:{}}
                 className={`${styles.detailSection} 
-                    ${(bottomMenuStatus==='open' && styles.expanded )} 
-                    ${(bottomMenuStatus==='detail' && styles.detailExpanded)} 
-                    ${(bottomMenuStatus==='search' && styles.searchStartExpanded)} 
-                    ${(bottomMenuStatus==='searchResult' && styles.searchResultExpanded)} 
+                    ${(bottomMenuStatus==='open' ? styles.expanded : '' )} 
+                    ${(bottomMenuStatus==='detail' ? styles.detailExpanded : '')} 
+                    ${(bottomMenuStatus==='search' ? styles.searchStartExpanded : '')} 
+                    ${(bottomMenuStatus==='searchResult' ? styles.searchResultExpanded : '')} 
                 `}
             >
-                {/*<span>{bottomMenuStatus}</span>*/}
                  {
                     ((bottomMenuStatus==='default') && !changedPosition) &&
                     <div onClick={()=>{positionChange(true)}} className={styles.changePosition}>지도 위치로 검색</div>

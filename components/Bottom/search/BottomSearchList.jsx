@@ -17,6 +17,7 @@ export default function BottomSearchList(){
     const {data:startStore} = useSWR('/map/start')
     const {data:endStore} = useSWR('/map/end')
     const { data:sMarker } = useSWR('/map/screen/marker')
+    const { data:sMarkerName } = useSWR('/map/screen/marker/name')
 
     const { setChoseStore } = useStores()
     const {setStartStore, setEndStore } = useMap()
@@ -110,6 +111,11 @@ export default function BottomSearchList(){
         if(sMarker){
             sMarker.map((mk)=>{
                 mk.setMap(null)
+            })
+        }
+        if(sMarkerName){
+            sMarkerName.map((mn)=>{
+                mn.setMap(null)
             })
         }
 

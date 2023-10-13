@@ -301,9 +301,14 @@
   padding-bottom: 5px;
 }
 .detailContent{
+  padding-top: 5.5px;
   font-size: small;
   opacity: 0.7;
   padding-bottom: 5px;
+  white-space: nowrap; /* 글자가 넘칠 경우 자동 줄 바꿈 방지 */
+  overflow: hidden; /* 넘치는 부분을 숨김 */
+  text-overflow: ellipsis; /* 삼점(...)으로 생략 처리 */
+
 }
 
 .detailTitleSection{

@@ -34,6 +34,9 @@ export default function TopSearchMenu(){
     const {data:endStore} = useSWR('/map/end')
     const {data:route} = useSWR('/map/route')
 
+    const { data:sMarker } = useSWR('/map/screen/marker')
+    const { data:sMarkerName } = useSWR('/map/screen/marker/name')
+
     const [str,setStr] = useState()
     const inputRef = useRef();
     const spRef = useRef();
@@ -44,6 +47,11 @@ export default function TopSearchMenu(){
     const [assistMarkerNames, setAssistMarkerNames] = useState([])
     const [startFlag, setStartFlag] = useState(true);
     const [routeList, setRouteList] = useState();
+
+    const [originSM, setOriginSM] = useState();
+    const [originSMN, setOriginSMN] = useState();
+    const [originEM, setOriginEM] = useState();
+    const [originEMN, setOriginEMN] = useState();
 
     const searchWordFunc = (()=>{
         if(str!=''){
@@ -125,6 +133,18 @@ export default function TopSearchMenu(){
         }
     }
     const resetStartEnd = async () => {
+        if(originSM){
+            originSM.setMap(map)
+        }
+        if(originEM){
+            originEM.setMap(map)
+        }
+        if(originSMN){
+            originSMN.setMap(map)
+        }
+        if(originEMN){
+            originEMN.setMap(map)
+        }
         resetSelectStore();
         if(assistMarker.length>0){
             assistMarker.map((am)=>{
@@ -140,7 +160,16 @@ export default function TopSearchMenu(){
         await startMarker?.setMap(null)
         await endMarker?.setMap(null)
 
+        if(route){
+            if(route.length>0){
+                route.map((e)=>{
+                    e.setMap(null);
+                })
+            }
+        }
+
         setBottomMenuStatus('default')
+
         spRef.current.value = null
         epRef.current.value = null
         inputRef.current.value = null
@@ -159,6 +188,22 @@ export default function TopSearchMenu(){
 
     useEffect(()=>{
         if(!startStore) return;
+        sMarker.map((mk)=>{
+            if(parseFloat(startStore.mapx).toFixed(10) ==parseFloat(mk.getPosition().La).toFixed(10)){
+                if(parseFloat(startStore.mapy).toFixed(10) == parseFloat(mk.getPosition().Ma).toFixed(10)){
+                    setOriginSM(mk)
+                    mk.setMap(null)
+                }
+            }
+        })
+        sMarkerName.map((mn)=>{
+            if(parseFloat(startStore.mapx).toFixed(10) ==parseFloat(mn.getPosition().La).toFixed(10)){
+                if(parseFloat(startStore.mapy).toFixed(10) == parseFloat(mn.getPosition().Ma).toFixed(10)){
+                    setOriginSMN(mn)
+                    mn.setMap(null)
+                }
+            }
+        })
         var icon = new kakao.maps.MarkerImage(
             'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/red_b.png',
         new kakao.maps.Size(31, 40))
@@ -174,12 +219,29 @@ export default function TopSearchMenu(){
 
     useEffect(()=>{
         if(!endStore) return;
+        sMarker.map((mk)=>{
+            if(parseFloat(endStore.mapx).toFixed(10) ==parseFloat(mk.getPosition().La).toFixed(10)){
+                if(parseFloat(endStore.mapy).toFixed(10) == parseFloat(mk.getPosition().Ma).toFixed(10)){
+                    setOriginEM(mk)
+                    mk.setMap(null)
+                }
+            }
+        })
+        sMarkerName.map((mn)=>{
+            if(parseFloat(endStore.mapx).toFixed(10) ==parseFloat(mn.getPosition().La).toFixed(10)){
+                if(parseFloat(endStore.mapy).toFixed(10) == parseFloat(mn.getPosition().Ma).toFixed(10)){
+                    setOriginEMN(mn)
+                    mn.setMap(null)
+                }
+            }
+        })
         var icon = new kakao.maps.MarkerImage(
             'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/blue_b.png',
             new kakao.maps.Size(31, 40))
 
         var marker = new kakao.maps.Marker({
             position: new kakao.maps.LatLng(endStore.mapy,endStore.mapx),
+            image: icon
         });
 
         setEndMarker(marker)
@@ -344,7 +406,7 @@ export default function TopSearchMenu(){
                 var newY = (parseFloat(sy)+parseFloat(ey))/2
                 var newX = (parseFloat(ex)+parseFloat(ex))/2
 
-                fetch(`/tourApi/locationBasedList1?serviceKey=${process.env.TOUR_API_ECD_KEY}&numOfRows=20000&pageNo=1&MobileOS=ETC&MobileApp=Aeum&mapX=${newX}&mapY=${newY}&radius=1000&_type=json&listYN=Y&arrange=A&contentTypeId=12`)
+                fetch(`/tourApi/locationBasedList1?serviceKey=${process.env.TOUR_API_ECD_KEY}&numOfRows=20000&pageNo=1&MobileOS=ETC&MobileApp=Aeum&mapX=${newX}&mapY=${newY}&radius=1000&_type=json&listYN=Y&arrange=A`)
                     .then(function(response){
                         return response.json()
                     }).then(async function(data) {
@@ -580,6 +642,7 @@ export default function TopSearchMenu(){
                 <AiOutlineSearch className={styles.searchBtn}  onClick={()=>{searchWordFunc()}}/>
                 <AiOutlineLeft style={(String(bottomMenuStatus).includes('search'))?'':{display:'none'}} className={styles.flexBtn}
                    onClick={()=>{
+                       inputRef.current.value=''
                        setBottomMenuStatus('default')
                        setChoseStore(null)
                 }}/>

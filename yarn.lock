@@ -41,11 +41,6 @@
   dependencies:
     "tslib" "^2.4.0"
 
-"@types/geojson@*":
-  "integrity" "sha512-Nmh0K3iWQJzniTuPRcJn5hxXkfB1T1pgB89SBig5PlJQU5yocazeu4jATJlaA0GYFKWMqDdvYemoSnF2pXgLVA=="
-  "resolved" "https://registry.npmjs.org/@types/geojson/-/geojson-7946.0.10.tgz"
-  "version" "7946.0.10"
-
 "@types/hoist-non-react-statics@^3.3.1":
   "integrity" "sha512-iMIqiko6ooLrTh1joXodJK5X9xeEALT1kM5G3ZLhD3hszxBdIEd5C75U834D9mLcINgD4OyZf5uQXjkuYydWvA=="
   "resolved" "https://registry.npmjs.org/@types/hoist-non-react-statics/-/hoist-non-react-statics-3.3.1.tgz"
@@ -53,13 +48,6 @@
   dependencies:
     "@types/react" "*"
     "hoist-non-react-statics" "^3.3.0"
-
-"@types/navermaps@^3.6.4":
-  "integrity" "sha512-fnRipyjd/kRyyRGK9MjLjTRkWUtz7tuBfvBVV+59tjXHt9ULOHbqEKaZm84T3dfQiKhNM+1rmvv5M6LnvEVj1w=="
-  "resolved" "https://registry.npmjs.org/@types/navermaps/-/navermaps-3.6.4.tgz"
-  "version" "3.6.4"
-  dependencies:
-    "@types/geojson" "*"
 
 "@types/prop-types@*":
   "integrity" "sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w=="

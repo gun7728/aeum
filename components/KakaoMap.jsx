@@ -109,9 +109,15 @@ export default function KakaoMap(){
             size.pa+=0.00536;
             size.qa+=-0.00473
         }
-
+        var count = 0;
         allMarker.map((marker)=>{
             if (size.contain(marker.getPosition()) == true) {
+                if(count>30){
+                    return;
+                }else{
+                    count++;
+                }
+
                 var data = stores[`${marker.getTitle()}`];
                 boundsChange.push(data)
 
@@ -124,11 +130,13 @@ export default function KakaoMap(){
                     position: new kakao.maps.LatLng(data.mapy,data.mapx),
                     map:map,
                     image:icon,
+                    title:data.contentid
                 });
 
                 // 인포윈도우로 장소에 대한 설명을 표시합니다
                 var infoWindow = new kakao.maps.InfoWindow({
                     content: content,
+                    title:data.contentid
                 });
 
                 infoWindow.open(map, marker);

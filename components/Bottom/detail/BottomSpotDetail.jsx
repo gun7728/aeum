@@ -4,7 +4,14 @@ import styles from "@/styles/header.module.scss";
 import {useEffect, useState} from "react";
 import {CgPhone} from "react-icons/cg";
 import {RiShareForward2Fill} from "react-icons/ri";
-import {IoEarthOutline, IoLocationOutline} from "react-icons/io5";
+import {
+    IoEarthOutline,
+    IoInformation,
+    IoInformationCircle,
+    IoInformationOutline, IoInformationSharp,
+    IoLocationOutline,
+    IoPencil
+} from "react-icons/io5";
 import {BsPencil} from "react-icons/bs";
 import useSWR from "swr";
 import useAlert from "@/hooks/useAlert";
@@ -159,8 +166,8 @@ export default function BottomSpotDetail(){
                                 </div>
 
                                 <div className={styles.detailContentSection}>
-                                    <BsPencil  className={styles.detailIcon}/>
-                                    <span className={styles.detailContent}>{tooLongText(choseStore.overview)}</span>
+                                    <IoInformationSharp  className={styles.detailIcon}/>
+                                    <span className={styles.detailContent} >{choseStore.overview}</span>
                                 </div>
                             </div>
                             <hr style={{marginBottom:'15px', width:'150%',marginLeft:'-20px', opacity:0.3}}/>
