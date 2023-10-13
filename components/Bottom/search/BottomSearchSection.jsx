@@ -1,13 +1,17 @@
 'use client'
-import styles from '../styles/search.module.scss'
+import styles from '../../../styles/search.module.scss'
 import {Fragment, useEffect, useState} from "react";
 import {AiOutlineClose} from "react-icons/ai";
 import {FaSearchLocation} from "react-icons/fa";
-import BottomSpotSearchList from "@/components/Bottom/list/BottomSpotSearchList";
+import BottomSearchList from "@/components/Bottom/search/BottomSearchList";
 import useSWR from "swr";
 import useSearchAction from "@/hooks/useSearchAction";
+import useMenu from "@/hooks/useMenu";
 
-export default function SearchSection() {
+export default function BottomSearchSection() {
+
+    //하단 바텀 메뉴 상태 관리
+    const {data:bottomMenuStatus} = useSWR('/bottom/status')
 
     const {setSearchWord, setSearchStart} = useSearchAction()
 
@@ -78,9 +82,9 @@ export default function SearchSection() {
             }
             <br/>
             {
-                searchStart
+                bottomMenuStatus==='searchResult'
                     ?
-                    <BottomSpotSearchList/>
+                    <BottomSearchList/>
                     :
                     keywords.length>0?
                     keywords.map((e)=>

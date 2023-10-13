@@ -5,7 +5,7 @@ import {useEffect, useRef, useState} from "react";
 import {IoIosArrowUp} from "react-icons/io";
 import BottomSpotList from "@/components/Bottom/list/BottomSpotList";
 import BottomSpotDetail from "@/components/Bottom/detail/BottomSpotDetail";
-import SearchSection from "@/components/SearchSection";
+import BottomSearchSection from "@/components/Bottom/search/BottomSearchSection";
 import useSWR from "swr";
 import useStores from "@/hooks/useStores";
 import useList from "@/hooks/useList";
@@ -82,7 +82,7 @@ export default function BottomMenu(){
                 }
 
                 {
-                    bottomMenuStatus==='search'?<SearchSection/>
+                    bottomMenuStatus==='search'?<BottomSearchSection/>
                 :
                     <div className={styles.header}>
                         <button
@@ -98,7 +98,7 @@ export default function BottomMenu(){
                         >
                             {
                                 bottomMenuStatus==='search'?<div className={styles.goToListBtn}>☰ 목록보기</div>
-                                    :reOpen?<div className={styles.goToListBtn}>☰ 목록보기</div>
+                                    :bottomMenuStatus==='detail'?<div className={styles.goToListBtn}>☰ 목록보기</div>
                                         :<IoIosArrowUp size={20} color="#666666" />
                             }
 
