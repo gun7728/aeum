@@ -11,6 +11,8 @@ export const STOP_OVER_OPEN_KEY = '/stopOver/open'
 
 
 export const ASSIST_OPEN_KEY = '/assist/open'
+export const ASSIST_OPTION_KEY = '/assist/option'
+
 
 const useSearchAction = () => {
     const setSearchStart = useCallback((searchStart)=>{
@@ -32,11 +34,17 @@ const useSearchAction = () => {
     const setSearchData = useCallback((searchData)=>{
         mutate(SEARCH_DATA_KEY,searchData)
     })
+
     const setStopOverOpen = useCallback((stopOver)=>{
         mutate(STOP_OVER_OPEN_KEY,stopOver)
     })
+
     const setAssistOpen = useCallback((assistOpen)=>{
         mutate(ASSIST_OPEN_KEY,assistOpen)
+    })
+
+    const setAssistOption = useCallback((assistOption=[])=>{
+        mutate(ASSIST_OPTION_KEY,assistOption)
     })
 
     return{
@@ -46,7 +54,8 @@ const useSearchAction = () => {
         setSearchResultOpen,
         setSearchData,
         setStopOverOpen,
-        setAssistOpen
+        setAssistOpen,
+        setAssistOption
     }
 }
 export default useSearchAction;

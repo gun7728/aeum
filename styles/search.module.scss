@@ -9,6 +9,86 @@
   padding: 0px 8px 0 12px;
   //box-shadow: inset 0px 0px 10px 0px lightgray;
 }
+.assistSection {
+   top:0px;
+   position: relative;
+   width: 100%;
+   height: 280px;
+   overflow: hidden;
+   z-index: 105;
+   background-color: white;
+   padding: 0px 8px 0 12px;
+   //box-shadow: inset 0px 0px 10px 0px lightgray;
+ }
+.assistHeader{
+  top: 5px;
+  left:-10px;
+  position: relative;
+  display: flex;
+  flex-flow: column;
+  height: 50px;
+
+  .assistToggleBtn{
+    background-color: rosybrown;
+    width: fit-content;
+    border: 1px solid transparent;
+    border-radius: 20px;
+    padding: 1px 5px;
+  }
+  .assistBtnList{
+    width:380px;
+    padding-top: 5px;
+    list-style: none;
+    display: none;
+    white-space: nowrap;
+    overflow:auto;
+  }
+  .assistBtnListOpen{
+    list-style:none;
+    width:380px;
+    margin-bottom: -10px;
+    padding-top: 5px;
+    white-space: nowrap;
+    overflow-x: auto;
+    -ms-overflow-style: none;
+  }
+  .assistBtnListOpen::-webkit-scrollbar{
+    display:none;
+  }
+  .assistBtn{
+    display: inline-block;
+    padding: 10px 20px;
+    margin-right: 10px;
+    background-color: white;
+    border-radius: 10px;
+    border: 2px solid rosybrown;
+    padding: 1px 3px;
+
+  }
+  .assistBtnActive{
+    display: inline-block;
+    padding: 10px 20px;
+    margin-right: 10px;
+    background-color: rosybrown;
+    border-radius: 10px;
+    border: 2px solid white;
+    padding: 1px 3px;
+    text:white;
+
+    span{
+      color: white;
+    }
+  }
+  .arrow{
+    width: calc(var(--btn-height) * 0.4);
+    height: calc(var(--btn-height) * 0.4);
+    border-radius: 100%;
+    position: relative;
+    transition: 0.3s ease-in-out;
+    align-self: center;
+    transform: rotate(180deg);
+  }
+}
 
 .searchHeader{
   left: 5%;
@@ -54,6 +134,21 @@
   width: 110%;
   left: -5%;
   height: 50vh;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  z-index: 105;
+  top: 0;
+  background-color: white;
+  padding: 0px 8px 0 12px;
+  //box-shadow: inset 0px 0px 10px 0px lightgray;
+}
+
+
+.assistResultSection {
+  position: relative;
+  width: 110%;
+  left: -5%;
+  height: 85%;
   overflow-x: hidden;
   overflow-y: scroll;
   z-index: 105;

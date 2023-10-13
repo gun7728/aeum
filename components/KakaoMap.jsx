@@ -7,6 +7,7 @@ import useSWR from "swr";
 import {useEffect} from "react";
 import useLoading from "@/hooks/useLoading";
 import useMenu from "@/hooks/useMenu";
+import useSearchAction from "@/hooks/useSearchAction";
 // import axios from "axios";
 
 export default function KakaoMap(){
@@ -15,6 +16,7 @@ export default function KakaoMap(){
     const { initializeStores, nearStores,setChoseStore } = useStores();
     const {setLoading} = useLoading();
     const { initializeMap, initializeCurrentPosition,initializeCurrentLocation, allStoresMarker,screenMarker, markerName,positionChange  } = useMap();
+    const {setSearchWord, setAssistOption} = useSearchAction()
 
     const { data:stores } = useSWR('/stores');
     const { data:choseStore } = useSWR('/stores/chose');
@@ -33,6 +35,7 @@ export default function KakaoMap(){
         initializeMap(map);
         initData();
         setBottomMenuStatus('default')
+        setAssistOption([12,14,15,25,28,32,38,39])
     };
 
 

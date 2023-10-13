@@ -38,12 +38,12 @@ export default function BottomMenu(){
     return(
         <>
             <div
-                style={(endStore && startStore)?{transform:'translateY(100%)'}:{}}
                 className={`${styles.detailSection} 
                     ${(bottomMenuStatus==='open' ? styles.expanded : '' )} 
                     ${(bottomMenuStatus==='detail' ? styles.detailExpanded : '')} 
                     ${(bottomMenuStatus==='search' ? styles.searchStartExpanded : '')} 
                     ${(bottomMenuStatus==='searchResult' ? styles.searchResultExpanded : '')} 
+                    ${(bottomMenuStatus==='assist' ? styles.assistExpanded : '')} 
                 `}
             >
                  {
@@ -52,7 +52,8 @@ export default function BottomMenu(){
                 }
 
                 {
-                    (bottomMenuStatus==='search' || bottomMenuStatus==='searchResult')?<BottomSearchSection/>
+                    (bottomMenuStatus==='search' || bottomMenuStatus==='searchResult' || bottomMenuStatus==='assist' )?
+                        <BottomSearchSection/>
                 :
                     <div className={styles.header}>
                         <button

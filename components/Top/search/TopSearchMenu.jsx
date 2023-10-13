@@ -11,6 +11,7 @@ import {decode} from "@googlemaps/polyline-codec"
 import process from "next/dist/build/webpack/loaders/resolve-url-loader/lib/postcss";
 import useMap from "@/hooks/useMap";
 import useMenu from "@/hooks/useMenu";
+import useLoading from "@/hooks/useLoading";
 
 
 export default function TopSearchMenu(){
@@ -19,11 +20,13 @@ export default function TopSearchMenu(){
     const {setBottomMenuStatus} = useMenu()
     const {data:bottomMenuStatus} = useSWR('/bottom/status')
 
+    const {data:assistFilteredStore} = useSWR('/stores/assist/filtered')
 
     const {setListOpen,setListReOpen} = useList();
-    const {setSearchWord, setSearchOpen, setAssistOpen} = useSearchAction();
-    const {setChoseStore} = useStores();
+    const {setSearchWord, setSearchOpen, setAssistOption} = useSearchAction();
+    const {setChoseStore, setAssistStore} = useStores();
     const {setStartStore, setEndStore, setRoute, resetSelectStore} = useMap();
+    const {setLoading} = useLoading()
 
 
     const {data:map} = useSWR('/map')
@@ -133,6 +136,9 @@ export default function TopSearchMenu(){
         }
     }
     const resetStartEnd = async () => {
+
+
+
         if(originSM){
             originSM.setMap(map)
         }
@@ -160,6 +166,9 @@ export default function TopSearchMenu(){
         await startMarker?.setMap(null)
         await endMarker?.setMap(null)
 
+        sMarker.map((sm)=>{sm.setMap(map)})
+        sMarkerName.map((sm)=>{sm.setMap(map)})
+
         if(route){
             if(route.length>0){
                 route.map((e)=>{
@@ -169,6 +178,7 @@ export default function TopSearchMenu(){
         }
 
         setBottomMenuStatus('default')
+        setAssistOption([12,14,15,25,28,32,38,39])
 
         spRef.current.value = null
         epRef.current.value = null
@@ -330,6 +340,8 @@ export default function TopSearchMenu(){
 
 
     function googlePath(map, sy, sx, ey, ex){
+        setLoading(true);
+        setBottomMenuStatus('assist')
         var xhr = new XMLHttpRequest();
         var url = `/googleApi/json?origin=${sy}%2C${sx}&destination=${ey}%2C${ex}&mode=transit&key=${process.env.GOOGLE_KEY}`;
         xhr.open("GET", url, true);
@@ -340,6 +352,7 @@ export default function TopSearchMenu(){
 
                 if(resultJsonData.length===0){
                     alert('해당 경로를 찾을 수 없습니다.')
+                    setLoading(false);
                     return;
                 }
                 var route = resultJsonData[0].legs[0];
@@ -406,17 +419,29 @@ export default function TopSearchMenu(){
                 var newY = (parseFloat(sy)+parseFloat(ey))/2
                 var newX = (parseFloat(ex)+parseFloat(ex))/2
 
-                fetch(`/tourApi/locationBasedList1?serviceKey=${process.env.TOUR_API_ECD_KEY}&numOfRows=20000&pageNo=1&MobileOS=ETC&MobileApp=Aeum&mapX=${newX}&mapY=${newY}&radius=1000&_type=json&listYN=Y&arrange=A`)
+                fetch(`/tourApi/locationBasedList1?serviceKey=${process.env.TOUR_API_ECD_KEY}&numOfRows=15&pageNo=1&MobileOS=ETC&MobileApp=Aeum&mapX=${newX}&mapY=${newY}&radius=1000&_type=json&listYN=Y&arrange=A`)
                     .then(function(response){
                         return response.json()
                     }).then(async function(data) {
 
                     if(data.response.body.items.length<=0){
                         alert('해당 경로상의 관광지를 추천할 수 없습니다.')
+                        setLoading(false);
                         return;
                     }
 
                     var datas = data.response.body.items.item
+
+                    for(var i =0, max=datas.length; i<max; i++){
+                        if(!datas[i].firstimage){
+                            datas[i].firstimage = '/noimage.png'
+                        }
+                        if(!datas[i].firstimage2){
+                            datas[i].firstimage2 = '/noimage.png'
+                        }
+                    }
+
+                    setAssistStore(datas);
 
                     var markerList = [];
                     var markerNameList = [];
@@ -465,6 +490,7 @@ export default function TopSearchMenu(){
                     markerNameList.forEach((mn)=>{
                         mn.setMap(map)
                     })
+
                 });
 
 
@@ -472,11 +498,40 @@ export default function TopSearchMenu(){
                     bounds.extend(points[i]);
                 }
 
+                setLoading(false);
                 map.setBounds(bounds);
             }
         }
     }
 
+    useEffect(()=>{
+        var tempMk = [];
+        var tempMn = [];
+        if(bottomMenuStatus==='assist'){
+            assistFilteredStore.map((store)=>{
+                var tempMarkerList = [...assistMarker]
+                tempMarkerList.forEach((mk)=>{
+                    if(parseFloat(store.mapx).toFixed(10) ===parseFloat(mk.getPosition().La).toFixed(10)) {
+                        tempMk.push(mk)
+                    }
+                })
+
+                var tempNameList = [...assistMarkerNames]
+                tempNameList.forEach((mn)=>{
+                    if(parseFloat(store.mapx).toFixed(10) ===parseFloat(mn.getPosition().La).toFixed(10)) {
+                        tempMn.push(mn)
+                    }
+                })
+            })
+
+            assistMarker.forEach((mk)=>{mk.setMap(null)})
+            assistMarkerNames.forEach((mn)=>{mn.setMap(null)})
+
+            tempMk.forEach((t)=>{t.setMap(map)})
+            tempMn.forEach((t)=>{t.setMap(map)})
+        }
+
+    },[assistFilteredStore,assistMarker,assistMarkerNames])
 
 
     function typeIcons(id){
@@ -651,7 +706,7 @@ export default function TopSearchMenu(){
                         className={styles.flexItem}
                             className={!(String(bottomMenuStatus).includes('search'))?`${styles.flexItem}`: `${styles.flexItemActive}`}
                            onKeyDown={(e)=>{
-                               if(e.target.value!=='') setBottomMenuStatus('search')
+                               // if(e.target.value!=='' && ) setBottomMenuStatus('search')
 
                                if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
                                    searchWordFunc()

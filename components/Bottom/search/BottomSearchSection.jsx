@@ -7,6 +7,7 @@ import BottomSearchList from "@/components/Bottom/search/BottomSearchList";
 import useSWR from "swr";
 import useSearchAction from "@/hooks/useSearchAction";
 import useMenu from "@/hooks/useMenu";
+import {IoIosArrowUp} from "react-icons/io";
 
 export default function BottomSearchSection() {
 
@@ -14,15 +15,19 @@ export default function BottomSearchSection() {
     const {setBottomMenuStatus} = useMenu()
     const {data:bottomMenuStatus} = useSWR('/bottom/status')
 
-    const {setSearchWord, setSearchStart} = useSearchAction()
+    const {setSearchWord, setAssistOption} = useSearchAction()
 
     const {data:startStore} = useSWR('/map/start')
     const {data:endStore} = useSWR('/map/end')
 
     const {data:searchStart} = useSWR('/search')
     const {data:searchWord} = useSWR('/search/word')
+    const {data:assistOption} = useSWR('/assist/option')
+
     const [keywords, setKeywords] = useState([])
     const [keywordsFlag,setKeywordsFlag ] = useState(false);
+    const [openToggle, setOpenToggle] = useState(false);
+
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -70,18 +75,54 @@ export default function BottomSearchSection() {
         setBottomMenuStatus('searchResult')
     }
 
+    const setActiveOption = (id) => {
+        var assistOptionList = [];
+
+        if(assistOption?.length>0){
+            assistOptionList = [...assistOption]
+            if(assistOption.includes(id)){
+                assistOptionList = assistOptionList.filter((option) => option !== id);
+            }else{
+                assistOptionList.push(id);
+            }
+        }else{
+            assistOptionList.push(id);
+        }
+
+        setAssistOption(assistOptionList)
+    }
+
     return(
-        <div style={( startStore || endStore ) ?(String(bottomMenuStatus).includes('search')?{}:{top:'40px'}):{}}
-            className={`${styles.searchSection}`}>
+        <div style={( startStore || endStore ) ?(String(bottomMenuStatus).includes('search')?{}:( bottomMenuStatus==='assist'?{}:{top:'40px'})):{}}
+            className={`${bottomMenuStatus==='assist'? styles.assistSection : styles.searchSection}`}>
             {
-                bottomMenuStatus!=='searchResult'
-                && <div className={styles.searchHeader}>
+                (bottomMenuStatus!=='searchResult' &&  bottomMenuStatus!=='assist')
+                ?
+                <div className={styles.searchHeader}>
                     <span>최근 검색</span><span className={styles.allDeleteBtn} onClick={handleClearKeywords}>전체삭제</span>
                 </div>
+                :
+                    bottomMenuStatus==='assist'?
+                    <div className={styles.assistHeader}>
+                        <div className={styles.assistToggleBtn} onClick={()=>{setOpenToggle(!openToggle)}}><span style={{color:"white"}}>관광지 종류 {openToggle?'▼':'▲'}</span></div>
+                        <ul className={`${openToggle?styles.assistBtnList:styles.assistBtnListOpen}`}>
+                            {/*12:관광지(tours), 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 32:숙박, 38:쇼핑, 39:음식점*/}
+                            <li className={`${assistOption?.includes(12)?styles.assistBtnActive:styles.assistBtn}`} onClick={()=>{setActiveOption(12)}}><span>관광지</span></li>
+                            <li className={`${assistOption?.includes(14)?styles.assistBtnActive:styles.assistBtn}`} onClick={()=>{setActiveOption(14)}}><span>문화시설</span></li>
+                            <li className={`${assistOption?.includes(15)?styles.assistBtnActive:styles.assistBtn}`} onClick={()=>{setActiveOption(15)}}><span>축제공연행사</span></li>
+                            <li className={`${assistOption?.includes(25)?styles.assistBtnActive:styles.assistBtn}`} onClick={()=>{setActiveOption(25)}}><span>여행코스</span></li>
+                            <li className={`${assistOption?.includes(28)?styles.assistBtnActive:styles.assistBtn}`} onClick={()=>{setActiveOption(28)}}><span>레포츠</span></li>
+                            <li className={`${assistOption?.includes(32)?styles.assistBtnActive:styles.assistBtn}`} onClick={()=>{setActiveOption(32)}}><span>숙박</span></li>
+                            <li className={`${assistOption?.includes(38)?styles.assistBtnActive:styles.assistBtn}`} onClick={()=>{setActiveOption(38)}}><span>쇼핑</span></li>
+                            <li className={`${assistOption?.includes(39)?styles.assistBtnActive:styles.assistBtn}`} onClick={()=>{setActiveOption(39)}}><span>음식점</span></li>
+                        </ul>
+                    </div>
+                        :
+                        <></>
             }
             <br/>
             {
-                bottomMenuStatus==='searchResult'
+                (bottomMenuStatus==='searchResult' || bottomMenuStatus==='assist')
                     ?
                     <BottomSearchList/>
                     :

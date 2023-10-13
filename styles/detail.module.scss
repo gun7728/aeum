@@ -33,6 +33,9 @@ $section-padding-top: 8px;
   &.detailExpanded {
     transform: translateY(calc(100% - 450px));
   }
+  &.assistExpanded {
+    transform: translateY(calc(100% - 300px));
+  }
   &.searchStartExpanded{
     transform: translateY(95px);
     //transform: translateY(calc(100% - 470px));

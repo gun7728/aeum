@@ -12,14 +12,19 @@ import useMap from "@/hooks/useMap";
 
 export default function BottomSearchList(){
     const {data:stores} = useSWR('/stores')
+    const {data:assistStore} = useSWR('/stores/assist')
+
     const {data:searchWord} = useSWR('/search/word')
     const {data:map} = useSWR('/map')
     const {data:startStore} = useSWR('/map/start')
     const {data:endStore} = useSWR('/map/end')
     const { data:sMarker } = useSWR('/map/screen/marker')
     const { data:sMarkerName } = useSWR('/map/screen/marker/name')
+    const {data:bottomMenuStatus} = useSWR('/bottom/status')
+    const {data:assistOption} = useSWR('/assist/option')
 
-    const { setChoseStore } = useStores()
+
+    const { setChoseStore,setAssistFilteredStoreMarker } = useStores()
     const {setStartStore, setEndStore } = useMap()
     const {setListOpen} = useList()
     const {setAlertStart, setAlertMsg} = useAlert()
@@ -28,17 +33,35 @@ export default function BottomSearchList(){
     const [results, setResults] = useState([]);
     const [customPoint, setCustomPoint] = useState();
 
+    const [assistList, setAssistList] = useState([]);
+
     useEffect(()=>{
-        if(searchWord){
-            var resultList = [];
-            stores.map((e)=>{
-                if(JSON.stringify(e.title + ' ' + e.content + ' ' + e.loc).includes(searchWord)){
-                    resultList.push(e);
+        if(bottomMenuStatus==='assist'){
+            if(assistStore){
+                var tempList = [];
+                tempList = [...assistStore]
+                if(assistOption){
+                    tempList = tempList.filter((stor)=>{
+                        return assistOption.includes(parseInt(stor.contenttypeid))
+                    })
                 }
-            })
-            setResults(resultList)
+
+                setAssistFilteredStoreMarker(tempList)
+                setResults(tempList)
+            }
+        }else {
+            if(searchWord){
+                var resultList = [];
+                stores.map((e)=>{
+                    if(JSON.stringify(e.title + ' ' + e.content + ' ' + e.loc).includes(searchWord)){
+                        resultList.push(e);
+                    }
+                })
+                setResults(resultList)
+            }
         }
-    },[searchWord])
+
+    },[searchWord,assistOption,assistStore])
 
     const goToDetail =(e)=>{
         setListOpen(false)
@@ -82,6 +105,13 @@ export default function BottomSearchList(){
         return distance;
     }
 
+
+    const setAssist = (spot) => {
+        let tempList = []
+        tempList = [...assistList];
+        tempList.push(spot);
+        setAssistList(tempList)
+    }
 
     const setPoint = async (key, data)=>{
         if(startStore){
@@ -169,7 +199,7 @@ export default function BottomSearchList(){
     },[results])
 
     return(
-        <div className={styles.searchResultSection}>
+        <div className={bottomMenuStatus==='assist'?styles.assistResultSection:styles.searchResultSection} >
             {
                 results.length>0?
                     results.map((e)=>{
@@ -191,8 +221,17 @@ export default function BottomSearchList(){
                                         <RiShareForward2Fill className={styles.detailIconBtn} onClick={()=>copyUrl(e.contentid)}/>
                                     </div>
                                     <div style={{float:"right"}}>
-                                        <button className={styles.detailBtn} onClick={()=>setPoint("start",e)}><span style={{color:"gray"}}>출발</span></button>
-                                        <button className={styles.detailBtn} onClick={()=>setPoint("end",e)}><span style={{color:"gray"}}>도착</span></button>
+                                        {
+                                            bottomMenuStatus==='assist'?
+                                                <div>
+                                                    <button className={styles.detailBtn} onClick={()=>setAssist(e)}><span style={{color:"gray"}}>경유</span></button>
+                                                </div>
+                                                :
+                                                <div>
+                                                    <button className={styles.detailBtn} onClick={()=>setPoint("start",e)}><span style={{color:"gray"}}>출발</span></button>
+                                                    <button className={styles.detailBtn} onClick={()=>setPoint("end",e)}><span style={{color:"gray"}}>도착</span></button>
+                                                </div>
+                                        }
                                     </div>
                                 </div>
                                 <hr style={{marginBottom:'15px', width:'150%',marginLeft:'-20px', opacity:0.3}}/>
@@ -206,6 +245,8 @@ export default function BottomSearchList(){
                     </div>
                     <br/>
                         {
+                            bottomMenuStatus==='assist'?<></>
+                                :
                             customPoint?
                                 <div>
                                     해당 위치를
