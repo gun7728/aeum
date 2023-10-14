@@ -12,7 +12,7 @@ import process from "next/dist/build/webpack/loaders/resolve-url-loader/lib/post
 import useMap from "@/hooks/useMap";
 import useMenu from "@/hooks/useMenu";
 import useLoading from "@/hooks/useLoading";
-import {MdOutlineRoute} from "react-icons/md"
+import {TbRoute} from "react-icons/tb"
 
 
 export default function TopSearchMenu(){
@@ -680,7 +680,7 @@ export default function TopSearchMenu(){
                         <HiX
                             onClick={()=>resetStartEnd()}
                             className={styles.exitBtn}/>
-                        <MdOutlineRoute
+                        <TbRoute
                             className={styles.assistRouteBtn}/>
                         <input
                             onClick={setSearchStatus}
