@@ -23,8 +23,9 @@ export default function BottomSearchList(){
     const {data:bottomMenuStatus} = useSWR('/bottom/status')
     const {data:assistOption} = useSWR('/assist/option')
 
+    const {data:assistAddStore} = useSWR('/stores/assist/add')
 
-    const { setChoseStore,setAssistFilteredStoreMarker } = useStores()
+    const { setChoseStore,setAssistFilteredStoreMarker, setAssistAddStore } = useStores()
     const {setStartStore, setEndStore } = useMap()
     const {setListOpen} = useList()
     const {setAlertStart, setAlertMsg} = useAlert()
@@ -33,7 +34,7 @@ export default function BottomSearchList(){
     const [results, setResults] = useState([]);
     const [customPoint, setCustomPoint] = useState();
 
-    const [assistList, setAssistList] = useState([]);
+    // const [assistList, setAssistList] = useState([]);
 
     useEffect(()=>{
         if(bottomMenuStatus==='assist'){
@@ -108,9 +109,25 @@ export default function BottomSearchList(){
 
     const setAssist = (spot) => {
         let tempList = []
-        tempList = [...assistList];
-        tempList.push(spot);
-        setAssistList(tempList)
+        tempList = [...assistAddStore];
+        var flag = false;
+        tempList.forEach((data)=>{
+            if(data.contentid === spot.contentid){
+                flag=true;
+            }
+        });
+        if(!flag){
+            if(assistAddStore.length>4){
+                alert('경유지는 4개를 초과할 수 없습니다.')
+                return;
+            }
+            tempList.push(spot);
+        }else{
+            tempList = tempList.filter(function(data) {
+                return data.contentid !== spot.contentid;
+            });
+        }
+        setAssistAddStore([...tempList])
     }
 
     const setPoint = async (key, data)=>{

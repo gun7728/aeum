@@ -13,7 +13,7 @@ import useSearchAction from "@/hooks/useSearchAction";
 export default function KakaoMap(){
 
     const {setBottomMenuStatus} = useMenu()
-    const { initializeStores, nearStores,setChoseStore } = useStores();
+    const { initializeStores, nearStores,setChoseStore,setAssistAddStore } = useStores();
     const {setLoading} = useLoading();
     const { initializeMap, initializeCurrentPosition,initializeCurrentLocation, allStoresMarker,screenMarker, markerName,positionChange  } = useMap();
     const {setSearchWord, setAssistOption} = useSearchAction()
@@ -36,6 +36,7 @@ export default function KakaoMap(){
         initData();
         setBottomMenuStatus('default')
         setAssistOption([12,14,15,25,28,32,38,39])
+        setAssistAddStore([])
     };
 
 
@@ -156,6 +157,8 @@ export default function KakaoMap(){
                     e.parentElement.previousSibling.style.display = "none";
                     e.parentElement.parentElement.style.border = "0px";
                     e.parentElement.parentElement.style.background = "unset";
+                    e.parentElement.parentElement.style.pointerEvents = "none";
+                    e.parentElement.parentElement.style.zIndex = "2";
                 });
 
 

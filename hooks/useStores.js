@@ -3,6 +3,7 @@ import { mutate } from 'swr';
 
 export const STORE_KEY = '/stores';
 export const STORE_ASSIST_KEY = '/stores/assist';
+export const STORE_ASSIST_ADD_KEY = '/stores/assist/add';
 export const STORE_ASSIST_FILTERED_KEY = '/stores/assist/filtered';
 export const STORE_NEAR_KEY = '/stores/near';
 export const STORE_CHOSE_KEY = '/stores/chose';
@@ -28,12 +29,16 @@ const useStores = () => {
         mutate(STORE_ASSIST_FILTERED_KEY,assistFilteredStore)
     })
 
+    const setAssistAddStore = useCallback((assistAddStore)=>{
+        mutate(STORE_ASSIST_ADD_KEY,assistAddStore)
+    })
 
     return {
         initializeStores,
         nearStores,
         setChoseStore,
         setAssistStore,
+        setAssistAddStore,
         setAssistFilteredStoreMarker
 
     };

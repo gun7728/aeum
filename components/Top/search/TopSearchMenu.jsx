@@ -2,7 +2,7 @@
 import styles from "@/styles/header.module.scss";
 import {AiOutlineLeft, AiOutlineSearch} from "react-icons/ai";
 import {useEffect, useRef, useState} from "react";
-import {HiOutlineSwitchVertical, HiX} from "react-icons/hi";
+import {HiArrowLeft, HiOutlineSwitchVertical, HiX} from "react-icons/hi";
 import useSWR from "swr";
 import useSearchAction from "@/hooks/useSearchAction";
 import useList from "@/hooks/useList";
@@ -12,6 +12,7 @@ import process from "next/dist/build/webpack/loaders/resolve-url-loader/lib/post
 import useMap from "@/hooks/useMap";
 import useMenu from "@/hooks/useMenu";
 import useLoading from "@/hooks/useLoading";
+import {MdOutlineRoute} from "react-icons/md"
 
 
 export default function TopSearchMenu(){
@@ -24,12 +25,13 @@ export default function TopSearchMenu(){
 
     const {setListOpen,setListReOpen} = useList();
     const {setSearchWord, setSearchOpen, setAssistOption} = useSearchAction();
-    const {setChoseStore, setAssistStore} = useStores();
+    const {setChoseStore, setAssistStore,setAssistAddStore} = useStores();
     const {setStartStore, setEndStore, setRoute, resetSelectStore} = useMap();
     const {setLoading} = useLoading()
 
 
     const {data:map} = useSWR('/map')
+    const {data:assistAddStore} = useSWR('/stores/assist/add')
 
     const {data:searchStart} = useSWR('/search');
     const {data:searchWord} = useSWR('/search/word');
@@ -68,12 +70,6 @@ export default function TopSearchMenu(){
         }
     },[searchWord,searchStart])
 
-    useEffect(()=>{
-        if(str===''&&bottomMenuStatus==='search'){
-            setBottomMenuStatus('default')
-            // inputRef.current.blur()
-        }
-    },[str])
 
     useEffect(()=>{
         if(startStore){
@@ -179,6 +175,7 @@ export default function TopSearchMenu(){
 
         setBottomMenuStatus('default')
         setAssistOption([12,14,15,25,28,32,38,39])
+        setAssistAddStore([]);
 
         spRef.current.value = null
         epRef.current.value = null
@@ -216,10 +213,11 @@ export default function TopSearchMenu(){
         })
         var icon = new kakao.maps.MarkerImage(
             'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/red_b.png',
-        new kakao.maps.Size(31, 40))
+            new kakao.maps.Size(51, 60))
 
         var marker = new kakao.maps.Marker({
             position: new kakao.maps.LatLng(startStore.mapy,startStore.mapx),
+            zIndex: 4,
             image: icon
         });
 
@@ -247,10 +245,11 @@ export default function TopSearchMenu(){
         })
         var icon = new kakao.maps.MarkerImage(
             'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/blue_b.png',
-            new kakao.maps.Size(31, 40))
+            new kakao.maps.Size(51, 60))
 
         var marker = new kakao.maps.Marker({
             position: new kakao.maps.LatLng(endStore.mapy,endStore.mapx),
+            zIndex: 4,
             image: icon
         });
 
@@ -419,7 +418,7 @@ export default function TopSearchMenu(){
                 var newY = (parseFloat(sy)+parseFloat(ey))/2
                 var newX = (parseFloat(ex)+parseFloat(ex))/2
 
-                fetch(`/tourApi/locationBasedList1?serviceKey=${process.env.TOUR_API_ECD_KEY}&numOfRows=15&pageNo=1&MobileOS=ETC&MobileApp=Aeum&mapX=${newX}&mapY=${newY}&radius=1000&_type=json&listYN=Y&arrange=A`)
+                fetch(`/tourApi/locationBasedList1?serviceKey=${process.env.TOUR_API_ECD_KEY}&numOfRows=10&pageNo=1&MobileOS=ETC&MobileApp=Aeum&mapX=${newX}&mapY=${newY}&radius=1000&_type=json&listYN=Y&arrange=A`)
                     .then(function(response){
                         return response.json()
                     }).then(async function(data) {
@@ -429,17 +428,38 @@ export default function TopSearchMenu(){
                         setLoading(false);
                         return;
                     }
+                    var count = {
+                        "12":0,
+                        "14":0,
+                        "15":0,
+                        "25":0,
+                        "28":0,
+                        "32":0,
+                        "38":0,
+                        "39":0,
+                    }
 
-                    var datas = data.response.body.items.item
+                    var tempData = data.response.body.items.item
 
-                    for(var i =0, max=datas.length; i<max; i++){
-                        if(!datas[i].firstimage){
-                            datas[i].firstimage = '/noimage.png'
+                    var datas = [];
+
+
+                    for(var i =0, max=tempData.length; i<max; i++){
+                        if(count[`${tempData[i].contenttypeid}`] < 10){
+                            if(startStore.contentid !==tempData[i].contentid && endStore.contentid!==tempData[i].contentid){
+                                datas.push(tempData[i])
+                                count[`${tempData[i].contenttypeid}`]++;
+                            }
                         }
-                        if(!datas[i].firstimage2){
-                            datas[i].firstimage2 = '/noimage.png'
+                        if(!tempData[i].firstimage){
+                            tempData[i].firstimage = '/noimage.png'
+                        }
+                        if(!tempData[i].firstimage2){
+                            tempData[i].firstimage2 = '/noimage.png'
                         }
                     }
+                    console.log(count)
+                    console.log(datas)
 
                     setAssistStore(datas);
 
@@ -475,6 +495,7 @@ export default function TopSearchMenu(){
                             e.parentElement.previousSibling.style.display = "none";
                             e.parentElement.parentElement.style.border = "0px";
                             e.parentElement.parentElement.style.background = "unset";
+                            e.parentElement.parentElement.style.pointerEvents = "none";
                         });
 
                         markerList.push(marker);
@@ -643,8 +664,69 @@ export default function TopSearchMenu(){
             .then(response => console.log(response))
             .catch(err => console.error(err));
     }
+    const deleteRoute = (spot) =>{
+        let tempList = []
+        tempList = [...assistAddStore];
+        tempList = tempList.filter(function(data) {
+            return data.contentid !== spot.contentid;
+        });
+        setAssistAddStore([...tempList])
+    }
     return(
         <>
+            {
+                bottomMenuStatus==='assist'?
+                    <div className={`${styles.startEndBox} }`} style={`${bottomMenuStatus==='assist'}`?{marginBottom:' -35px', height: '155px', borderBottomRightRadius : '25px',borderBottomLeftRadius : '25px'}:{}}>
+                        <HiX
+                            onClick={()=>resetStartEnd()}
+                            className={styles.exitBtn}/>
+                        <MdOutlineRoute
+                            className={styles.assistRouteBtn}/>
+                        <input
+                            onClick={setSearchStatus}
+                            onKeyDown={(e)=>{
+                                if(e.target.value=='') setBottomMenuStatus('search')
+                                if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
+                                    searchWordFunc()
+                                }
+                            }
+
+                            }
+                            value={bottomMenuStatus==='assist'?startStore?.title:''}
+                            disabled={bottomMenuStatus==='assist'?true:false}
+                            onChange={(e)=>{startStr(e.target.value)}}
+                            placeholder={'출발지를 선택해 주세요.'}
+                            ref={spRef}
+                            className={styles.startItem}/>
+                        <div className={styles.assistRouteListDiv}>
+                            <ul className={styles.assistRouteList}>
+                                {
+                                    assistAddStore?
+                                    assistAddStore.map((store,idx)=>{
+                                        return (<li key={idx} className={styles.assistRouteStore} onClick={()=>{deleteRoute(store)}}><span>{store.title}</span></li>)
+                                    })
+                                    :<></>
+                                }
+                            </ul>
+                        </div>
+                        <input
+                            onClick={setSearchStatus}
+                            onKeyDown={(e)=>{
+                                if(e.target.value=='') setBottomMenuStatus('search')
+                                if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
+                                    searchWordFunc()
+                                }
+                            }
+
+                            }
+                            value={bottomMenuStatus==='assist'?endStore?.title:''}
+                            disabled={bottomMenuStatus==='assist'?true:false}
+                            onChange={(e)=>{endStr(e.target.value)}}
+                            placeholder={'도착지를 선택해 주세요.'}
+                            ref={epRef}
+                            className={styles.endItem}/>
+                    </div>
+            :
             <div style={( endStore || startStore ) ? {} :  {display:'none'}} className={`${styles.startEndBox} }`} >
                 <HiOutlineSwitchVertical
                     onClick={()=>switchStartEnd()}
@@ -655,6 +737,7 @@ export default function TopSearchMenu(){
                 <input
                     onClick={setSearchStatus}
                     onKeyDown={(e)=>{
+                        if(e.target.value=='') setBottomMenuStatus('search')
                         if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
                             searchWordFunc()
                         }
@@ -669,6 +752,7 @@ export default function TopSearchMenu(){
                 <input
                     onClick={setSearchStatus}
                     onKeyDown={(e)=>{
+                        if(e.target.value=='') setBottomMenuStatus('search')
                         if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
                             searchWordFunc()
                         }
@@ -692,7 +776,7 @@ export default function TopSearchMenu(){
                     취소
                 </button>
             </div>
-
+        }
                     <div style={( endStore || startStore ) ? {display:'none'}:{}} className={styles.searchBox}>
                 <AiOutlineSearch className={styles.searchBtn}  onClick={()=>{searchWordFunc()}}/>
                 <AiOutlineLeft style={(String(bottomMenuStatus).includes('search'))?'':{display:'none'}} className={styles.flexBtn}
@@ -706,7 +790,7 @@ export default function TopSearchMenu(){
                         className={styles.flexItem}
                             className={!(String(bottomMenuStatus).includes('search'))?`${styles.flexItem}`: `${styles.flexItemActive}`}
                            onKeyDown={(e)=>{
-                               // if(e.target.value!=='' && ) setBottomMenuStatus('search')
+                               if(e.target.value=='') setBottomMenuStatus('search')
 
                                if(e.code==='Enter'  || e.code==="NumpadEnter" ||e.keyCode===13 ){
                                    searchWordFunc()
