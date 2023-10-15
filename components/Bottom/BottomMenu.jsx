@@ -26,6 +26,7 @@ export default function BottomMenu(){
 
 
     const setExpanded =async ()=>{
+
         if(bottomMenuStatus==='open'){
             setBottomMenuStatus('default')
         }else if(bottomMenuStatus==='detail'){

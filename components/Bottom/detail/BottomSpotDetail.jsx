@@ -95,7 +95,7 @@ export default function BottomSpotDetail(){
                     if(!choseFlag){
                         var mk = new kakao.maps.Marker({
                             position: new kakao.maps.LatLng(choseStore.mapy,choseStore.mapx),
-                            map:map
+                            map:map,
                         });
                         setSearchMarker(mk);
                     }
@@ -113,7 +113,40 @@ export default function BottomSpotDetail(){
         }))
 
     },[choseStore,map])
-
+    const typeIcons = (id) =>{
+        var loc = '';
+        // 12:관광지(tours), 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 32:숙박, 38:쇼핑, 39:음식점
+        switch(String(id)){
+            case '12':
+                loc = '/icons/tours.png'
+                break;
+            case '14':
+                loc = '/icons/astrology.png'
+                break;
+            case '15':
+                loc = '/icons/concerts.png'
+                break;
+            case '25':
+                loc = '/icons/automotive.png'
+                break;
+            case '28':
+                loc = '/icons/sporting-goods.png'
+                break;
+            case '32':
+                loc = '/icons/hotels.png'
+                break;
+            case '38':
+                loc = '/icons/shopping.png'
+                break;
+            case '39':
+                loc = '/icons/food.png'
+                break;
+        }
+        var icon=  new kakao.maps.MarkerImage(
+            loc,
+            new kakao.maps.Size(31, 40));
+        return icon
+    }
     const setStartPoint = (data)=>{
         setStartStore(data)
     }

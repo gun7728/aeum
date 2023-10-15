@@ -11,6 +11,9 @@ import useAlert from "@/hooks/useAlert";
 import useMap from "@/hooks/useMap";
 import {calculateDistance} from "@/components/commom";
 import {BiBus, BiCableCar, BiWalk, BsThreeDots, BsThreeDotsVertical} from "react-icons/all";
+import useMenu from "@/hooks/useMenu";
+import process from "next/dist/build/webpack/loaders/resolve-url-loader/lib/postcss";
+import useLoading from "@/hooks/useLoading";
 
 export default function BottomSearchList(){
     const {data:stores} = useSWR('/stores')
@@ -30,6 +33,8 @@ export default function BottomSearchList(){
 
     const {data:assistAddStore} = useSWR('/stores/assist/add')
 
+    const {setLoading} = useLoading()
+    const {setBottomMenuStatus} = useMenu()
     const { setChoseStore,setAssistFilteredStoreMarker, setAssistAddStore } = useStores()
     const {setStartStore, setEndStore } = useMap()
     const {setListOpen} = useList()
@@ -70,8 +75,17 @@ export default function BottomSearchList(){
     },[searchWord,assistOption,assistStore])
 
     const goToDetail =(e)=>{
-        setListOpen(false)
-        setChoseStore(e)
+        setLoading(true);
+        // fetch(`/tourApi/areaBasedSyncList1?serviceKey=${process.env.TOUR_API_ECD_KEY}&numOfRows=20000&pageNo=1&MobileOS=ETC&MobileApp=Aeum&_type=json&showflag=1&listYN=Y&arrange=A&contentTypeId=12`)
+        fetch(`/tourApi/detailCommon1?serviceKey=${process.env.TOUR_API_ECD_KEY}&MobileOS=ETC&MobileApp=Aeum&_type=json&contentId=${e.contentid}&defaultYN=Y&firstImageYN=Y&areacodeYN=Y&catcodeYN=Y&addrinfoYN=Y&mapinfoYN=Y&overviewYN=Y&numOfRows=10&pageNo=1`)
+            .then(function(response){
+                return response.json()
+            }).then(function(data) {
+            var datas = data.response.body.items.item[0]
+
+            setChoseStore(datas)
+            setBottomMenuStatus('detail')
+        });
     }
 
     const copyUrl = (id)=>{
