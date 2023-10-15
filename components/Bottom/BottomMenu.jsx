@@ -52,7 +52,7 @@ export default function BottomMenu(){
                 }
 
                 {
-                    (bottomMenuStatus==='search' || bottomMenuStatus==='searchResult' || bottomMenuStatus==='assist' )?
+                    (bottomMenuStatus==='search' || bottomMenuStatus==='searchResult' || bottomMenuStatus==='assist' || bottomMenuStatus==='assistRoute')?
                         <BottomSearchSection/>
                 :
                     <div className={styles.header}>

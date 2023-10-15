@@ -96,7 +96,7 @@ export default function BottomSearchSection() {
         <div style={( startStore || endStore ) ?(String(bottomMenuStatus).includes('search')?{}:( bottomMenuStatus==='assist'?{}:{top:'40px'})):{}}
             className={`${bottomMenuStatus==='assist'? styles.assistSection : styles.searchSection}`}>
             {
-                (bottomMenuStatus!=='searchResult' &&  bottomMenuStatus!=='assist')
+                (bottomMenuStatus!=='searchResult' &&  bottomMenuStatus!=='assist' && bottomMenuStatus!=='assistRoute')
                 ?
                 <div className={styles.searchHeader}>
                     <span>최근 검색</span><span className={styles.allDeleteBtn} onClick={handleClearKeywords}>전체삭제</span>
@@ -122,7 +122,7 @@ export default function BottomSearchSection() {
             }
             <br/>
             {
-                (bottomMenuStatus==='searchResult' || bottomMenuStatus==='assist')
+                (bottomMenuStatus==='searchResult' || bottomMenuStatus==='assist' || bottomMenuStatus==='assistRoute')
                     ?
                     <BottomSearchList/>
                     :

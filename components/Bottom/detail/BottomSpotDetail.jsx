@@ -44,13 +44,13 @@ export default function BottomSpotDetail(){
 
         return newText;
     }
-    const copyUrl = (id)=>{
+    const copyData = (info,type)=>{
         setAlertStart(true)
-        setAlertMsg('URL이 복사되었습니다.')
+        setAlertMsg(type==='id'?'URL이 복사되었습니다.':<span>전화번호가 복사되었습니다.<br/>{info}</span>)
         var url = window.location.href
 
         navigator.clipboard
-            .writeText(url+'share/'+id)
+            .writeText(type==='id'?url+'share/'+info:info)
             .then(() => {
                 setTimeout(()=>{
                     setAlertStart(false)
@@ -138,8 +138,15 @@ export default function BottomSpotDetail(){
                         </div>
                         <div className={styles.detailBtnSection}>
                             <div style={{float:"left"}}>
-                                <CgPhone className={styles.detailIconBtn}/>
-                                {/*<RiShareForward2Fill className={styles.detailIconBtn} onClick={()=>copyUrl(choseStore.contentid)}/>*/}
+                                {
+                                    choseStore.tel?
+                                    <>
+                                        <CgPhone className={styles.detailIconBtn} onClick={()=>copyData(choseStore.tel,'tel')}/><span style={{position: 'absolute',paddingTop:' 5px'}}>{choseStore.tel}</span>
+                                    </>
+                                    :
+                                    <><span style={{position: 'absolute',paddingTop:' 5px'}}>전화 번호 정보가 없습니다.</span></>
+                                }
+                                {/*<RiShareForward2Fill className={styles.detailIconBtn} onClick={()=>copyData(choseStore.contentid,'id')}/>*/}
                             </div>
                             <div style={{float:"right"}}>
                                 <button className={styles.detailBtn} onClick={()=>setStartPoint(choseStore)}><span style={{color:"gray"}}>출발</span></button>

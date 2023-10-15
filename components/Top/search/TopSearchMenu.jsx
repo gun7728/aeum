@@ -13,6 +13,7 @@ import useMap from "@/hooks/useMap";
 import useMenu from "@/hooks/useMenu";
 import useLoading from "@/hooks/useLoading";
 import {TbRoute} from "react-icons/tb"
+import {calculateDistance, getBoundingBoxCoordinates, isCoordinateInsideBoundingBox} from "@/components/commom"
 
 
 export default function TopSearchMenu(){
@@ -33,6 +34,7 @@ export default function TopSearchMenu(){
     const {data:map} = useSWR('/map')
     const {data:assistAddStore} = useSWR('/stores/assist/add')
 
+    const { data:stores } = useSWR('/stores');
     const {data:searchStart} = useSWR('/search');
     const {data:searchWord} = useSWR('/search/word');
     const {data:startStore} = useSWR('/map/start')
@@ -46,12 +48,15 @@ export default function TopSearchMenu(){
     const inputRef = useRef();
     const spRef = useRef();
     const epRef = useRef();
+    const spRouteRef = useRef();
+    const epRouteRef = useRef();
     const [startMarker, setStartMarker] = useState();
     const [endMarker, setEndMarker] = useState();
     const [assistMarker, setAssistMarker] = useState([])
     const [assistMarkerNames, setAssistMarkerNames] = useState([])
     const [startFlag, setStartFlag] = useState(true);
-    const [routeList, setRouteList] = useState();
+    const [defaultRouteList, setDefaultRouteList] = useState();
+    const [walkingRouteList, setWalkingRouteList] = useState();
 
     const [originSM, setOriginSM] = useState();
     const [originSMN, setOriginSMN] = useState();
@@ -64,6 +69,7 @@ export default function TopSearchMenu(){
             setBottomMenuStatus('searchResult')
         }
     })
+
     useEffect(()=>{
         if(searchWord !=='' && searchStart){
             inputRef.current.value=searchWord
@@ -83,7 +89,7 @@ export default function TopSearchMenu(){
             spRef.current.focus();
         }
         if(startStore && endStore){
-            googlePath(map, startStore.mapy, startStore.mapx, endStore.mapy, endStore.mapx)
+            setRouteNearStore(map, startStore.mapy, startStore.mapx, endStore.mapy, endStore.mapx)
         }
     },[startStore,endStore])
 
@@ -177,8 +183,6 @@ export default function TopSearchMenu(){
         setAssistOption([12,14,15,25,28,32,38,39])
         setAssistAddStore([]);
 
-        spRef.current.value = null
-        epRef.current.value = null
         inputRef.current.value = null
     }
 
@@ -275,10 +279,6 @@ export default function TopSearchMenu(){
         setListReOpen(false)
     }
 
-    const startPath = () => {
-        if(!startFlag) return;
-
-    }
 
     function decodePolyline(encoded) {
         if (!encoded) {
@@ -321,209 +321,236 @@ export default function TopSearchMenu(){
         return poly;
     }
 
-    function tMapRoad(sx, sy, ex, ey){
-        return new Promise((resolve, reject)=>{
-            var xhr = new XMLHttpRequest();
-            var url =  `https://apis.openapi.sk.com/tmap/routes/pedestrian?version=1&format=json&callback=result&startX=${sx}&startY=${sy}&endX=${ex}&endY=${ey}&reqCoordType=WGS84GEO&startName=출발지&endName=도착지&appKey=${process.env.TMAP_KEY}`
-            xhr.open("GET", url, true);
-            xhr.send()
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    var resultJsonData = JSON.parse(xhr.responseText);
-
-                    resolve(resultJsonData);
-                }
-            }
+    async function tMapRoad(sx, sy, ex, ey) {
+        await fetch(`https://apis.openapi.sk.com/tmap/routes/pedestrian?version=1&format=json&callback=result&startX=${sx}&startY=${sy}&endX=${ex}&endY=${ey}&reqCoordType=WGS84GEO&startName=출발지&endName=도착지&appKey=${process.env.TMAP_KEY}`)
+            .then(function (response) {
+                return response.json()
+            }).then(function (data) {
+                return data;
         })
+        //
+        // return new Promise((resolve, reject)=>{
+        //     var xhr = new XMLHttpRequest();
+        //     var url =
+        //     xhr.open("GET", url, true);
+        //     xhr.send()
+        //     xhr.onreadystatechange = function () {
+        //         if (xhr.readyState == 4 && xhr.status == 200) {
+        //             var resultJsonData = JSON.parse(xhr.responseText);
+        //
+        //             resolve(resultJsonData);
+        //         }
+        //     }
+        // })
     }
 
 
-    function googlePath(map, sy, sx, ey, ex){
-        setLoading(true);
-        setBottomMenuStatus('assist')
-        var xhr = new XMLHttpRequest();
-        var url = `/googleApi/json?origin=${sy}%2C${sx}&destination=${ey}%2C${ex}&mode=transit&key=${process.env.GOOGLE_KEY}`;
-        xhr.open("GET", url, true);
-        xhr.send();
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                var resultJsonData = JSON.parse(xhr.responseText).routes;
+    async function routeWithAssist(){
+        if(assistAddStore){
+            var routeList = [];
+            var routeTempList = [];
+            var tempList = [...assistAddStore];
+            if(tempList.length>0) {
+                tempList.map((store) => {
+                    store.dis = calculateDistance(parseFloat(startStore.mapy), parseFloat(startStore.mapx), parseFloat(store.mapy), parseFloat(store.mapx))
+                })
+                tempList.sort((a, b) => a.dis - b.dis)
 
-                if(resultJsonData.length===0){
-                    alert('해당 경로를 찾을 수 없습니다.')
-                    setLoading(false);
-                    return;
+            }
+            const func = async () => {
+                for (let i = 0, max = assistAddStore.length; i <= max; i++) {
+                    var url = ''
+                    if(assistAddStore.length==0){
+                        url = `/googleApi/json?origin=${startStore.mapy}%2C${startStore.mapx}&destination=${endStore.mapy}%2C${endStore.mapx}&mode=transit&key=${process.env.GOOGLE_KEY}`;
+                    }else{
+                        if (i == 0) {
+                            url = `/googleApi/json?origin=${startStore.mapy}%2C${startStore.mapx}&destination=${assistAddStore[i].mapy}%2C${assistAddStore[i].mapx}&mode=transit&key=${process.env.GOOGLE_KEY}`;
+                        } else if (i == max) {
+                            url = `/googleApi/json?origin=${assistAddStore[i - 1].mapy}%2C${assistAddStore[i - 1].mapx}&destination=${endStore.mapy}%2C${endStore.mapx}&mode=transit&key=${process.env.GOOGLE_KEY}`;
+                        } else {
+                            url = `/googleApi/json?origin=${assistAddStore[i - 1].mapy}%2C${assistAddStore[i - 1].mapx}&destination=${assistAddStore[i].mapy}%2C${assistAddStore[i].mapx}&mode=transit&key=${process.env.GOOGLE_KEY}`;
+                        }
+                    }
+
+                    await fetch(url)
+                        .then(function (response) {
+                            return response.json()
+                        }).then(function (data) {
+                            data.routes[0].legs[0].steps.map((step) => {
+                                routeTempList.push(step)
+                            })
+                        })
                 }
-                var route = resultJsonData[0].legs[0];
-                var kakaoRouteList = [];
+            }
+            await func()
 
-                route.steps.map(async (step) => {
-                    var color = '#111111'
+            console.log(routeTempList)
 
-                    var lineAr = [];
-                    if (step.travel_mode === 'TRANSIT') {
-                        color = step.transit_details.line.color
+            routeList = await stepCal(routeTempList)
 
+            setDefaultRouteList(routeList)
+            drawLine(routeList)
+            setBottomMenuStatus('assistRoute')
+            // var route = resultJsonData[0].legs[0];
+        }
+    }
 
+    async function stepCal(route){
+        var tempList = [];
+
+        async function getRoute() {
+            await Promise.all(route.map(async (step) => {
+                var color = '#111111'
+                var lineAr = [];
+
+                if (step.travel_mode === 'TRANSIT') {
+                    color = step.transit_details.line.color
+                    var lines = decodePolyline(step.polyline.points)
+                    lines.map((line) => {
+                        lineAr.push(new kakao.maps.LatLng(line.y, line.x))
+                    })
+                } else if (step.travel_mode === 'WALKING') {
+                    if (checkInsideKorea({lat: step.start_location.lat, lng: step.start_location.lng})) {
+                        // var roadData =  await tMapRoad(step.start_location.lng, step.start_location.lat, step.end_location.lng, step.end_location.lat)
+
+                        var roadData;
+                        await fetch(`https://apis.openapi.sk.com/tmap/routes/pedestrian?version=1&format=json&callback=result&startX=${step.start_location.lng}&startY=${step.start_location.lat}&endX=${step.end_location.lng}&endY=${step.end_location.lat}&reqCoordType=WGS84GEO&startName=출발지&endName=도착지&appKey=${process.env.TMAP_KEY}`)
+                            .then(function (response) {
+                                return response.json()
+                            }).then(function (data) {
+                                roadData = data;
+                            })
+
+                        roadData.features.map((feat) => {
+                            if (typeof feat.geometry.coordinates[0] === "number") {
+                                lineAr.push(new kakao.maps.LatLng(feat.geometry.coordinates[1], feat.geometry.coordinates[0]))
+                            } else {
+                                feat.geometry.coordinates.map((coor) => {
+                                    lineAr.push(new kakao.maps.LatLng(coor[1], coor[0]))
+                                })
+                            }
+                        })
+                    } else {
+                        step.steps.map((st) => {
+
+                            var lines = decodePolyline((st.polyline.points).toString())
+                            lines.map((line) => {
+                                lineAr.push(new kakao.maps.LatLng(line.y, line.x))
+                            })
+                        })
                         var lines = decodePolyline(step.polyline.points)
                         lines.map((line) => {
                             lineAr.push(new kakao.maps.LatLng(line.y, line.x))
                         })
-
-                    } else if (step.travel_mode === 'WALKING') {
-
-                        if(checkInsideKorea({lat:step.start_location.lat,lng:step.start_location.lng})){
-                            var roadData =  await tMapRoad(step.start_location.lng, step.start_location.lat, step.end_location.lng, step.end_location.lat)
-
-                            roadData.features.map((feat)=>{
-                                if(typeof feat.geometry.coordinates[0] === "number"){
-                                    lineAr.push(new kakao.maps.LatLng(feat.geometry.coordinates[1],feat.geometry.coordinates[0]))
-                                }else{
-                                    feat.geometry.coordinates.map((coor)=>{
-                                        lineAr.push(new kakao.maps.LatLng(coor[1],coor[0]))
-                                    })
-                                }
-                            })
-                        }else{
-                            step.steps.map((st)=>{
-
-                                var lines =  decodePolyline((st.polyline.points).toString())
-                                lines.map((line)=>{
-                                    lineAr.push(new kakao.maps.LatLng(line.y, line.x))
-                                })
-                            })
-                            var lines =  decodePolyline(step.polyline.points)
-                            lines.map((line)=>{
-                                lineAr.push(new kakao.maps.LatLng(line.y, line.x))
-                            })
-                        }
                     }
-                    var kakaoRoute = {
-                        map: map,
-                        path: lineAr,
-                        strokeWeight: 5,
-                        strokeColor: color
-                    }
-                    kakaoRouteList.push(kakaoRoute)
-                })
-
-                setRouteList(kakaoRouteList)
-
-                var points = [
-                    new kakao.maps.LatLng(sy, sx),
-                    new kakao.maps.LatLng(ey, ex)
-                ];
-
-                var bounds = new kakao.maps.LatLngBounds();
-                var newY = (parseFloat(sy)+parseFloat(ey))/2
-                var newX = (parseFloat(ex)+parseFloat(ex))/2
-
-                fetch(`/tourApi/locationBasedList1?serviceKey=${process.env.TOUR_API_ECD_KEY}&numOfRows=10&pageNo=1&MobileOS=ETC&MobileApp=Aeum&mapX=${newX}&mapY=${newY}&radius=1000&_type=json&listYN=Y&arrange=A`)
-                    .then(function(response){
-                        return response.json()
-                    }).then(async function(data) {
-
-                    if(data.response.body.items.length<=0){
-                        alert('해당 경로상의 관광지를 추천할 수 없습니다.')
-                        setLoading(false);
-                        return;
-                    }
-                    var count = {
-                        "12":0,
-                        "14":0,
-                        "15":0,
-                        "25":0,
-                        "28":0,
-                        "32":0,
-                        "38":0,
-                        "39":0,
-                    }
-
-                    var tempData = data.response.body.items.item
-
-                    var datas = [];
-
-
-                    for(var i =0, max=tempData.length; i<max; i++){
-                        if(count[`${tempData[i].contenttypeid}`] < 10){
-                            if(startStore.contentid !==tempData[i].contentid && endStore.contentid!==tempData[i].contentid){
-                                datas.push(tempData[i])
-                                count[`${tempData[i].contenttypeid}`]++;
-                            }
-                        }
-                        if(!tempData[i].firstimage){
-                            tempData[i].firstimage = '/noimage.png'
-                        }
-                        if(!tempData[i].firstimage2){
-                            tempData[i].firstimage2 = '/noimage.png'
-                        }
-                    }
-                    console.log(count)
-                    console.log(datas)
-
-                    setAssistStore(datas);
-
-                    var markerList = [];
-                    var markerNameList = [];
-                    datas.forEach((dt)=>{
-
-                        var icon = typeIcons(dt.contenttypeid)
-
-                        var marker = new kakao.maps.Marker({
-                            position: new kakao.maps.LatLng(dt.mapy,dt.mapx),
-                            image: icon
-                        });
-
-
-                        var content = '<span class="info-title">'+dt.title+'</span>'
-
-                        // 인포윈도우로 장소에 대한 설명을 표시합니다
-                        var infoWindow = new kakao.maps.InfoWindow({
-                            content: content,
-                        });
-
-                        infoWindow.open(map, marker);
-
-                        var infoTitle = document.querySelectorAll('.info-title');
-                        infoTitle.forEach(function(e) {
-                            var w = e.offsetWidth + 10;
-                            var ml = w/2;
-                            e.parentElement.style.top = "82px";
-                            e.parentElement.style.left = "50%";
-                            e.parentElement.style.marginLeft = -ml+"px";
-                            e.parentElement.style.width = "auto";
-                            e.parentElement.previousSibling.style.display = "none";
-                            e.parentElement.parentElement.style.border = "0px";
-                            e.parentElement.parentElement.style.background = "unset";
-                            e.parentElement.parentElement.style.pointerEvents = "none";
-                        });
-
-                        markerList.push(marker);
-                        markerNameList.push(infoWindow);
-
-                    })
-                    setAssistMarker(markerList)
-                    setAssistMarkerNames(markerNameList)
-
-                    markerList.forEach((mk)=>{
-                        mk.setMap(map)
-                    })
-                    markerNameList.forEach((mn)=>{
-                        mn.setMap(map)
-                    })
-
-                });
-
-
-                for (var i = 0; i < points.length; i++) {
-                    bounds.extend(points[i]);
                 }
-
-                setLoading(false);
-                map.setBounds(bounds);
-            }
+                var kakaoRoute = {
+                    map: map,
+                    path: lineAr,
+                    strokeWeight: 5,
+                    strokeColor: color
+                }
+                tempList.push(kakaoRoute)
+            }))
         }
+        await getRoute();
+        return tempList
     }
+    function setRouteNearStore(map, sy, sx, ey, ex){
+        setLoading(true);
+        setBottomMenuStatus('assist')
+        var points = [
+            new kakao.maps.LatLng(sy, sx),
+            new kakao.maps.LatLng(ey, ex)
+        ];
+
+        var bounds = new kakao.maps.LatLngBounds();
+
+        var boundingBox = getBoundingBoxCoordinates(ey,ex,sy,sx)
+
+        var datas = [];
+
+        var count = {
+            "12":0,
+            "14":0,
+            "15":0,
+            "25":0,
+            "28":0,
+            "32":0,
+            "38":0,
+            "39":0,
+        }
+
+        stores.map((e)=>{
+            var coordinateToCheck = { lat: (e.mapy), lon: (e.mapx) };
+
+            if (isCoordinateInsideBoundingBox(coordinateToCheck, boundingBox)) {
+                if (count[`${e.contenttypeid}`] < 10) {
+                    if (startStore.contentid !== e.contentid && endStore.contentid !== e.contentid) {
+                        datas.push(e)
+                        count[`${e.contenttypeid}`]++;
+                    }
+                }
+            }
+        })
+
+
+
+
+        var markerList = [];
+        var markerNameList = [];
+        datas.forEach((dt)=>{
+            var icon = typeIcons(dt.contenttypeid)
+            var marker = new kakao.maps.Marker({
+                position: new kakao.maps.LatLng(dt.mapy,dt.mapx),
+                image: icon
+            });
+            var content = '<span class="info-title">'+dt.title+'</span>'
+            // 인포윈도우로 장소에 대한 설명을 표시합니다
+            var infoWindow = new kakao.maps.InfoWindow({
+                content: content,
+            });
+            infoWindow.open(map, marker);
+            var infoTitle = document.querySelectorAll('.info-title');
+            infoTitle.forEach(function(e) {
+                var w = e.offsetWidth + 10;
+                var ml = w/2;
+                e.parentElement.style.top = "82px";
+                e.parentElement.style.left = "50%";
+                e.parentElement.style.marginLeft = -ml+"px";
+                e.parentElement.style.width = "auto";
+                e.parentElement.previousSibling.style.display = "none";
+                e.parentElement.parentElement.style.border = "0px";
+                e.parentElement.parentElement.style.background = "unset";
+                e.parentElement.parentElement.style.pointerEvents = "none";
+            });
+            markerList.push(marker);
+            markerNameList.push(infoWindow);
+        })
+        setAssistMarker(markerList)
+        setAssistMarkerNames(markerNameList)
+        markerList.forEach((mk)=>{
+            mk.setMap(map)
+        })
+        markerNameList.forEach((mn)=>{
+            mn.setMap(map)
+        })
+
+        setAssistStore(datas);
+
+        for (var i = 0; i < points.length; i++) {
+            bounds.extend(points[i]);
+        }
+
+        setLoading(false);
+        map.setBounds(bounds);
+    }
+    useEffect(()=>{
+        if(bottomMenuStatus==='assist') {
+            spRouteRef.current.value=startStore.title
+            epRouteRef.current.value=endStore.title
+        }
+    },[bottomMenuStatus])
 
     useEffect(()=>{
         var tempMk = [];
@@ -590,9 +617,9 @@ export default function TopSearchMenu(){
         return icon
     }
 
-    function drawLine(){
+    function drawLine(routes){
         var getRouteList = [];
-        routeList.forEach((e)=> {
+        routes?.forEach((e)=> {
             var getRoute = new kakao.maps.Polyline(e);
             getRouteList.push(getRoute)
         });
@@ -675,12 +702,19 @@ export default function TopSearchMenu(){
     return(
         <>
             {
-                bottomMenuStatus==='assist'?
-                    <div className={`${styles.startEndBox} }`} style={`${bottomMenuStatus==='assist'}`?{marginBottom:' -35px', height: '155px', borderBottomRightRadius : '25px',borderBottomLeftRadius : '25px'}:{}}>
+                (String(bottomMenuStatus)?.includes('assist'))?
+                    <div   className={`${styles.startEndBox} 
+                            ${(bottomMenuStatus==='assist' ? styles.assistBox : '' )}
+                            ${(bottomMenuStatus==='assistRoute' ? styles.assistRouteBox : '' )}`}
+                    >
+                        {
+                            bottomMenuStatus==='assist'?
+                                <>
                         <HiX
                             onClick={()=>resetStartEnd()}
                             className={styles.exitBtn}/>
                         <TbRoute
+                            onClick={()=>routeWithAssist()}
                             className={styles.assistRouteBtn}/>
                         <input
                             onClick={setSearchStatus}
@@ -692,11 +726,10 @@ export default function TopSearchMenu(){
                             }
 
                             }
-                            value={bottomMenuStatus==='assist'?startStore?.title:''}
                             disabled={bottomMenuStatus==='assist'?true:false}
                             onChange={(e)=>{startStr(e.target.value)}}
                             placeholder={'출발지를 선택해 주세요.'}
-                            ref={spRef}
+                            ref={spRouteRef}
                             className={styles.startItem}/>
                         <div className={styles.assistRouteListDiv}>
                             <ul className={styles.assistRouteList}>
@@ -719,12 +752,20 @@ export default function TopSearchMenu(){
                             }
 
                             }
-                            value={bottomMenuStatus==='assist'?endStore?.title:''}
                             disabled={bottomMenuStatus==='assist'?true:false}
                             onChange={(e)=>{endStr(e.target.value)}}
                             placeholder={'도착지를 선택해 주세요.'}
-                            ref={epRef}
+                            ref={epRouteRef}
                             className={styles.endItem}/>
+                            </>
+                            :
+                            <>
+                                <HiX
+                                    onClick={()=>resetStartEnd()}
+                                    className={styles.routeExitBtn}
+                                />
+                            </>
+                        }
                     </div>
             :
             <div style={( endStore || startStore ) ? {} :  {display:'none'}} className={`${styles.startEndBox} }`} >
@@ -763,18 +804,6 @@ export default function TopSearchMenu(){
                     placeholder={'도착지를 선택해 주세요.'}
                     ref={epRef}
                     className={styles.endItem}/>
-                <button
-                    onClick={()=>{
-                        if(startFlag){
-                            drawLine()
-                        }
-                    }}
-                    className={styles.confirmBtn}>
-                    확인
-                </button>
-                <button className={styles.confirmBtn} onClick={()=>resetStartEnd()}>
-                    취소
-                </button>
             </div>
         }
                     <div style={( endStore || startStore ) ? {display:'none'}:{}} className={styles.searchBox}>

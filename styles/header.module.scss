@@ -93,6 +93,7 @@
   }
 
   .assistRouteStore{
+    font:menu;
     display: inline-block;
     background-color: white;
     border-radius: 10px;
@@ -177,12 +178,29 @@
   }
 }
 
+.assistBox{
+  position: relative;
+  width: 100%;
+  background-color: white;
+  box-shadow: 0 4px 16px 5px rgba(136, 136, 136, 0.3);
+  margin-bottom: -35px;
+  height: 155px !important;
+  border-bottom-right-radius : 25px;
+  border-bottom-left-radius : 25px;
+}
+
+.assistRouteBox{
+  height: 0px !important;
+}
+
+
 .startEndBox {
   height: 120px;
   position: relative;
   width: 100%;
   background-color: white;
   box-shadow: 0 4px 16px 5px rgba(136, 136, 136, 0.3);
+
 
   &.stopOverActive{
     top: 30px;
@@ -279,6 +297,22 @@
     zoom: 2;
     //padding-right: 10px;
   }
+}
+
+.routeExitBtn{
+  color: gray;
+  cursor: pointer;
+  position: absolute;
+  top: -10px;
+  right: 0px;
+  background: none;
+  border: none;
+  text-align: right;
+  //width: 100%;
+  //height: 100%;
+  zoom: 4;
+  padding-top: 7px;
+  //padding-right: 10px;
 }
 
 .confirmBtn{

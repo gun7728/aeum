@@ -9,6 +9,8 @@ import useSearchAction from "@/hooks/useSearchAction";
 import useList from "@/hooks/useList";
 import useAlert from "@/hooks/useAlert";
 import useMap from "@/hooks/useMap";
+import {calculateDistance} from "@/components/commom";
+import {BiBus, BsThreeDots, BsThreeDotsVertical} from "react-icons/all";
 
 export default function BottomSearchList(){
     const {data:stores} = useSWR('/stores')
@@ -86,28 +88,11 @@ export default function BottomSearchList(){
                 alert("something went wrong");
             });
     }
-    const toRadians = (degrees) => {
-        return degrees * (Math.PI / 180);
-    }
 
-    const calculateDistance = (lat1, lon1, lat2, lon2) => {
-        const R = 6371; // 지구의 반지름 (단위: 킬로미터)
-        const dLat = toRadians(lat2 - lat1);
-        const dLon = toRadians(lon2 - lon1);
-
-        const a =
-            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        const distance = R * c; // 두 지점 간의 직선거리 (단위: 킬로미터)
-        return distance;
-    }
 
 
     const setAssist = (spot) => {
+
         let tempList = []
         tempList = [...assistAddStore];
         var flag = false;
@@ -218,6 +203,64 @@ export default function BottomSearchList(){
     return(
         <div className={bottomMenuStatus==='assist'?styles.assistResultSection:styles.searchResultSection} >
             {
+                bottomMenuStatus==='assistRoute'?
+                    <div style={{height:"220px"}}>
+                        <span>버스 58분</span>
+                        <br/>
+                        <div>
+                            <div style={{display:"inline-flex",width:'calc(10% - 1px)',height:'6px', marginRight: '1px', backgroundColor:'gray'}}></div>
+                            <div style={{display:"inline-flex",width:'calc(40% - 1px)',height:'6px', marginRight: '1px', backgroundColor:'blue'}}></div>
+                            <div style={{display:"inline-flex",width:'calc(15% - 1px)',height:'6px', marginRight: '1px', backgroundColor:'gray'}}></div>
+                            <div style={{display:"inline-flex",width:'calc(25% - 1px)',height:'6px', marginRight: '1px', backgroundColor:'green'}}></div>
+                            <div style={{display:"inline-flex",width:'calc(10% - 1px)',height:'6px', marginRight: '1px', backgroundColor:'black'}}></div>
+                        </div>
+                        <div style={{height:'90%', overflowX:"scroll"}}>
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <th><div style={{width: '30px',height: '30px',backgroundColor: 'blue',borderRadius: '25px'}}><BiBus style={{ color: 'white',width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/></div></th>
+                                        <td><span style={{position: 'relative',top: '-9px',left: '10px', fontWeight: 'bold'}}>여의도 순복음 교회</span></td>
+                                    </tr>
+                                    <tr>
+                                        <th><BsThreeDotsVertical style={{width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/></th>
+                                        <td><BiBus style={{color:"blue",width:'20px',aspectRatio:'auto',height: '20px', marginBottom:'5px'}}/> <span style={{position: 'relative',top: '-9px', fontWeight: 'bold'}}>5713</span></td>
+                                    </tr>
+
+
+                                    <tr>
+                                        <th><div div style={{width: '30px',height: '30px',backgroundColor: 'blue',borderRadius: '25px'}}><BiBus style={{ color: 'white',width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/></div></th>
+                                        <td><span style={{position: 'relative',top: '-9px',left: '10px', fontWeight: 'bold'}}>여의도 순복음 교회</span></td>
+                                    </tr>
+                                    <tr>
+                                        <th><BsThreeDotsVertical style={{width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/></th>
+                                        <td><BiBus style={{color:"blue",width:'20px',aspectRatio:'auto',height: '20px', marginBottom:'5px'}}/> <span style={{position: 'relative',top: '-9px', fontWeight: 'bold'}}>5713</span></td>
+                                    </tr>
+
+
+                                    <tr>
+                                        <th><div div style={{width: '30px',height: '30px',backgroundColor: 'green',borderRadius: '25px'}}><BiBus style={{ color: 'white',width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/></div></th>
+                                        <td><span style={{position: 'relative',top: '-9px',left: '10px', fontWeight: 'bold'}}>여의도 순복음 교회</span></td>
+                                    </tr>
+                                    <tr>
+                                        <th><BsThreeDotsVertical style={{width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/></th>
+                                        <td><BiBus style={{color:"green",width:'20px',aspectRatio:'auto',height: '20px', marginBottom:'5px'}}/> <span style={{position: 'relative',top: '-9px', fontWeight: 'bold'}}>5713</span></td>
+                                    </tr>
+
+
+                                    <tr>
+                                        <th><div div style={{width: '30px',height: '30px',backgroundColor: 'blue',borderRadius: '25px'}}><BiBus style={{ color: 'white',width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/></div></th>
+                                        <td><span style={{position: 'relative',top: '-9px',left: '10px', fontWeight: 'bold'}}>여의도 순복음 교회</span></td>
+                                    </tr>
+                                    <tr>
+                                        <th><BsThreeDotsVertical style={{width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/></th>
+                                        <td><BiBus style={{color:"blue",width:'20px',aspectRatio:'auto',height: '20px', marginBottom:'5px'}}/> <span style={{position: 'relative',top: '-9px', fontWeight: 'bold'}}>5713</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                    :
                 results.length>0?
                     results.map((e)=>{
                         return(
@@ -241,6 +284,7 @@ export default function BottomSearchList(){
                                         {
                                             bottomMenuStatus==='assist'?
                                                 <div>
+                                                    <span>출발지로 부터 {parseInt(calculateDistance(parseFloat(startStore?.mapy), parseFloat(startStore?.mapx), parseFloat(e?.mapy), parseFloat(e?.mapx)))}km</span>
                                                     <button className={styles.detailBtn} onClick={()=>setAssist(e)}><span style={{color:"gray"}}>경유</span></button>
                                                 </div>
                                                 :
