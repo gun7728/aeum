@@ -10,7 +10,7 @@ import useList from "@/hooks/useList";
 import useAlert from "@/hooks/useAlert";
 import useMap from "@/hooks/useMap";
 import {calculateDistance} from "@/components/commom";
-import {BiBus, BsThreeDots, BsThreeDotsVertical} from "react-icons/all";
+import {BiBus, BiCableCar, BiWalk, BsThreeDots, BsThreeDotsVertical} from "react-icons/all";
 
 export default function BottomSearchList(){
     const {data:stores} = useSWR('/stores')
@@ -24,6 +24,9 @@ export default function BottomSearchList(){
     const { data:sMarkerName } = useSWR('/map/screen/marker/name')
     const {data:bottomMenuStatus} = useSWR('/bottom/status')
     const {data:assistOption} = useSWR('/assist/option')
+
+    const {data:routeDetail} = useSWR('/route/detail')
+    const {data:routeTotalTime} = useSWR('/route/time')
 
     const {data:assistAddStore} = useSWR('/stores/assist/add')
 
@@ -205,56 +208,68 @@ export default function BottomSearchList(){
             {
                 bottomMenuStatus==='assistRoute'?
                     <div style={{height:"220px"}}>
-                        <span>버스 58분</span>
+                        <span>{parseInt(routeTotalTime/60)}분</span>
                         <br/>
-                        <div>
-                            <div style={{display:"inline-flex",width:'calc(10% - 1px)',height:'6px', marginRight: '1px', backgroundColor:'gray'}}></div>
-                            <div style={{display:"inline-flex",width:'calc(40% - 1px)',height:'6px', marginRight: '1px', backgroundColor:'blue'}}></div>
-                            <div style={{display:"inline-flex",width:'calc(15% - 1px)',height:'6px', marginRight: '1px', backgroundColor:'gray'}}></div>
-                            <div style={{display:"inline-flex",width:'calc(25% - 1px)',height:'6px', marginRight: '1px', backgroundColor:'green'}}></div>
-                            <div style={{display:"inline-flex",width:'calc(10% - 1px)',height:'6px', marginRight: '1px', backgroundColor:'black'}}></div>
+                        <div style={{width:'100%'}}>
+                            {
+                                routeDetail?.map((route,index)=>{
+                                    return (<div style={{display:"inline-flex",width:`${route.percent}%`,height:'6px', backgroundColor:`${route.color?route.color:'gray'}`}} key={index}></div>)
+                                })
+                            }
                         </div>
                         <div style={{height:'90%', overflowX:"scroll"}}>
                             <table>
                                 <tbody>
-                                    <tr>
-                                        <th><div style={{width: '30px',height: '30px',backgroundColor: 'blue',borderRadius: '25px'}}><BiBus style={{ color: 'white',width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/></div></th>
-                                        <td><span style={{position: 'relative',top: '-9px',left: '10px', fontWeight: 'bold'}}>여의도 순복음 교회</span></td>
-                                    </tr>
-                                    <tr>
-                                        <th><BsThreeDotsVertical style={{width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/></th>
-                                        <td><BiBus style={{color:"blue",width:'20px',aspectRatio:'auto',height: '20px', marginBottom:'5px'}}/> <span style={{position: 'relative',top: '-9px', fontWeight: 'bold'}}>5713</span></td>
-                                    </tr>
+
+                                    {
+                                        routeDetail?.map((route,index)=>{
+                                            return (
+                                                <>
+                                                    <tr key={Math.random()}>
+                                                        <th  key={Math.random()} >
+                                                            <div   key={Math.random()} style={{width: '30px',height: '30px',backgroundColor: `${route.color?route.color:'gray'}`,borderRadius: '25px'}}>
+                                                                {
+                                                                    route.type==='WALKING'?
+                                                                        <BiWalk style={{ color: 'white',width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/>
+                                                                    :route.type==='BUS'?
+                                                                        <BiBus style={{ color: 'white',width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/>
+                                                                    :route.type==='TRANSIT'?
+                                                                        <BiCableCar style={{ color: 'white',width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/>
+                                                                    :
+                                                                    <></>
+                                                                }
+                                                            </div>
+                                                        </th>
+                                                        <td  key={Math.random()} >
+                                                            <span   key={Math.random()} style={{position: 'relative',top: '-9px',left: '10px', fontWeight: 'bold'}}>{route.type==='WALKING'?((index===routeDetail.length-1)?'도착':route.name):route.name+'출발 - ' + route.arrival + '도착'}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr key={Math.random()}>
+                                                        <th key={Math.random()} >
+                                                            <BsThreeDotsVertical style={{width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/>
+                                                        </th>
+                                                        <td key={Math.random()} >
+                                                            {
+                                                                route.type==='WALKING'?
+                                                                    <BiWalk style={{color:`${route.color?route.color:'gray'}`,width:'20px',aspectRatio:'auto',height: '20px', marginBottom:'5px'}}/>
+                                                                :route.type==='BUS'?
+                                                                    <BiBus style={{color:`${route.color?route.color:'gray'}`,width:'20px',aspectRatio:'auto',height: '20px', marginBottom:'5px'}}/>
+                                                                :route.type==='TRANSIT'?
+                                                                    <BiCableCar style={{color:`${route.color?route.color:'gray'}`,width:'20px',aspectRatio:'auto',height: '20px', marginBottom:'5px'}}/>
+                                                                    :
+                                                                <></>
+                                                            }
+                                                            <span key={Math.random()}  style={{position: 'relative',top: '-9px', fontWeight: 'bold'}}>{route.shortName} </span>
+                                                            <span key={Math.random()}  style={{position: 'relative',top: '-9px', }}>{parseInt(route.time/60)}분</span>
+                                                        </td>
+                                                    </tr>
+                                                </>
+                                            )
+
+                                        })
+                                    }
 
 
-                                    <tr>
-                                        <th><div div style={{width: '30px',height: '30px',backgroundColor: 'blue',borderRadius: '25px'}}><BiBus style={{ color: 'white',width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/></div></th>
-                                        <td><span style={{position: 'relative',top: '-9px',left: '10px', fontWeight: 'bold'}}>여의도 순복음 교회</span></td>
-                                    </tr>
-                                    <tr>
-                                        <th><BsThreeDotsVertical style={{width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/></th>
-                                        <td><BiBus style={{color:"blue",width:'20px',aspectRatio:'auto',height: '20px', marginBottom:'5px'}}/> <span style={{position: 'relative',top: '-9px', fontWeight: 'bold'}}>5713</span></td>
-                                    </tr>
-
-
-                                    <tr>
-                                        <th><div div style={{width: '30px',height: '30px',backgroundColor: 'green',borderRadius: '25px'}}><BiBus style={{ color: 'white',width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/></div></th>
-                                        <td><span style={{position: 'relative',top: '-9px',left: '10px', fontWeight: 'bold'}}>여의도 순복음 교회</span></td>
-                                    </tr>
-                                    <tr>
-                                        <th><BsThreeDotsVertical style={{width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/></th>
-                                        <td><BiBus style={{color:"green",width:'20px',aspectRatio:'auto',height: '20px', marginBottom:'5px'}}/> <span style={{position: 'relative',top: '-9px', fontWeight: 'bold'}}>5713</span></td>
-                                    </tr>
-
-
-                                    <tr>
-                                        <th><div div style={{width: '30px',height: '30px',backgroundColor: 'blue',borderRadius: '25px'}}><BiBus style={{ color: 'white',width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/></div></th>
-                                        <td><span style={{position: 'relative',top: '-9px',left: '10px', fontWeight: 'bold'}}>여의도 순복음 교회</span></td>
-                                    </tr>
-                                    <tr>
-                                        <th><BsThreeDotsVertical style={{width:'30px',aspectRatio:'auto',height: '30px',padding: '2px'}}/></th>
-                                        <td><BiBus style={{color:"blue",width:'20px',aspectRatio:'auto',height: '20px', marginBottom:'5px'}}/> <span style={{position: 'relative',top: '-9px', fontWeight: 'bold'}}>5713</span></td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>

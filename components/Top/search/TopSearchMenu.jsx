@@ -27,7 +27,7 @@ export default function TopSearchMenu(){
     const {setListOpen,setListReOpen} = useList();
     const {setSearchWord, setSearchOpen, setAssistOption} = useSearchAction();
     const {setChoseStore, setAssistStore,setAssistAddStore} = useStores();
-    const {setStartStore, setEndStore, setRoute, resetSelectStore} = useMap();
+    const {setStartStore, setEndStore, setRoute, resetSelectStore, setRouteDetail, setRouteTotalTime} = useMap();
     const {setLoading} = useLoading()
 
 
@@ -55,8 +55,13 @@ export default function TopSearchMenu(){
     const [assistMarker, setAssistMarker] = useState([])
     const [assistMarkerNames, setAssistMarkerNames] = useState([])
     const [startFlag, setStartFlag] = useState(true);
+    const [totalTime, setTotalTime] = useState();
+    const [detailInfo, setDetailInfo] = useState([]);
     const [defaultRouteList, setDefaultRouteList] = useState();
     const [walkingRouteList, setWalkingRouteList] = useState();
+
+    const [assistAddMarker,setAssistAddMarker] = useState([])
+    const [assistAddMarkerNames,setAssistAddMarkerNames] = useState([])
 
     const [originSM, setOriginSM] = useState();
     const [originSMN, setOriginSMN] = useState();
@@ -161,6 +166,16 @@ export default function TopSearchMenu(){
         }
         if(assistMarkerNames.length>0){
             assistMarkerNames.map((amn)=>{
+                amn.setMap(null);
+            })
+        }
+        if(assistAddMarker.length>0){
+            assistAddMarker.map((am)=>{
+                am.setMap(null);
+            })
+        }
+        if(assistAddMarkerNames.length>0){
+            assistAddMarkerNames.map((amn)=>{
                 amn.setMap(null);
             })
         }
@@ -347,8 +362,57 @@ export default function TopSearchMenu(){
 
     async function routeWithAssist(){
         if(assistAddStore){
+
+            setLoading(true);
+            assistMarker?.forEach((mk)=>{mk.setMap(null)})
+            assistMarkerNames?.forEach((mn)=>{mn.setMap(null)})
+
+            var markerList = [];
+            var markerNameList = [];
+
+            assistAddStore.forEach((dt)=>{
+                var icon = typeIcons(dt.contenttypeid)
+                var marker = new kakao.maps.Marker({
+                    position: new kakao.maps.LatLng(dt.mapy,dt.mapx),
+                    image: icon
+                });
+                var content = '<span class="info-title">'+dt.title+'</span>'
+                // 인포윈도우로 장소에 대한 설명을 표시합니다
+                var infoWindow = new kakao.maps.InfoWindow({
+                    content: content,
+                });
+                infoWindow.open(map, marker);
+                var infoTitle = document.querySelectorAll('.info-title');
+                infoTitle.forEach(function(e) {
+                    var w = e.offsetWidth + 10;
+                    var ml = w/2;
+                    e.parentElement.style.top = "82px";
+                    e.parentElement.style.left = "50%";
+                    e.parentElement.style.marginLeft = -ml+"px";
+                    e.parentElement.style.width = "auto";
+                    e.parentElement.previousSibling.style.display = "none";
+                    e.parentElement.parentElement.style.border = "0px";
+                    e.parentElement.parentElement.style.background = "unset";
+                    e.parentElement.parentElement.style.pointerEvents = "none";
+                });
+                markerList.push(marker);
+                markerNameList.push(infoWindow);
+            })
+
+            markerList.forEach((mk)=>{
+                mk.setMap(map)
+            })
+            markerNameList.forEach((mn)=>{
+                mn.setMap(map)
+            })
+
+            setAssistAddMarker(markerList)
+            setAssistAddMarkerNames(markerNameList)
+
             var routeList = [];
             var routeTempList = [];
+            var tempTotalTime = 0;
+            var tempDetail = [];
             var tempList = [...assistAddStore];
             if(tempList.length>0) {
                 tempList.map((store) => {
@@ -377,19 +441,34 @@ export default function TopSearchMenu(){
                             return response.json()
                         }).then(function (data) {
                             data.routes[0].legs[0].steps.map((step) => {
+                                tempDetail.push({
+                                    "type":step.travel_mode,
+                                    "name":step.travel_mode!=='WALKING'?step.transit_details?.departure_stop?.name:step.html_instructions,
+                                    "arrival":step.travel_mode!=='WALKING'?step.transit_details.arrival_stop?.name:'',
+                                    "shortName":step.transit_details?.line?.short_name,
+                                    "color":step.transit_details?.line?.color,
+                                    "vehicle":step.transit_details?.line?.vehicle.name,
+                                    "time":step.duration.value,
+                                })
                                 routeTempList.push(step)
+                                tempTotalTime += step.duration.value;
                             })
                         })
                 }
             }
             await func()
-
-            console.log(routeTempList)
-
             routeList = await stepCal(routeTempList)
 
+            tempDetail.map((detail)=>{
+                detail.percent = Math.floor(parseFloat((parseFloat(detail.time)/tempTotalTime)*100))
+            })
+            setDetailInfo(tempDetail)
+            setRouteDetail(tempDetail);
             setDefaultRouteList(routeList)
+            setTotalTime(tempTotalTime);
+            setRouteTotalTime(tempTotalTime);
             drawLine(routeList)
+            setLoading(false);
             setBottomMenuStatus('assistRoute')
             // var route = resultJsonData[0].legs[0];
         }
