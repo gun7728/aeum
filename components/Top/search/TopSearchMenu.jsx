@@ -85,13 +85,19 @@ export default function TopSearchMenu(){
     useEffect(()=>{
         if(startStore){
             setBottomMenuStatus('search')
-            spRef.current.value = startStore.title
-            epRef.current.focus();
+
+            if(bottomMenuStatus!=='assist'){
+                spRef.current.value = startStore.title
+                epRef.current.focus();
+            }
         }
         if(endStore){
             setBottomMenuStatus('search')
-            epRef.current.value = endStore.title
-            spRef.current.focus();
+
+            if(bottomMenuStatus!=='assist'){
+                epRef.current.value = endStore.title
+                spRef.current.focus();
+            }
         }
         if(startStore && endStore){
             setRouteNearStore(map, startStore.mapy, startStore.mapx, endStore.mapy, endStore.mapx)

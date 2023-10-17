@@ -4,30 +4,23 @@ function getBoundingBoxCoordinates(lat1, lon1, lat2, lon2) {
     var minLon = Math.min(lon1, lon2);
     var maxLon = Math.max(lon1, lon2);
 
-    // Check which point is on the top and bottom
-    var topLeft, topRight, bottomLeft, bottomRight;
-    if (lat1 > lat2) {
-        topLeft = { lat: lat1, lon: lon1 };
-        topRight = { lat: lat1, lon: lon2 };
-        bottomLeft = { lat: lat2, lon: lon1 };
-        bottomRight = { lat: lat2, lon: lon2 };
-    } else {
-        topLeft = { lat: lat2, lon: lon2 };
-        topRight = { lat: lat2, lon: lon1 };
-        bottomLeft = { lat: lat1, lon: lon2 };
-        bottomRight = { lat: lat1, lon: lon1 };
-    }
+    // Calculate all four coordinates of the bounding box
+    var topLeft = { lat: maxLat, lon: minLon };
+    var topRight = { lat: maxLat, lon: maxLon };
+    var bottomLeft = { lat: minLat, lon: minLon };
+    var bottomRight = { lat: minLat, lon: maxLon };
 
+    // Return all four coordinates of the bounding box
     return { topLeft: topLeft, topRight: topRight, bottomLeft: bottomLeft, bottomRight: bottomRight };
 }
 
 function isCoordinateInsideBoundingBox(coordinate, boundingBox) {
-    var lat = parseFloat(coordinate.lat);
-    var lon = parseFloat(coordinate.lon);
+    var lat = coordinate.lat;
+    var lon = coordinate.lon;
     var topLeft = boundingBox.topLeft;
     var bottomRight = boundingBox.bottomRight;
 
-    if (lat <= topLeft.lat && lat >= bottomRight.lat && lon >= topLeft.lon && lon <= bottomRight.lon) {
+    if (parseFloat(lat).toFixed(6) <= parseFloat(topLeft.lat).toFixed(6) && parseFloat(lat).toFixed(6) >= parseFloat(bottomRight.lat).toFixed(6) && parseFloat(lon).toFixed(6) >= parseFloat(topLeft.lon).toFixed(6) && parseFloat(lon).toFixed(6) <= parseFloat(bottomRight.lon).toFixed(6)) {
         return true;
     } else {
         return false;
